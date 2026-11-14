@@ -399,6 +399,49 @@ namespace Eldoria.EditorTools
             return unit;
         }
 
+        /// <summary>
+        /// Olympian Mech (Heavy Support, ISF), the original Eldoria's Stahl Colossus renamed: 1 Olympian Mech (Health 15,
+        /// Armor 3, Accuracy 75%, Move 15 m; Solo, Mechanical; Iron Claw (active: an aimed melee strike) and Stabilizers
+        /// (passive: nullifies Deployed); Machine Gun (primary) and Iron Claw). Radius 0.7 m, 3.6 m tall. Existing assets keep
+        /// their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureOlympianMech(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var mg = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/MachineGun.asset");
+            var claw = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/IronClaw.asset");
+            var clawStrike = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/IronClaw.asset");
+            var stabilizers = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/Stabilizers.asset");
+            var mech = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/OlympianMech.asset", s =>
+            {
+                s.displayName = "Olympian Mech";
+                s.health = 15; s.armorLevel = 3; s.accuracy = 75; s.movementRange = 15f;
+                s.keywords = new List<Keyword> { keywords["Solo"], keywords["Mechanical"] };
+                s.abilities = new List<Ability> { clawStrike, stabilizers };
+                s.weapons = new List<WeaponTemplate> { mg, claw };
+                s.primaryWeapon = mg;
+                s.radius = 0.7f;
+                s.height = 3.6f;
+                s.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/StahlColossus.prefab");
+            });
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/OlympianMech.asset", u =>
+            {
+                u.displayName = "Olympian Mech";
+                u.role = UnitRole.HeavySupport;
+                u.description = "The ISF's walking war machine: a humanoid mech twice a soldier's height, with 15 health and Armor Level 3 that rifles, pistols and grenades can't dent. Its Stabilizers let its Machine Gun (5 shots) fire even after moving, and when an enemy is within 2 m it can strike with its Iron Claw instead (Damage 10, +25% accuracy). Mechanical: it moves 15 m but can't sprint. Rockets and tank cannons are its bane. Heavy Support, so you can field more than one.";
+                u.leader = mech;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
         // ------------------------------------------------------------------ Imperial Army of The Draconis Imperialis
 
         /// <summary>Dragon Claw: Damage 5, Shots 1, Penetration 1, Accuracy Bonus 0, Range 2 m; Melee, Natural.</summary>
@@ -518,6 +561,127 @@ namespace Eldoria.EditorTools
             // Tail, tapering behind.
             Part(root, "Tail", PrimitiveType.Capsule, hide, new Vector3(0f, 1.5f, -2.0f), new Vector3(0.45f, 0.9f, 0.45f), new Vector3(-70f, 0f, 0f));
             Part(root, "Tail Tip", PrimitiveType.Capsule, hide, new Vector3(0f, 1.0f, -3.0f), new Vector3(0.25f, 0.6f, 0.25f), new Vector3(-80f, 0f, 0f));
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        /// <summary>
+        /// Kobold Militia (Infantry, Draconis Imperialis): 1 Kobold Sergeant (leader) + 19 Kobold Militiamen. All Health 5,
+        /// Armor 0, Accuracy 50%, Move 20 m; Biological, Swarm (cohesion 10 m); Assault Rifle, which the Draconis Imperialis
+        /// calls the "Fang Caster" (see <see cref="EnsureDraconisWeaponNames"/>). Kobolds are two-thirds of a human's height (1.2 m).
+        /// Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureKoboldMilitia(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+
+            SoldierTemplate Kobold(string file, string name, bool sergeant)
+            {
+                var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", t =>
+                {
+                    t.displayName = name;
+                    t.health = 5; t.armorLevel = 0; t.accuracy = 50; t.movementRange = 20f;
+                    t.keywords = new List<Keyword> { keywords["Biological"], keywords["Swarm"] };
+                    t.abilities = new List<Ability>();
+                    t.weapons = new List<WeaponTemplate> { rifle };
+                    t.primaryWeapon = rifle;
+                    t.radius = 0.33f;
+                    t.height = 1.2f;   // two-thirds of a human's height
+                });
+                // (Re)build the model if it's missing or was built for another size (it's saved over the same prefab, keeping links).
+                var built = s.prefab != null ? s.prefab.GetComponent<CapsuleCollider>() : null;
+                if (s.prefab == null || built == null || !Mathf.Approximately(built.height, s.height))
+                {
+                    s.prefab = BuildKoboldPrefab(file, s, sergeant);
+                    EditorUtility.SetDirty(s);
+                }
+                return s;
+            }
+
+            var sergeantTemplate = Kobold("KoboldSergeant", "Kobold Sergeant", true);
+            var militiaman = Kobold("KoboldMilitiaman", "Kobold Militiaman", false);
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/KoboldMilitia.asset", u =>
+            {
+                u.displayName = "Kobold Militia";
+                u.role = UnitRole.Infantry;
+                u.description = "Wingless anthropomorphic dragons standing at two-thirds the height of a human with fabric uniform and holding rifles";
+                u.leader = sergeantTemplate;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = militiaman, count = 19 } };
+                u.deploymentSpacing = 1.2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>The Draconis Imperialis's names for weapons: the Assault Rifle is the "Fang Caster" (same weapon and stats).</summary>
+        public static void EnsureDraconisWeaponNames(Faction draconis)
+        {
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            if (draconis.weaponNames.Any(n => n != null && n.weapon == rifle)) return;
+            draconis.weaponNames.Add(new WeaponName { weapon = rifle, name = "Fang Caster" });
+            EditorUtility.SetDirty(draconis);
+        }
+
+        /// <summary>
+        /// A placeholder Kobold built from primitives, facing +z: a small (1.2 m) wingless, upright dragon with a snout and a
+        /// tail, in a fabric uniform (tunic and cap in the primary colour, so the faction's colour when deployed) holding a
+        /// rifle. Scales are a muted olive. The Sergeant has a gold armband and cap badge.
+        /// </summary>
+        private static GameObject BuildKoboldPrefab(string name, SoldierTemplate template, bool sergeant)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var uniform = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var scales = GetOrCreateMaterial("Kobold_Scales", new Color(0.47f, 0.5f, 0.3f));
+            var eye = GetOrCreateMaterial("Dragon_Eye", new Color(1f, 0.6f, 0.05f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = sergeant;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+            // The parts below are laid out for a 0.9 m kobold; the model is scaled to the soldier's height.
+            var model = new GameObject("Model");
+            model.transform.SetParent(root.transform, false);
+            model.transform.localScale = Vector3.one * (template.height / 0.9f);
+
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(model, "Leg", PrimitiveType.Capsule, uniform, new Vector3(side * 0.07f, 0.17f, 0f), new Vector3(0.09f, 0.16f, 0.1f));
+                Part(model, "Foot", PrimitiveType.Cube, scales, new Vector3(side * 0.07f, 0.02f, 0.05f), new Vector3(0.08f, 0.04f, 0.16f));
+                Part(model, "Arm", PrimitiveType.Capsule, uniform, new Vector3(side * 0.15f, 0.46f, 0.05f), new Vector3(0.06f, 0.12f, 0.06f), new Vector3(-50f, 0f, 0f));
+                Part(model, "Eye", PrimitiveType.Cube, eye, new Vector3(side * 0.05f, 0.74f, 0.08f), new Vector3(0.025f, 0.02f, 0.02f));
+            }
+            Part(model, "Tunic", PrimitiveType.Capsule, uniform, new Vector3(0f, 0.45f, 0f), new Vector3(0.24f, 0.18f, 0.18f));
+            Part(model, "Belt", PrimitiveType.Cube, metal, new Vector3(0f, 0.36f, 0f), new Vector3(0.22f, 0.03f, 0.17f));
+            Part(model, "Neck", PrimitiveType.Capsule, scales, new Vector3(0f, 0.62f, 0.01f), new Vector3(0.08f, 0.06f, 0.08f));
+            Part(model, "Head", PrimitiveType.Cube, scales, new Vector3(0f, 0.72f, 0.01f), new Vector3(0.13f, 0.11f, 0.14f));
+            Part(model, "Snout", PrimitiveType.Cube, scales, new Vector3(0f, 0.69f, 0.11f), new Vector3(0.08f, 0.06f, 0.1f));
+            Part(model, "Cap", PrimitiveType.Cylinder, uniform, new Vector3(0f, 0.8f, 0f), new Vector3(0.14f, 0.025f, 0.14f));
+            Part(model, "Tail", PrimitiveType.Capsule, scales, new Vector3(0f, 0.22f, -0.2f), new Vector3(0.07f, 0.16f, 0.07f), new Vector3(-60f, 0f, 0f));
+            if (sergeant)
+            {
+                Part(model, "Cap Badge", PrimitiveType.Cube, gold, new Vector3(0f, 0.81f, 0.07f), new Vector3(0.04f, 0.03f, 0.01f));
+                Part(model, "Armband", PrimitiveType.Cylinder, gold, new Vector3(-0.15f, 0.5f, 0.03f), new Vector3(0.07f, 0.015f, 0.07f), new Vector3(-50f, 0f, 0f));
+            }
+            // The rifle, held across the body.
+            Part(model, "Rifle", PrimitiveType.Cube, metal, new Vector3(0.06f, 0.44f, 0.18f), new Vector3(0.04f, 0.05f, 0.42f), new Vector3(0f, -12f, 0f));
 
             Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
@@ -694,11 +858,14 @@ namespace Eldoria.EditorTools
             EnsureFieldCommander(factions[0], keywords);
             EnsureDragonHierarch(factions[1], keywords);
             EnsureDragonbornSquad(factions[1], keywords);
+            EnsureKoboldMilitia(factions[1], keywords);
+            EnsureDraconisWeaponNames(factions[1]);
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             EnsureIsfRanger(factions[0], keywords);
             EnsureMortarTeam(factions[0], keywords);   // after the ISF Rifle Squad: it uses its ISF Rifleman
             EnsureSagittariusMbt(factions[0], keywords);
+            EnsureOlympianMech(factions[0], keywords);
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
             AssetDatabase.SaveAssets();
@@ -882,6 +1049,8 @@ namespace Eldoria.EditorTools
             Kw("SniperPrecision", "Sniper Precision", KeywordTarget.Soldier,
                 "When this soldier shoots, the player picks the specific enemy soldier they target instead of the closest one.");
             Kw("Deployed", "Deployed", KeywordTarget.Weapon, "This weapon can't be used in a volley if the soldier holding it has moved this turn.");
+            Kw("Swarm", "Swarm", KeywordTarget.Soldier,
+                "Expands the unit's cohesion radius to 10 m (normally 5 m): if the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader.");
             Kw("Large", "Large", KeywordTarget.Soldier, "A very large creature. No effect on its own yet; other rules can check for it.");
             Kw("Natural", "Natural", KeywordTarget.Weapon, "A natural weapon (claws, teeth...): can't be disabled by Disarm.");
             Kw("InCloseRange", "In close range", KeywordTarget.Soldier,
@@ -941,7 +1110,7 @@ namespace Eldoria.EditorTools
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
                 ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait,
                 ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Melee"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait,
-                ["Large"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Large"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,

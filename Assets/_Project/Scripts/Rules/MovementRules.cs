@@ -50,13 +50,30 @@ namespace Eldoria.Rules
     ///     The distance is the route length, measured along structure terrain and through objects
     ///     (see <see cref="IMoveMeasurer"/>).
     ///  2. Then every other soldier may move any distance (as long as a route exists), but must end
-    ///     within <see cref="CohesionRange"/> of the squad leader (the leader at the start of the move).
+    ///     within cohesion range of the squad leader (the leader at the start of the move): <see cref="CohesionRange"/>,
+    ///     or <see cref="SwarmCohesionRange"/> if the unit's leader has the Swarm keyword (see <see cref="CohesionRangeFor"/>).
     /// Soldiers may walk through each other but not end overlapping another soldier, and may not end
     /// outside the battlefield.
     /// </summary>
     public static class MovementRules
     {
         public const float CohesionRange = 5f;
+
+        /// <summary>Soldier keyword: a unit whose leader has it keeps cohesion out to <see cref="SwarmCohesionRange"/>.</summary>
+        public const string SwarmKeyword = "Swarm";
+
+        /// <summary>The cohesion range of a unit whose leader has the Swarm keyword.</summary>
+        public const float SwarmCohesionRange = 10f;
+
+        /// <summary>
+        /// How far from its leader a unit's soldiers may end a move: <see cref="SwarmCohesionRange"/> (10 m) if the unit's
+        /// leader has the Swarm keyword, otherwise <see cref="CohesionRange"/> (5 m).
+        /// </summary>
+        public static float CohesionRangeFor(Unit unit)
+        {
+            var leader = unit != null ? unit.Leader : null;
+            return leader != null && leader.HasKeyword(SwarmKeyword) ? SwarmCohesionRange : CohesionRange;
+        }
 
         /// <summary>Movement (meters) it costs to climb onto an object of any height.</summary>
         public const float ClimbCost = 10f;
@@ -100,8 +117,9 @@ namespace Eldoria.Rules
         {
             if (!measurer.TryGetStandPoint(to, follower.Radius, follower.Height, out var stand, out var why))
                 return MoveCheck.Fail(0f, why, to);
-            if (!IsWithinCohesion(leaderPosition, stand))
-                return MoveCheck.Fail(0f, $"Must end in cohesion (within {CohesionRange:0.#} m of the unit leader)", stand);
+            float cohesion = CohesionRangeFor(follower.Unit);
+            if (!IsWithinCohesion(leaderPosition, stand, cohesion))
+                return MoveCheck.Fail(0f, $"Must end in cohesion (within {cohesion:0.#} m of the unit leader)", stand);
             if (!IsInsideBattlefield(stand, follower.Radius)) return MoveCheck.Fail(0f, "Outside the battlefield", stand);
             if (!IsSpaceFree(follower, stand, positions)) return MoveCheck.Fail(0f, "Space is occupied", stand);
 
@@ -111,9 +129,9 @@ namespace Eldoria.Rules
             return new MoveCheck(true, MoveKind.Normal, path.Length, null, stand, path);
         }
 
-        public static bool IsWithinCohesion(Vector3 leaderPosition, Vector3 point)
+        public static bool IsWithinCohesion(Vector3 leaderPosition, Vector3 point, float range = CohesionRange)
         {
-            return Measure.Horizontal(leaderPosition, point) <= CohesionRange + Epsilon;
+            return Measure.Horizontal(leaderPosition, point) <= range + Epsilon;
         }
 
         public static bool IsInsideBattlefield(Vector3 point, float radius)
@@ -151,7 +169,7 @@ namespace Eldoria.Rules
 
             // Ideal: stay put if already inside, otherwise step to just inside the radius on our side.
             float margin = follower.Radius + 0.1f;
-            float idealDist = Mathf.Min(Measure.Horizontal(from, flatLeader), CohesionRange - margin);
+            float idealDist = Mathf.Min(Measure.Horizontal(from, flatLeader), CohesionRangeFor(follower.Unit) - margin);
             float baseAngle = Mathf.Atan2(dir.z, dir.x);
 
             // Search outward from the ideal spot: decreasing distance from the leader, widening angle.

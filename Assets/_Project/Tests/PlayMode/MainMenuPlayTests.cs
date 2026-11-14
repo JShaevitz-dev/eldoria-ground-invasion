@@ -54,13 +54,13 @@ namespace Eldoria.Tests
             Assert.That(menu.Builder.CanFieldArmies, Is.True);
             Assert.That(menu.Builder.Faction, Is.Null, "a faction is chosen first");
             Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("6 units available"));
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("2 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("7 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("3 units available"));
             Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("no units yet"));
 
             menu.Builder.ChooseFaction(Isf);
             yield return null;   // draws the unit list
-            Assert.That(menu.Builder.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Sagittarius MBT", "ISF Ranger" }),
+            Assert.That(menu.Builder.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "ISF Ranger" }),
                 "Commanders first, then Infantry, then Heavy Support");
             Assert.That(menu.Builder.Army, Is.Empty, "no demo army set yet: the list starts empty");
         }
@@ -122,7 +122,7 @@ namespace Eldoria.Tests
             var menu = Object.FindFirstObjectByType<MainMenu>();
             menu.OpenMapChoice();
             Assert.That((menu.ChoosingMap, menu.Builder), Is.EqualTo((true, (ArmyBuilderScreen)null)), "the map comes first");
-            Assert.That(Battlefields.All.Select(m => m.Name), Is.EqualTo(new[] { "Boxed in", "Open Season" }));
+            Assert.That(Battlefields.All.Select(m => m.Name), Is.EqualTo(new[] { "Boxed in", "Open Season", "Siege of Ft Solstice" }));
 
             menu.ChooseMap(Battlefields.EnglishCountryside);
             Assert.That(menu.ChoosingMap, Is.False);

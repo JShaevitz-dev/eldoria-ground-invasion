@@ -140,7 +140,7 @@ namespace Eldoria.Gameplay
         {
             if (Phase == MovePhase.MoveLeader) return new List<Soldier>();
             return Unit.LivingSoldiers.Where(m => IsFollower(m)
-                                           && !MovementRules.IsWithinCohesion(LeaderPosition, positions[m])).ToList();
+                                           && !MovementRules.IsWithinCohesion(LeaderPosition, positions[m], MovementRules.CohesionRangeFor(Unit))).ToList();
         }
 
         /// <summary>Moves every soldier out of cohesion to the nearest legal spot. Returns the soldiers that were moved.</summary>
@@ -172,12 +172,14 @@ namespace Eldoria.Gameplay
         {
             if (Phase == MovePhase.MoveLeader && LeaderMove == MoveKind.None) LeaderMove = MoveKind.Hold;
             Phase = MovePhase.Complete;
+            Victory.Check();   // e.g. a unit leader standing on an objective
         }
 
         public bool Complete()
         {
             if (!CanComplete) return false;
             Phase = MovePhase.Complete;
+            Victory.Check();   // e.g. a unit leader who has moved onto an objective
             return true;
         }
 

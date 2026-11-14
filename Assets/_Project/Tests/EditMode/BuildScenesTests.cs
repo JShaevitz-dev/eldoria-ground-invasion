@@ -15,6 +15,7 @@ namespace Eldoria.Tests
                 "Assets/_Project/Scenes/MainMenu.unity",
                 "Assets/_Project/Scenes/UrbanDemo.unity",
                 "Assets/_Project/Scenes/Countryside.unity",
+                "Assets/_Project/Scenes/FortSolstice.unity",
                 "Assets/_Project/Scenes/CubeRoom.unity",
             }));
         }

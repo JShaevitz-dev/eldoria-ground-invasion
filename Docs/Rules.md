@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Eldoria Ground Invasion) has its first three factions. Two can field armies:** the ISF (Field
-> Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, ISF Ranger) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad). The Rask have no units yet. The game
+> Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad, Kobold Militia). The Rask have no units yet. The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -60,9 +60,9 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 
 | Role | Units |
 |---|---|
-| **Infantry** | ISF Rifle Squad, Dragonborn Squad |
+| **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia |
 | **Commander** | Field Commander, Dragon Hierarch |
-| **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT |
+| **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech |
 | **Specialist** | ISF Ranger |
 
 ### Factions — *implemented*
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT and the ISF Ranger, and the Draconis Imperialis has the Dragon Hierarch and the Dragonborn Squad, so both can field armies (the AI picks one of them); the Rask have no units yet.
+So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech and the ISF Ranger, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Squad and the Kobold Militia, so both can field armies (the AI picks one of them); the Rask have no units yet.
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -89,10 +89,11 @@ it can take, and any weapon changes and names (below). The army builder lists th
 - The changes apply to whichever soldier holds the weapon, by **their unit's faction**, including a thrown grenade or an explosion (the faction of the soldier who used it). Armies placed directly in a scene have no faction, so their weapons are unchanged.
 - **Limits:** Damage never goes below 0, Shots below 1, Penetration below 0 or Range below 1 m. A weapon with **no penetration value** keeps none, and **unlimited range** stays unlimited.
 - The army builder shows each unit's weapons **as the chosen faction has them**.
+- **So far:** the Draconis Imperialis calls the Assault Rifle the **Fang Caster**.
 
 ### Army lists — *implemented*
 
-Before a battle, the player chooses the **map** (Boxed in or Open Season), then each side chooses a **faction** and builds an **army list** from that faction's units:
+Before a battle, the player chooses the **map** (Boxed in, Open Season or the Siege of Ft Solstice), then each side chooses a **faction** and builds an **army list** from that faction's units:
 
 - Every unit must be one the army's **faction** has access to.
 - An army has **6 slots**: it can have **1 to 6 units** (empty slots are allowed).
@@ -142,6 +143,19 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 - **Wide body:** it stands on a circle of 1.8 m radius, so its route needs room for the hull the whole way.
 - Heavy Support, so an army can take more than one.
 
+### Olympian Mech
+
+*International Space Force of Humanity · Heavy Support.* The original Eldoria's Stahl Colossus, renamed. One walking war machine, about twice a soldier's height.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Abilities |
+|---|---|---|---|---|---|---|---|
+| Olympian Mech | 15 | 3 | 75% | 15 m (can't sprint) | Solo, Mechanical | Machine Gun (primary), Iron Claw | Iron Claw, Stabilizers |
+
+- **Machine Gun:** Damage 5, Shots 5, Penetration 1, Range 20 m, Deployed, but **Stabilizers** (passive) nullify Deployed, so it can fire after moving.
+- **Iron Claw** (active): an aimed strike at one enemy within 2 m: Damage 10, Penetration 0, +25% accuracy (Melee, so it works in close range). Using it is the unit's action.
+- **Wide body:** it stands on a circle of 0.7 m radius.
+- Heavy Support, so an army can take more than one.
+
 ### ISF Ranger
 
 *International Space Force of Humanity · Specialist.* The original Eldoria's Sniper, renamed, with Armor 1. One soldier.
@@ -187,6 +201,19 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 | Dragon Glaive (melee) | 5 | 1 | 2 | +25% | 2 m | Melee |
 
 - The ranged glaive is their **primary weapon**. In **close range** (a Biological enemy under 2 m away) they can't use it, so they switch to the **melee glaive** (Melee weapons work in close range).
+- Infantry, so an army can take more than one.
+
+### Kobold Militia
+
+*Imperial Army of The Draconis Imperialis · Infantry.* 1 **Kobold Sergeant** (leader) + 19 **Kobold Militiamen**: wingless anthropomorphic dragons standing at two-thirds the height of a human (1.2 m), in fabric uniforms and holding rifles (see [Lore.md](Lore.md), the Kobolds).
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
+|---|---|---|---|---|---|---|
+| Kobold Sergeant | 5 | 0 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Fang Caster |
+| Kobold Militiaman (×19) | 5 | 0 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Fang Caster |
+
+- **Fang Caster:** the Draconis Imperialis's name for the **Assault Rifle** (same weapon and stats: Damage 4, Shots 1, Penetration 1, Range 20 m).
+- **Swarm:** the unit keeps cohesion out to **10 m** from its leader (normally 5 m).
 - Infantry, so an army can take more than one.
 
 ### Field Commander
@@ -256,10 +283,11 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 
 #### Keyword categories
 
+- **Swarm** (soldier, Trait): **expands the unit's cohesion radius to 10 m** (normally 5 m). If the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader; the green cohesion ring and the gather order use 10 m. The Kobold Militia has it.
 - **Large** (soldier, Trait): a very large creature, e.g. the Dragon Hierarch. No effect on its own yet; other rules can check for it.
 - **Natural** (weapon, Trait): a natural weapon such as claws or teeth, which **can't be disabled by Disarm**. *Disarm isn't in the game yet, so for now it has no effect.*
 
-Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Natural) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front, Chromashift).
+Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Natural, Swarm) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front, Chromashift).
 
 - Some traits **do nothing on their own**: **Officer** and **Solo** only matter because other weapons and abilities check for them (e.g. something that only affects Officers, or has no effect on Solo soldiers) — done with keyword interactions such as *"if the target has / lacks Officer → …"*.
 
@@ -328,7 +356,7 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
    - **Normal move:** up to their **movement range** (e.g. 10 m for a typical infantry soldier).
    - **Sprint:** up to **double** their movement range (20 m). **Mechanical** soldiers **can't sprint**: they only make a normal move (no sprint ring is shown).
    - Or the leader can **hold position**.
-2. **Then the rest of the squad moves.** Each soldier may move **any distance**, but must **end in cohesion**: within **5 m** of the squad leader.
+2. **Then the rest of the squad moves.** Each soldier may move **any distance**, but must **end in cohesion**: within **5 m** of the squad leader (**10 m** for a unit whose leader has the **Swarm** keyword).
    - Cohesion is measured from whoever was squad leader **when the movement began**.
 3. The squad's move can only end once every soldier is in cohesion.
 
@@ -337,7 +365,7 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - A move is measured along the **route** the soldier walks: the shortest way around anything that blocks movement.
 - The route is measured **along the surface of structure terrain**: going over a hill costs the distance up and down it; crossing a ditch costs the distance down and back up.
 - The route is measured **straight through object terrain**: objects never add distance.
-- **Cohesion** (the 5 m) is measured as a **straight line** from the leader, **not following terrain and ignoring elevation**.
+- **Cohesion** (the 5 m, or 10 m with Swarm) is measured as a **straight line** from the leader, **not following terrain and ignoring elevation**.
 - **Climbing onto an object of any height costs 10 m** of movement (on top of walking to it). Soldiers climb on and off from right beside the object.
 - **Climbing down costs 0 m**, but the soldier **still counts as having moved** this turn.
 - Any soldier given a move counts as having moved, even if it costs 0 m. A leader who holds position has not moved.
@@ -425,7 +453,8 @@ How it works (for development): both games run the battle themselves. The host r
 ## Winning — *implemented*
 
 - **A side with no soldiers left loses**, and the other side wins. If both sides lose their last soldiers at the same moment (e.g. one grenade), it's a **draw**.
-- It's checked whenever soldiers are removed from the battlefield: at the end of a volley or blast, or when a soldier dies outside combat.
+- **Objectives:** on a map with an **objective marker** (so far the Siege of Ft Solstice), the side it belongs to (the attackers) **wins as soon as one of its unit leaders stands on the marker** (within its radius, measured horizontally) when a unit finishes its move or its action. Only a living **unit leader** counts, not other soldiers, and the other side's leaders standing on it do nothing. The banner then says the objective was reached.
+- It's checked whenever soldiers are removed from the battlefield (at the end of a volley or blast, or when a soldier dies outside combat) and whenever a unit finishes its move or action.
 - When the battle is decided, a **Victory / Defeat / Draw** banner appears, no more orders can be given, and **Restart (R)** starts the battle again (single player only).
 
 ## Maps
@@ -464,6 +493,19 @@ How it works (for development): both games run the battle themselves. The host r
 - **Each half:** an apartment block (two rooms), a corner shop with a raised loading dock (reached by a slope), a garage and a ruined house, plus streets with cars, sandbags, crates and a shipping container.
 - **Buildings** are roofless, with doorways (2 m) and **windows**. A window can be **seen and shot through**, its sill gives **Half-cover**, and soldiers can **climb through** it (mantle: no extra movement cost).
 - *Proposed:* cars, sandbags, crates, planters, low walls, rubble and furniture have **Half-cover**. Cars block movement but can be climbed onto. The container and the statue have **Full-cover**.
+
+### Siege of Ft Solstice — *built (Scenes/FortSolstice, Eldoria > Build Ft Solstice)*
+
+- **100 m wide × 130 m deep** of flat **desert**, **asymmetrical**: one side attacks, the other defends a massive fortress in the north.
+- **The attackers** are the **south** side (in single player, you): they deploy on the open sand along the south edge (90 × 8 m), **42 m** from the fortress's outer wall. Two bands of sandstone rocks (Half-cover) and five boulders (Full-cover) dot the approach.
+- **The defenders** are the **north** side (in single player, the AI): they deploy **inside** the fortress, in the courtyard between the keep and the middle wall's north face (56 × 8 m).
+- **The fortress** (stone walls are structure terrain: they block movement and line of sight; gates are 6 m wide, room for a tank):
+  - **Outer wall** (5 m high) across the south at z −15, with **three gates**, one per lane.
+  - **Three lanes** running north from the outer wall to the middle wall, split by two walls, each with sandbag barricades and a crate (Half-cover).
+  - **Middle wall** (4 m) enclosing the inner fortress (x ±30, z 9 to 55), with a **gate at the end of each lane** in its south face.
+  - **The keep** (3.5 m; x ±12, z 21 to 45) with a **gate in each face**, low walls inside, and the **objective** in its centre (0, 33).
+  - Sandbags and crates cover the ground between the middle wall and the keep.
+- **Objective:** a gold marker (2.5 m radius) in the centre of the keep. **The attackers win by getting a unit leader onto it** (see Winning). The defenders win by wiping out the attackers.
 
 ## Shooting — *partly implemented*
 

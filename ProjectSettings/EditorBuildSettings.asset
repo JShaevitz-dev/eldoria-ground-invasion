@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/Countryside.unity
     guid: 2ff7633ba959f3e468d10cf98cbf2b10
   - enabled: 1
+    path: Assets/_Project/Scenes/FortSolstice.unity
+    guid: c472614d321499e44b036578a75fc33c
+  - enabled: 1
     path: Assets/_Project/Scenes/CubeRoom.unity
     guid: 323783b5828bf4b4da39d51158a33a7a
   m_configObjects:

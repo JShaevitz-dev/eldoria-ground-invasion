@@ -17,8 +17,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e28e88bb00b8e8b4198439902072809e, type: 2}
   - {fileID: 11400000, guid: 8078b8f24a0752e479b9ceb6a53c0106, type: 2}
   - {fileID: 11400000, guid: 8973ea19fb8e3ad439e58d11573ad62c, type: 2}
+  - {fileID: 11400000, guid: a883b44bf1211054db7fc341a5bfca09, type: 2}
   - {fileID: 11400000, guid: 208f3ba086dd55a4abe6a69b0eb7d465, type: 2}
   - {fileID: 11400000, guid: e9d32adb4094fd040a1fd354abd6d091, type: 2}
+  - {fileID: 11400000, guid: 702f186c99aeeba41832b9e2bdf90835, type: 2}
   - {fileID: 11400000, guid: 93d5a17332351344d82a35b9e1b489b4, type: 2}
   - {fileID: 11400000, guid: 28a98b76ca5f0b8409dedbba1cfff53d, type: 2}
   factions:

@@ -850,7 +850,7 @@ namespace Eldoria.Gameplay
             {
                 moveRing.Hide();
                 sprintRing.Hide();
-                if (phase == MovePhase.MoveFollowers) followRing.ShowCircle(activation.LeaderPosition, MovementRules.CohesionRange, FollowColor);
+                if (phase == MovePhase.MoveFollowers) followRing.ShowCircle(activation.LeaderPosition, MovementRules.CohesionRangeFor(activation.Unit), FollowColor);
                 else followRing.Hide();
             }
 
@@ -1184,7 +1184,7 @@ namespace Eldoria.Gameplay
                     string how = activation.LeaderMove == MoveKind.Sprint ? "sprinted"
                         : activation.LeaderMove == MoveKind.Hold ? "held position" : "moved";
                     int outOfCohesion = activation.OutOfCohesion().Count;
-                    GUILayout.Label($"2. {leaderName} {how}. Click a soldier, then click a spot inside the green cohesion ring ({MovementRules.CohesionRange:0} m).", wrap);
+                    GUILayout.Label($"2. {leaderName} {how}. Click a soldier, then click a spot inside the green cohesion ring ({MovementRules.CohesionRangeFor(activation.Unit):0} m).", wrap);
                     GUILayout.Label(outOfCohesion == 0 ? "Whole unit is in cohesion." : $"{outOfCohesion} soldier(s) out of cohesion.", wrap);
                     GUILayout.Label(HoverReadout(), wrap);
                     GUILayout.BeginHorizontal();

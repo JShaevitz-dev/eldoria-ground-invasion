@@ -30,6 +30,15 @@ namespace Eldoria.Gameplay
                           "stone shed, and hay bales, carts and fences for cover.",
         };
 
-        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside };
+        public static readonly Battlefield FortSolstice = new Battlefield
+        {
+            Name = "Siege of Ft Solstice",
+            Scene = "FortSolstice",
+            Description = "100 \u00d7 130 m of desert, asymmetrical: the south side attacks across 42 m of open sand, the north defends a " +
+                          "massive fortress. Three lanes lead through the outer wall and the middle wall to the keep. The " +
+                          "attackers win by getting a unit leader onto the objective in the centre of the keep.",
+        };
+
+        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice };
     }
 }

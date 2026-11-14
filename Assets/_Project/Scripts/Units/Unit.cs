@@ -122,7 +122,7 @@ namespace Eldoria.Units
         {
             if (leader == null) return new List<Soldier>();
             return LivingSoldiers.Where(m => m != leader
-                                           && !MovementRules.IsWithinCohesion(leader.Position, m.Position)).ToList();
+                                           && !MovementRules.IsWithinCohesion(leader.Position, m.Position, MovementRules.CohesionRangeFor(this))).ToList();
         }
 
         public bool IsInFormation() => OutOfCohesion().Count == 0;
@@ -152,7 +152,7 @@ namespace Eldoria.Units
             if (leader == null || !leader.IsAlive) return;
 
             Handles.color = new Color(0.3f, 1f, 0.4f, 0.8f);
-            Handles.DrawWireDisc(leader.Position + Vector3.up * 0.05f, Vector3.up, MovementRules.CohesionRange);
+            Handles.DrawWireDisc(leader.Position + Vector3.up * 0.05f, Vector3.up, MovementRules.CohesionRangeFor(this));
 
             Handles.color = Color.red;
             foreach (var m in OutOfCohesion())

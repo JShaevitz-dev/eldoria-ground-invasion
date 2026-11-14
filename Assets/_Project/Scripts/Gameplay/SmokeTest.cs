@@ -67,7 +67,7 @@ namespace Eldoria.Gameplay
             var menu = FindFirstObjectByType<MainMenu>();
             menu.OpenMapChoice();
             yield return Screenshot("maps.png");
-            Check(Battlefields.All.Count == 2, "the map choice offers Boxed in and Open Season");
+            Check(Battlefields.All.Count == 3, "the map choice offers Boxed in, Open Season and the Siege of Ft Solstice");
             menu.ChooseMap(Battlefields.EnglishCountryside);
             yield return Screenshot("factions.png");
             // The three factions are there; the ISF has a Commander, so it can field an army.
@@ -78,9 +78,9 @@ namespace Eldoria.Gameplay
             menu.Builder?.ChooseFaction(isf);
             yield return Screenshot("army.png");
             Eldoria.Units.UnitTemplate Unit(string name) => menu.Builder?.Available.FirstOrDefault(u => u.displayName == name);
-            Check(menu.Builder != null && menu.Builder.Available.Count == 6, $"the ISF's units are listed ({menu.Builder?.Available.Count})");
+            Check(menu.Builder != null && menu.Builder.Available.Count == 7, $"the ISF's units are listed ({menu.Builder?.Available.Count})");
             menu.Builder?.Clear();
-            foreach (var name in new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Sagittarius MBT", "ISF Ranger" })
+            foreach (var name in new[] { "Field Commander", "ISF Rifle Squad", "Olympian Mech", "Mortar Team", "Sagittarius MBT", "ISF Ranger" })
                 Check(menu.Builder?.Add(Unit(name)) == null, $"{name} is added");
             Check(menu.Builder != null && menu.Builder.Confirm(), "the army is valid");
             var army = menu.Builder != null ? menu.Builder.Army.ToList() : new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>();

@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Stabilizers
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
   displayName: Stabilizers
-  description: 'Passive. Nullifies the Deployed keyword: the Stahl Colossus''s weapons
-    can fire after it moves.'
+  description: 'Passive. Nullifies the Deployed keyword: this soldier''s weapons can fire after it moves.'
   kind: 0
   keywords: []
   affects: 0

@@ -1,9 +1,9 @@
 # Eldoria Ground Invasion
 
 > **A fork of Eldoria with its first three factions. Two are playable:** the International Space Force of Humanity
-> (Field Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, ISF Ranger) and the Imperial Army of The Draconis Imperialis (Dragon
-> Hierarch, Dragonborn Squad). The Rask have no units yet. Every game system is here (army lists and factions, movement,
-> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, both maps and the menus). The weapons,
+> (Field Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger) and the Imperial Army of The Draconis Imperialis (Dragon
+> Hierarch, Dragonborn Squad, Kobold Militia). The Rask have no units yet. Every game system is here (army lists and factions, movement,
+> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the three maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
 Eldoria Ground Invasion is a space opera turn-based strategy game focused on company-level warfare across a variety of
@@ -26,20 +26,23 @@ Build the game (see **Windows build** below) and run `Builds/Eldoria/Eldoria.exe
 
 After **Play**, you'll:
 
-1. **Choose a battlefield:** the Boxed in or the Open Season.
+1. **Choose a battlefield:** the Boxed in, the Open Season or the Siege of Ft Solstice.
 2. **Choose your faction**, which decides which units and commanders you can take.
 3. **Build your army:** up to 6 units, exactly 1 Commander, and no duplicate Specialist units. Units whose soldiers
    have weapon or equipment options can be customized. Then press **Confirm army**.
 
-The two maps:
+The three maps:
 
 - **Boxed in:** an 80 × 60 m city block with a central plaza, laid out with 180° symmetry so both sides start out even.
 - **Open Season:** 100 × 100 m of open, rolling farmland. Hills block line of sight. A river crosses the map:
   wading it costs double movement, unless you take the stone bridge or the ford. A farmhouse, a barn, a stone shed,
   and hay bales, carts and fences give cover.
+- **Siege of Ft Solstice:** 100 × 130 m of desert, asymmetrical. You attack across 42 m of open sand from the south; the AI
+  defends a massive fortress: three lanes through an outer wall, a middle wall, and a keep. **Get a unit leader onto
+  the objective in the centre of the keep to win** (or wipe out the defenders).
 
 The AI picks a random faction and builds its own random army under the same rules. You go first. Wipe out the enemy to
-win.
+win (or, on Ft Solstice, take the objective).
 
 ### Multiplayer
 
@@ -99,7 +102,7 @@ implemented.
 At a glance:
 
 - **Units, not individual soldiers.** A unit's leader moves first (normal move, or sprint for double), and everyone else
-  must end within 5 m of them. If the leader dies, another soldier *in the same unit* takes over.
+  must end within 5 m of them (10 m for units with the Swarm keyword). If the leader dies, another soldier *in the same unit* takes over.
 - **Shooting is the unit's action** and ends its turn. Soldiers spread their fire across the target unit: each picks
   an enemy nobody else is aiming at if it can (the closest first), and only doubles up once every target is covered. The dead are removed when the volley ends.
 - **Cover matters.** Half-cover costs the shooter 25% accuracy. A Full-cover object between shooter and target blocks the
@@ -125,8 +128,10 @@ Inspector.
 | **Field Commander** | International Space Force of Humanity | Commander | Field Commander (Health 10, Armor 2, Pistol, Lead from the front) |
 | **Mortar Team** | International Space Force of Humanity | Heavy Support | ISF Mortar Specialist (Mortar Launcher, Assault Rifle) + ISF Rifleman; Armor 2 |
 | **Sagittarius MBT** | International Space Force of Humanity | Heavy Support | Sagittarius MBT (the original Eldoria's Medium Tank: Health 20, Armor 4, 100mm Cannon) |
+| **Olympian Mech** | International Space Force of Humanity | Heavy Support | Olympian Mech (the original Eldoria's Stahl Colossus: Health 15, Armor 3, Machine Gun, Iron Claw, Stabilizers) |
 | **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (the original Eldoria's Sniper with Armor 1: Accuracy 100%, Sniper Rifle, Anti-Materiel Rifle or Shotgun, Sniper Precision; Chromashift Textiles: −25% to anyone aiming at it) |
 | **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) |
+| **Kobold Militia** | Imperial Army of The Draconis Imperialis | Infantry | Kobold Sergeant + 19 Kobold Militiamen (Health 5, Armor 0, Accuracy 50%, Move 20 m, Swarm; Fang Casters, the Draconis name for the Assault Rifle) |
 | **Dragonborn Squad** | Imperial Army of The Draconis Imperialis | Infantry | Dragonborn Sergeant + 4 Dragonborn Footmen (Health 10, Armor 2; Dragon Glaive: a 20 m rifle and a 2 m Melee blade) |
 | **ISF Rifle Squad** | International Space Force of Humanity | Infantry | ISF Rifleman Sergeant + 9 ISF Riflemen (Armor 2, Assault Rifles, Frag Grenade) |
 | **Heavy Weapons Team** | International Space Force of Humanity | Heavy Support | ISF Rifleman Sergeant (Pistol) + 3 ISF Riflemen (Assault Rifles) + ISF Heavy Weapons (Machine Gun, Rocket Launcher or Flamethrower); Armor 2 |
@@ -134,8 +139,8 @@ Inspector.
 A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
 them (and add each unit to its faction's unit list). They're created in code
-(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureDragonHierarch`,
-`EnsureDragonbornSquad`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
+(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
+`EnsureDragonbornSquad`, `EnsureKoboldMilitia`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
 Specialist.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,
@@ -163,12 +168,12 @@ Assets/_Project/
     Core/         battlefield scale and the shared random number generator
   Data/           ScriptableObject assets: Weapons, Keywords, Abilities, Factions, Units, Soldiers
   Editor/         builders for data, maps, scenes and the Windows build
-  Scenes/         MainMenu, UrbanDemo, Countryside, CubeRoom (test room)
+  Scenes/         MainMenu, UrbanDemo, Countryside, FortSolstice, CubeRoom (test room)
   Tests/          EditMode and PlayMode tests
 Docs/Rules.md     the rules
 ```
 
-**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
+**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
 `SquadBuilder` keeps the keyword library and the unit catalog (Resources/UnitCatalog) in step with the assets in Data.
 
 **Tests** build their units from test-made ScriptableObjects (`Tests/PlayMode/TestArmies.cs`: stand-ins for an infantry
