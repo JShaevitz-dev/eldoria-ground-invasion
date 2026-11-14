@@ -59,21 +59,21 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void TheGameHasItsThreeFactionsAndOnlyTheIsfsTwoUnitsSoFar()
+        public void TheGameHasItsThreeFactionsAndOnlyTheIsfsThreeUnitsSoFar()
         {
             var catalog = UnitCatalog.Load();
             Assert.That(catalog, Is.Not.Null);
-            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "ISF Rifle Squad", "Heavy Weapons Team" }), "Infantry, then Heavy Support");
+            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team" }), "Commander, Infantry, then Heavy Support");
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[] { "International Space Force of Humanity", "Imperial Army of The Draconis Imperialis", "Most Holy Army of The Rask Divine Collective" }));
             var factions = catalog.Factions.ToList();
-            Assert.That(factions[0].Units.Select(u => u.displayName), Is.EqualTo(new[] { "ISF Rifle Squad", "Heavy Weapons Team" }));
+            Assert.That(factions[0].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team" }));
             Assert.That(factions[1].Units, Is.Empty, "Draconis Imperialis: no units yet");
             Assert.That(factions[2].Units, Is.Empty, "Rask: no units yet");
             Assert.That(catalog.defaultArmy, Is.Empty);
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null, "still there for deploying units");
             Assert.That(catalog.leaderMarker, Is.Not.Null);
-            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(2));
-            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(5));
+            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(3));
+            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(6));
             Assert.That(AssetDatabase.FindAssets("t:Faction", new[] { "Assets/_Project/Data/Factions" }).Length, Is.EqualTo(3));
         }
 
@@ -88,20 +88,61 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void WithNoCommandersTheBuilderSaysSoAndNoBattleStarts()
+        public void OnlyTheIsfCanFieldAnArmyAndItsRandomArmiesAreValid()
         {
             var catalog = UnitCatalog.Load();
             var builder = new ArmyBuilderScreen(catalog);
-            Assert.That(builder.CanFieldArmies, Is.False, "no faction has a Commander yet");
-            Assert.That(builder.Factions.Count, Is.EqualTo(3), "the factions are there");
-            Assert.That(builder.FactionStatus(builder.Factions[0]), Is.EqualTo("2 units \u00b7 no Commander yet"));
+            Assert.That(builder.CanFieldArmies, Is.True, "the ISF has a Commander");
+            Assert.That(builder.FactionStatus(builder.Factions[0]), Is.EqualTo("3 units available"));
             Assert.That(builder.FactionStatus(builder.Factions[1]), Is.EqualTo("no units yet"));
-            Assert.That(builder.Confirm(), Is.False);
+            Assert.That(builder.FactionStatus(builder.Factions[2]), Is.EqualTo("no units yet"));
+            Assert.That(catalog.Factions.Count(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(1));
             Assert.That(new ArmyBuilderScreen(null).CanFieldArmies, Is.False);
-            Assert.That(new ArmyBuilderScreen(TestCatalog()).CanFieldArmies, Is.True);
-            Assert.That(ArmyRules.RandomArmy(catalog.Available, new System.Random(1)), Is.Empty, "no Commander: nothing the AI can field");
             var isf = catalog.Factions.First();
-            Assert.That(MainMenu.StartBattle(isf, List(catalog.Available.First())), Is.EqualTo(new[] { ArmyBuilderScreen.NoArmiesMessage }));
+            for (int seed = 0; seed < 50; seed++)
+            {
+                var army = ArmyRules.RandomArmy(catalog.UnitsFor(isf), new System.Random(seed));
+                Assert.That(ArmyRules.Problems(army, isf), Is.Empty, $"seed {seed}");
+                Assert.That(army.Count, Is.EqualTo(6));
+                Assert.That(army.First().displayName, Is.EqualTo("Field Commander"));
+            }
+            Assert.That(ArmyRules.RandomArmy(catalog.UnitsFor(catalog.Factions.Last()), new System.Random(1)), Is.Empty, "the Rask have nothing to field yet");
+        }
+
+        [Test]
+        public void WithNoCommandersAnywhereTheBuilderSaysSo()
+        {
+            var catalog = TestCatalog();
+            catalog.units = List(Infantry, MG);
+            var noCommander = TestArmies.Faction("Test No Commander", Color.white, Infantry, MG);
+            created.Add(noCommander);
+            catalog.factions = new System.Collections.Generic.List<Faction> { noCommander };
+            var builder = new ArmyBuilderScreen(catalog);
+            Assert.That(builder.CanFieldArmies, Is.False);
+            Assert.That(builder.FactionStatus(noCommander), Is.EqualTo("2 units \u00b7 no Commander yet"));
+            Assert.That(ArmyBuilderScreen.NoArmiesMessage, Does.Contain("No faction has a Commander yet"));
+        }
+
+        // ---- The ISF's Field Commander (the original Eldoria's, with Armor 2) ----
+
+        [Test]
+        public void TheFieldCommanderIsTheIsfsCommanderWithArmor2()
+        {
+            var catalog = UnitCatalog.Load();
+            var unit = catalog.Available.Single(u => u.displayName == "Field Commander");
+            Assert.That(unit.role, Is.EqualTo(UnitRole.Commander));
+            Assert.That(catalog.Factions.First().Has(unit), Is.True, "the ISF's");
+            Assert.That(unit.Size, Is.EqualTo(1));
+            var c = unit.leader;
+            Assert.That(c.displayName, Is.EqualTo("Field Commander"));
+            Assert.That((c.health, c.armorLevel, c.accuracy, c.movementRange), Is.EqualTo((10, 2, 75, 10f)));
+            Assert.That(c.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Biological", "Officer", "Solo" }));
+            Assert.That(c.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Lead from the front" }));
+            Assert.That(c.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Pistol" }));
+            Assert.That(c.prefab, Is.Not.Null);
+            Assert.That(unit.description, Does.Contain("Lead from the front"));
+            Assert.That(UnitInfo.SoldierLines(unit).Single(),
+                Is.EqualTo("Field Commander \u2014 Health 10 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Pistol"));
         }
 
         [Test]

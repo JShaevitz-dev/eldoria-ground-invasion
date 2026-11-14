@@ -8,8 +8,9 @@ namespace Eldoria.Gameplay
 {
     /// <summary>
     /// A quick end-to-end check of a built game, off unless the program is started with <c>-smokeTest</c>:
-    /// from the main menu it opens the map choice and the army builder (which, with no units yet,
-    /// says a battle can't be started), checks the runtime shaders and sounds, then quits with exit code 0 (passed) or 1 (an error was logged or a check failed).
+    /// from the main menu it chooses the Open Season, builds an ISF army and starts a game, selects a unit and previews a
+    /// move, lets the AI play three turns, checks the runtime shaders and sounds, then quits with exit code 0 (passed) or 1
+    /// (an error was logged or a check failed).
     /// Usage: Eldoria.exe -batchmode -nographics -smokeTest -logFile smoke.log
     /// With a window (no -batchmode) and <c>-smokeScreenshots folder</c>, it also saves screenshots of the main menu and
     /// the game (HUD and labels included) into that folder.
@@ -69,17 +70,39 @@ namespace Eldoria.Gameplay
             Check(Battlefields.All.Count == 2, "the map choice offers Boxed in and Open Season");
             menu.ChooseMap(Battlefields.EnglishCountryside);
             yield return Screenshot("factions.png");
-            // The three factions are there, but none has a Commander yet: the army builder says so and no battle can start.
+            // The three factions are there; the ISF has a Commander, so it can field an army.
             Check(menu.Builder != null, "the army builder opens");
             Check(menu.Builder != null && menu.Builder.Factions.Count == 3, $"the army builder has the three factions ({menu.Builder?.Factions.Count})");
-            Check(menu.Builder != null && !menu.Builder.CanFieldArmies, "no faction can field an army yet (no Commanders)");
+            Check(menu.Builder != null && menu.Builder.CanFieldArmies, "a faction can field an army");
             var isf = menu.Builder?.Factions.FirstOrDefault();
-            var squad = isf != null ? isf.Units.FirstOrDefault(u => u.displayName == "ISF Rifle Squad") : null;
-            Check(squad != null, "the ISF has its Rifle Squad");
-            var refused = MainMenu.StartBattle(isf, new System.Collections.Generic.List<Eldoria.Units.UnitTemplate> { squad });
-            Check(refused.Count == 1 && refused[0] == ArmyBuilderScreen.NoArmiesMessage, "starting a battle is refused with the no-Commander message");
+            menu.Builder?.ChooseFaction(isf);
+            yield return Screenshot("army.png");
+            Eldoria.Units.UnitTemplate Unit(string name) => menu.Builder?.Available.FirstOrDefault(u => u.displayName == name);
+            Check(menu.Builder != null && menu.Builder.Available.Count == 3, $"the ISF's units are listed ({menu.Builder?.Available.Count})");
+            menu.Builder?.Clear();
+            foreach (var name in new[] { "Field Commander", "ISF Rifle Squad", "ISF Rifle Squad", "Heavy Weapons Team" })
+                Check(menu.Builder?.Add(Unit(name)) == null, $"{name} is added");
+            Check(menu.Builder != null && menu.Builder.Confirm(), "the army is valid");
+            var army = menu.Builder != null ? menu.Builder.Army.ToList() : new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>();
+            Check(MainMenu.StartBattle(isf, army).Count == 0, "the battle starts");
+            for (int i = 0; i < 10 && SceneManager.GetActiveScene().name != Battlefields.EnglishCountryside.Scene; i++) yield return null;
             yield return null;
-            Check(SceneManager.GetActiveScene().name == MainMenu.MenuScene, "the game stays on the main menu");
+            Check(SceneManager.GetActiveScene().name == Battlefields.EnglishCountryside.Scene, "Play starts a game on the chosen map");
+
+            var controller = FindFirstObjectByType<MovementController>();
+            Check(controller != null && controller.PlayerUnits.Count == army.Count, "the player's army is deployed");
+            Check(ArmySelection.HasArmies && ArmySelection.AIFaction == isf, "the AI fields the only faction that can (the ISF)");
+            Check(FindObjectsByType<Eldoria.Units.Unit>(FindObjectsSortMode.None).Count(u => u.Side == Eldoria.Units.Side.AI) == ArmySelection.AIArmy.Count
+                  && ArmySelection.AIArmy.Count == 6, $"the AI's army is deployed ({ArmySelection.AIArmy?.Count} units)");
+            if (controller != null)
+            {
+                var unit = controller.PlayerUnits[0];
+                Check(controller.SelectUnit(unit), "a unit can be selected");
+                controller.PreviewAt(unit.Leader.Position + Vector3.forward * 8f);
+                yield return Screenshot("game.png");
+                for (int turn = 0; turn < 3 && !Victory.IsOver; turn++) controller.EndTurn(instant: true);
+                Check(Turns.Current >= 2, $"the AI played its turns (now turn {Turns.Current})");
+            }
 
             KeywordSparkles.RefreshNow();
             CloseRangeMarkers.RefreshNow();

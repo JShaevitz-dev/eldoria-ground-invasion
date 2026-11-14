@@ -2,10 +2,10 @@
 
 Living record of the rules decided so far. **Status** shows what the code does today.
 
-> **This fork (Eldoria Ground Invasion) has its first three factions and two units, the ISF's Rifle Squad and Heavy
-> Weapons Team.** The game
+> **This fork (Eldoria Ground Invasion) has its first three factions; only the ISF has units so far** (the Field
+> Commander, the ISF Rifle Squad and the Heavy Weapons Team), so for now every battle is ISF against ISF. The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
-> all in place, but no faction has a Commander yet and every army needs exactly one, so a battle can't be started. The weapons,
+> all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 >
 > **Setting:** a space opera (see [Lore.md](Lore.md)), replacing the original WWII-inspired fantasy. Some names below
@@ -61,7 +61,7 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 | Role | Units |
 |---|---|
 | **Infantry** | ISF Rifle Squad |
-| **Commander** | *none yet* |
+| **Commander** | Field Commander |
 | **Heavy Support** | Heavy Weapons Team |
 | **Specialist** | *none yet* |
 
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-Only the ISF has units so far (the ISF Rifle Squad and the Heavy Weapons Team), and no faction has a Commander, so none can field an army yet.
+Only the ISF has units so far (the Field Commander, the ISF Rifle Squad and the Heavy Weapons Team), so it's the only faction that can field an army; the Draconis Imperialis and the Rask have no units yet.
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -101,7 +101,7 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 
 **Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the catalog's demo army (keeping only units the faction has; none set yet), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
 
-**A faction can only field an army once it has a Commander unit.** While **no faction** has one (for now), the army builder says so (*"No faction has a Commander yet, so a battle can't be started"*) instead of the faction choice, listing the factions greyed out with how far along each is (*"2 units · no Commander yet"*, *"no units yet"*), with a **Back** button, and the main menu notes it under the title (*"No Commanders yet"*). Starting a battle (or sending a multiplayer army) is refused with the same message. Once some faction has a Commander, the faction choice works as usual and each faction shows its units (*"3 units available"*, or *"· no Commander yet"* for one that can't field an army). Add Unit and Soldier template assets under Data, put each unit in its faction's unit list, then run **Eldoria > Rebuild Unit Catalog** so the army builder lists them.
+**A faction can only field an army once it has a Commander unit.** While **no faction** has one, the army builder says so (*"No faction has a Commander yet, so a battle can't be started"*) instead of the faction choice, listing the factions greyed out with how far along each is (*"2 units · no Commander yet"*, *"no units yet"*), with a **Back** button, and the main menu notes it under the title (*"No Commanders yet"*). Starting a battle (or sending a multiplayer army) is refused with the same message. Once some faction has a Commander, the faction choice works as usual and each faction shows its units (*"3 units available"*, or *"· no Commander yet"* for one that can't field an army). Add Unit and Soldier template assets under Data, put each unit in its faction's unit list, then run **Eldoria > Rebuild Unit Catalog** so the army builder lists them.
 
 **Weapons and equipment (customizing a unit):** a soldier type can offer **weapon swaps** (a weapon it carries, and what it can be swapped for, e.g. *Assault Rifle → SMG*) and **equipment** it can be given. A unit in your list whose soldiers have any options gets a **Customize** button, which opens a panel listing each of those soldier types with its weapon choices and equipment.
 - Choices apply to **every soldier of that type in the unit** (e.g. all the Troopers); the Sergeant is set separately. Each unit in the list has its own choices, even two of the same unit.
@@ -113,6 +113,17 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
 **Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
+
+### Field Commander
+
+*International Space Force of Humanity · Commander.* The original Eldoria's Field Commander, with Armor 2. One soldier.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
+|---|---|---|---|---|---|---|---|
+| Field Commander | 10 | 2 | 75% | 10 m | Biological, Officer, Solo | Pistol | Lead from the front |
+
+- **Lead from the front** (passive aura): other friendly soldiers within 15 m gain **Led from the front**, +15% accuracy when attacking. The Field Commander doesn't benefit.
+- The ISF's only Commander so far, and what lets the ISF field an army.
 
 ### ISF Rifle Squad
 

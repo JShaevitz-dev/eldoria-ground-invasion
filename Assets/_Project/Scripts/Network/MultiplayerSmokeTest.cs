@@ -93,7 +93,9 @@ namespace Eldoria.Network
                 Check(none.Count == 1 && none[0] == ArmyBuilderScreen.NoArmiesMessage, "no Commanders: the army is refused with the no-Commander message");
                 yield break;
             }
-            var faction = catalog.Factions.ElementAt(hosting ? 0 : catalog.Factions.Count() - 1);
+            // The first and last factions that can field an army (the same one while only one can).
+            var fielding = catalog.Factions.Where(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)).ToList();
+            var faction = hosting ? fielding.First() : fielding.Last();
             var army = ArmyRules.RandomArmy(catalog.UnitsFor(faction), new System.Random(hosting ? 11 : 22));
             if (hosting) menu.ChooseMap(Battlefields.EnglishCountryside);
             else

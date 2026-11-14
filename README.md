@@ -1,10 +1,9 @@
 # Eldoria Ground Invasion
 
-> **A fork of Eldoria with its first three factions and the ISF's first two units, the ISF Rifle Squad and the Heavy
-> Weapons Team.** Every game system is
-> here (army lists and factions, movement, terrain and cover, shooting, keywords, abilities, the AI, multiplayer, both
-> maps and the menus), but no faction has a Commander yet and every army needs one, so a battle can't be started: the
-> game says so instead. The weapons,
+> **A fork of Eldoria with its first three factions. The International Space Force of Humanity is playable**, with a
+> Field Commander, the ISF Rifle Squad and the Heavy Weapons Team; the Draconis Imperialis and the Rask have no units
+> yet, so for now every battle is ISF against ISF. Every game system is here (army lists and factions, movement,
+> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, both maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
 Eldoria Ground Invasion is a space opera turn-based strategy game focused on company-level warfare across a variety of
@@ -25,8 +24,7 @@ getting the rules right.
 Build the game (see **Windows build** below) and run `Builds/Eldoria/Eldoria.exe`. The main menu has **Play**,
 **Multiplayer**, **Quit** and the turn timer option (off by default, 10 minutes per turn).
 
-Until a faction has a Commander, **Play** lets you choose a battlefield and then shows the factions (greyed out, with
-how many units each has) and that no faction has a Commander yet, so no battle can start. Once one does, you'll:
+After **Play**, you'll:
 
 1. **Choose a battlefield:** the Boxed in or the Open Season.
 2. **Choose your faction**, which decides which units and commanders you can take.
@@ -124,13 +122,14 @@ Inspector.
 
 | Unit | Faction | Role | Made of |
 |---|---|---|---|
+| **Field Commander** | International Space Force of Humanity | Commander | Field Commander (Health 10, Armor 2, Pistol, Lead from the front) |
 | **ISF Rifle Squad** | International Space Force of Humanity | Infantry | ISF Rifleman Sergeant + 9 ISF Riflemen (Armor 2, Assault Rifles, Frag Grenade) |
 | **Heavy Weapons Team** | International Space Force of Humanity | Heavy Support | ISF Rifleman Sergeant (Pistol) + 3 ISF Riflemen (Assault Rifles) + ISF Heavy Weapons (Machine Gun, Rocket Launcher or Flamethrower); Armor 2 |
 
-No Commanders yet. A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
+A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
-them (and add each unit to its faction's unit list). Both are created in code
-(`SquadBuilder.EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
+them (and add each unit to its faction's unit list). They're created in code
+(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
 Specialist.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,
@@ -185,12 +184,12 @@ Unity.exe -batchmode -projectPath . -runTests -testPlatform PlayMode -testResult
 Unity.exe -batchmode -quit -projectPath . -executeMethod Eldoria.EditorTools.GameBuilder.BuildWindows
 ```
 
-The game is written to `Builds/Eldoria/`. Run `Eldoria.exe -smokeTest` to have it open the menus on its own and report
-whether everything loaded (with no Commanders yet, it checks that the army builder says so and no battle starts).
+The game is written to `Builds/Eldoria/`. Run `Eldoria.exe -smokeTest` to have it build an ISF army, start a battle on the
+Open Season, play a few AI turns on its own and report whether everything loaded.
 
 To test multiplayer, run two copies on one computer, starting the host first. They connect over `127.0.0.1` and the
-host's map choice reaches the other game; with no Commanders yet, both check that their army is refused (once there are, they play
-three turns against each other and check that both games agree on the battle after every order):
+host's map choice reaches the other game; they play three turns against each other and check that both games agree on
+the battle after every order:
 
 ```bash
 Eldoria.exe -batchmode -nographics -mpSmoke host -logFile host.log

@@ -167,11 +167,53 @@ namespace Eldoria.EditorTools
             return team;
         }
 
+        /// <summary>
+        /// Field Commander (Commander, ISF), recreated from the original Eldoria with Armor 2: 1 Field Commander (Health 10,
+        /// Armor 2, Accuracy 75%, Move 10 m; Biological, Officer, Solo; Lead from the front; Pistol). Existing assets keep
+        /// their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureFieldCommander(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+            var lead = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/LeadFromTheFront.asset");
+
+            var commander = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/FieldCommander.asset", s =>
+            {
+                s.displayName = "Field Commander";
+                s.health = 10; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { keywords["Biological"], keywords["Officer"], keywords["Solo"] };
+                s.abilities = new List<Ability> { lead };
+                s.weapons = new List<WeaponTemplate> { pistol };
+                s.primaryWeapon = pistol;
+                s.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/FieldCommander.prefab");
+            });
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/FieldCommander.asset", u =>
+            {
+                u.displayName = "Field Commander";
+                u.role = UnitRole.Commander;
+                u.description = "A lone officer who makes everyone nearby shoot straighter. Lead from the front gives friendly " +
+                    "soldiers within 15 m +15% accuracy (the Commander doesn't get it), so keep the Commander just behind your " +
+                    "main firing line. With 10 health but only a pistol, the Commander isn't a fighter, and as a Solo unit is a " +
+                    "prime target for enemy snipers. A Commander: every army needs exactly one.";
+                u.leader = commander;
+                u.members = new List<UnitTemplate.Member>();
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
         [MenuItem("Eldoria/Rebuild Unit Catalog")]
         public static void RebuildUnitCatalog()
         {
             var keywords = EnsureKeywords();
             var factions = EnsureFactions();
+            EnsureFieldCommander(factions[0], keywords);
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             AssetDatabase.SaveAssets();

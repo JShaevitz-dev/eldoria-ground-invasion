@@ -1,7 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Eldoria.Gameplay;
+using Eldoria.Rules;
 using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
@@ -11,8 +11,9 @@ using UnityEngine.TestTools;
 namespace Eldoria.Tests
 {
     /// <summary>
-    /// The main menu: the first scene; Play chooses a map then opens the army builder; back to the menu. This fork has no
-    /// Commanders yet (only its three factions and the ISF's Rifle Squad and Heavy Weapons Team), so the army builder says so and a battle can't be started.
+    /// The main menu: the first scene; Play chooses a map then opens the army builder; a valid army starts a game against
+    /// an AI army; back to the menu. So far only the ISF can field an army (it has the only Commander), so the AI fields
+    /// the ISF too.
     /// </summary>
     public class MainMenuPlayTests
     {
@@ -29,45 +30,52 @@ namespace Eldoria.Tests
         [TearDown]
         public void ForgetArmies() => ArmySelection.Clear();
 
+        private static Faction Isf => UnitCatalog.Load().Factions.First();
+
         [Test]
-        public void TheGameHasItsThreeFactionsButNoCommandersYet()
+        public void OnlyTheIsfCanFieldAnArmySoFar()
         {
             var catalog = UnitCatalog.Load();
-            Assert.That(catalog, Is.Not.Null);
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[] { "International Space Force of Humanity", "Imperial Army of The Draconis Imperialis", "Most Holy Army of The Rask Divine Collective" }));
-            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "ISF Rifle Squad", "Heavy Weapons Team" }));
-            Assert.That(ArmyBuilderScreen.CatalogCanFieldArmies(catalog), Is.False, "no Commanders yet");
-            Assert.That(catalog.primaryColorMaterial, Is.Not.Null);
-            Assert.That(catalog.leaderMarker, Is.Not.Null);
+            Assert.That(ArmyBuilderScreen.CatalogCanFieldArmies(catalog), Is.True);
+            Assert.That(catalog.Factions.Select(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(new[] { true, false, false }));
         }
 
         [UnityTest]
-        public IEnumerator PlayOpensTheArmyBuilderWhichSaysThereAreNoCommanders()
+        public IEnumerator PlayOpensTheArmyBuilderOnTheFactionChoice()
         {
             var menu = Object.FindFirstObjectByType<MainMenu>();
             Assert.That(menu, Is.Not.Null);
             Assert.That(menu.Builder, Is.Null);
 
             menu.OpenArmyBuilder();
-            yield return null;   // draws the builder: no Commanders, so the message (and the factions, greyed out)
-            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("MainMenu"), "still on the menu");
-            Assert.That(menu.Builder.CanFieldArmies, Is.False);
-            Assert.That(menu.Builder.Factions.Count, Is.EqualTo(3));
-            Assert.That(menu.Builder.Faction, Is.Null);
-            Assert.That(menu.Builder.Available, Is.Empty);
-            Assert.That(menu.Builder.Confirm(), Is.False);
-            Assert.That(ArmyBuilderScreen.NoArmiesMessage, Does.Contain("No faction has a Commander yet"));
+            yield return null;
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("MainMenu"), "still on the menu, building");
+            Assert.That(menu.Builder.CanFieldArmies, Is.True);
+            Assert.That(menu.Builder.Faction, Is.Null, "a faction is chosen first");
+            Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("3 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("no units yet"));
+
+            menu.Builder.ChooseFaction(Isf);
+            yield return null;   // draws the unit list
+            Assert.That(menu.Builder.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team" }),
+                "Commanders first, then Infantry, then Heavy Support");
+            Assert.That(menu.Builder.Army, Is.Empty, "no demo army set yet: the list starts empty");
         }
 
         [UnityTest]
-        public IEnumerator ABattleCantBeStartedAndTheGameStaysOnTheMenu()
+        public IEnumerator AnInvalidArmyIsRefusedAndStaysOnTheMenu()
         {
-            var problems = MainMenu.StartBattle(null, new List<UnitTemplate>());
-            Assert.That(problems, Is.EqualTo(new[] { ArmyBuilderScreen.NoArmiesMessage }));
-            // Even a made-up army with a Commander is refused: no faction in the game can field an army for the AI.
-            var squad = TestArmies.InfantrySquad;
-            var faction = TestArmies.Faction("Test", Color.gray, squad, TestArmies.FieldCommander);
-            Assert.That(MainMenu.StartBattle(faction, new[] { TestArmies.FieldCommander, squad }), Is.EqualTo(new[] { ArmyBuilderScreen.NoArmiesMessage }));
+            var menu = Object.FindFirstObjectByType<MainMenu>();
+            menu.OpenArmyBuilder();
+            var builder = menu.Builder;
+            builder.ChooseFaction(Isf);
+            Assert.That(builder.Add(builder.Available.First(u => u.displayName == "ISF Rifle Squad")), Is.Null);
+
+            Assert.That(builder.Confirm(), Is.False);
+            Assert.That(builder.Problems.Single(), Does.Contain("Commander"));
+            Assert.That(MainMenu.StartBattle(builder.Faction, builder.Army), Is.Not.Empty);
             yield return null;
             yield return null;
             Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("MainMenu"));
@@ -75,30 +83,72 @@ namespace Eldoria.Tests
         }
 
         [UnityTest]
-        public IEnumerator PlayChoosesAMapThenOpensTheArmyBuilder()
+        public IEnumerator AValidArmyIsTakenToTheBattlefieldAgainstAnAIArmy()
+        {
+            var menu = Object.FindFirstObjectByType<MainMenu>();
+            menu.OpenArmyBuilder();
+            var builder = menu.Builder;
+            builder.ChooseFaction(Isf);
+            UnitTemplate Unit(string name) => builder.Available.First(u => u.displayName == name);
+            foreach (var name in new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team", "Heavy Weapons Team" })
+                Assert.That(builder.Add(Unit(name)), Is.Null, name);
+            Assert.That(builder.Add(Unit("Field Commander")), Does.Contain("Already in the army"));
+            Assert.That(builder.Confirm(), Is.True);
+            var army = builder.Army.ToList();
+
+            Assert.That(MainMenu.StartBattle(builder.Faction, army), Is.Empty);
+            yield return null;
+            yield return null;
+
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("UrbanDemo"));
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            Assert.That(controller.PlayerUnits.Select(u => u.DisplayName), Is.EqualTo(new[]
+                { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team 1", "Heavy Weapons Team 2" }));
+            Assert.That(ArmySelection.PlayerFaction, Is.SameAs(Isf));
+            Assert.That(ArmySelection.AIFaction, Is.SameAs(Isf), "the only faction that can field an army");
+            Assert.That(ArmyRules.IsValid(ArmySelection.AIArmy, ArmySelection.AIFaction), Is.True, "the AI's army follows the same rules");
+            Assert.That(ArmySelection.AIArmy.Count, Is.EqualTo(6), "the AI fills every slot");
+            var aiUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).Where(u => u.Side == Side.AI).ToList();
+            Assert.That(aiUnits.Count, Is.EqualTo(ArmySelection.AIArmy.Count));
+            Assert.That(Turns.Current, Is.EqualTo(1), "a fresh battle on turn 1");
+            Assert.That(Victory.IsOver, Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator PlayChoosesAMapThenTheArmyFightsThere()
         {
             var menu = Object.FindFirstObjectByType<MainMenu>();
             menu.OpenMapChoice();
             Assert.That((menu.ChoosingMap, menu.Builder), Is.EqualTo((true, (ArmyBuilderScreen)null)), "the map comes first");
             Assert.That(Battlefields.All.Select(m => m.Name), Is.EqualTo(new[] { "Boxed in", "Open Season" }));
-            yield return null;
 
             menu.ChooseMap(Battlefields.EnglishCountryside);
             Assert.That(menu.ChoosingMap, Is.False);
             Assert.That(menu.Builder, Is.Not.Null, "then the army builder");
-            Assert.That(MainMenu.ChosenMap, Is.SameAs(Battlefields.EnglishCountryside));
+            menu.Builder.ChooseFaction(Isf);
+            menu.Builder.Randomize(new System.Random(7));
+            Assert.That(menu.Builder.Confirm(), Is.True, "a random army is valid");
+            Assert.That(MainMenu.StartBattle(menu.Builder.Faction, menu.Builder.Army.ToList()), Is.Empty);
             yield return null;
-            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("MainMenu"));
+            yield return null;
+
+            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Countryside"));
+            var zones = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None);
+            foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+            foreach (var s in unit.Soldiers)
+                Assert.That(zones.Single(z => z.Side == unit.Side).Contains(s.Position), Is.True, $"{unit.DisplayName}: {s.name}");
+            Assert.That(Object.FindFirstObjectByType<MovementController>().PlayerUnits.Count, Is.EqualTo(ArmySelection.PlayerArmy.Count));
         }
 
         [UnityTest]
         public IEnumerator TheGameCanReturnToTheMenu()
         {
-            ArmySelection.Set(new[] { TestArmies.FieldCommander }, new[] { TestArmies.FieldCommander });
-            SceneManager.LoadScene(MainMenu.GameScene);
+            var menu = Object.FindFirstObjectByType<MainMenu>();
+            menu.OpenArmyBuilder();
+            menu.Builder.ChooseFaction(Isf);
+            menu.Builder.Randomize(new System.Random(3));
+            Assert.That(MainMenu.StartBattle(menu.Builder.Faction, menu.Builder.Army.ToList()), Is.Empty);
             yield return null;
-            yield return null;
-            Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo(MainMenu.GameScene));
             MainMenu.BackToMenu();
             yield return null;
             yield return null;
