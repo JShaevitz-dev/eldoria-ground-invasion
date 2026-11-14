@@ -8,8 +8,8 @@ namespace Eldoria.Gameplay
 {
     /// <summary>
     /// A quick end-to-end check of a built game, off unless the program is started with <c>-smokeTest</c>:
-    /// from the main menu it starts a game, selects a unit and previews a move, lets the AI play three turns, checks the
-    /// runtime shaders and visuals, then quits with exit code 0 (passed) or 1 (an error was logged or a check failed).
+    /// from the main menu it opens the map choice and the army builder (which, with no factions or units in this fork,
+    /// says a battle can't be started), checks the runtime shaders and sounds, then quits with exit code 0 (passed) or 1 (an error was logged or a check failed).
     /// Usage: Eldoria.exe -batchmode -nographics -smokeTest -logFile smoke.log
     /// With a window (no -batchmode) and <c>-smokeScreenshots folder</c>, it also saves screenshots of the main menu and
     /// the game (HUD and labels included) into that folder.
@@ -69,30 +69,14 @@ namespace Eldoria.Gameplay
             Check(Battlefields.All.Count == 2, "the map choice offers Boxed in and Open Season");
             menu.ChooseMap(Battlefields.EnglishCountryside);
             yield return Screenshot("factions.png");
-            Check(menu.Builder.Factions.Count == 3, $"the army builder offers the factions ({menu.Builder.Factions.Count})");
-            menu.Builder.ChooseFaction(menu.Builder.Factions[0]);
-            yield return Screenshot("army.png");
-            Check(menu.Builder != null && menu.Builder.Available.Count >= 6, $"the army builder lists every unit ({menu.Builder?.Available.Count})");
-            Check(menu.Builder != null && menu.Builder.Confirm(), "the starting army is valid");
-            var army = new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>(menu.Builder.Army);
-            MainMenu.StartBattle(menu.Builder.Faction, army);
-            for (int i = 0; i < 10 && SceneManager.GetActiveScene().name != Battlefields.EnglishCountryside.Scene; i++) yield return null;
+            // This fork has no factions or units yet: the army builder says so and no battle can start.
+            Check(menu.Builder != null, "the army builder opens");
+            Check(menu.Builder != null && !menu.Builder.HasUnits && menu.Builder.Factions.Count == 0,
+                $"the army builder has no factions or units ({menu.Builder?.Factions.Count} factions)");
+            var refused = MainMenu.StartBattle(null, new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>());
+            Check(refused.Count == 1 && refused[0] == ArmyBuilderScreen.NoUnitsMessage, "starting a battle is refused with the no-units message");
             yield return null;
-            Check(SceneManager.GetActiveScene().name == Battlefields.EnglishCountryside.Scene, "Play starts a game on the chosen map");
-
-            var controller = FindFirstObjectByType<MovementController>();
-            Check(controller != null && controller.PlayerUnits.Count == army.Count, "the player's army is deployed");
-            Check(ArmySelection.HasArmies && FindObjectsByType<Eldoria.Units.Unit>(FindObjectsSortMode.None).Count(u => u.Side == Eldoria.Units.Side.AI) == ArmySelection.AIArmy.Count,
-                $"the AI's army is deployed ({ArmySelection.AIArmy?.Count} units)");
-            if (controller != null)
-            {
-                var unit = controller.PlayerUnits[0];
-                Check(controller.SelectUnit(unit), "a unit can be selected");
-                controller.PreviewAt(unit.Leader.Position + Vector3.forward * 8f);
-                yield return Screenshot("game.png");
-                for (int turn = 0; turn < 3 && !Victory.IsOver; turn++) controller.EndTurn(instant: true);
-                Check(Turns.Current >= 2, $"the AI played its turns (now turn {Turns.Current})");
-            }
+            Check(SceneManager.GetActiveScene().name == MainMenu.MenuScene, "the game stays on the main menu");
 
             KeywordSparkles.RefreshNow();
             CloseRangeMarkers.RefreshNow();

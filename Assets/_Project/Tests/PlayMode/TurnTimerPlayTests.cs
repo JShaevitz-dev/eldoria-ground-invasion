@@ -21,7 +21,7 @@ namespace Eldoria.Tests
         {
             savedEnabled = TurnTimerSettings.Enabled;
             savedMinutes = TurnTimerSettings.Minutes;
-            SceneManager.LoadScene("UrbanDemo");
+            TestArmies.LoadScene("UrbanDemo");
             yield return null;
             yield return null;
             controller = Object.FindFirstObjectByType<MovementController>();

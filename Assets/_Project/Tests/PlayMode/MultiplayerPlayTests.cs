@@ -21,8 +21,10 @@ namespace Eldoria.Tests
     {
         private const int Seed = 4242;
 
-        private static UnitTemplate Unit(string name) => UnitCatalog.Load().Available.First(u => u.displayName == name);
-        private static Faction Faction(string name) => UnitCatalog.Load().Factions.First(f => f.displayName == name);
+        private static readonly Faction South = TestArmies.Faction("Test South", new Color(0.16f, 0.30f, 0.15f),
+            TestArmies.FieldCommander, TestArmies.InfantrySquad, TestArmies.BattlePriest);
+        private static readonly Faction North = TestArmies.Faction("Test North", new Color(0.46f, 0.47f, 0.49f),
+            TestArmies.FieldCommander, TestArmies.InfantrySquad, TestArmies.BattlePriest);
 
         /// <summary>Starts a multiplayer battle (no network) with this player on <paramref name="localSide"/>.</summary>
         private static IEnumerator StartBattle(Side localSide)
@@ -30,9 +32,9 @@ namespace Eldoria.Tests
             MultiplayerSession.Leave();
             Victory.Reset();
             ArmySelection.Set(
-                new[] { Unit("Field Commander"), Unit("Infantry Squad"), Unit("Machine Gun Team") },
-                new[] { Unit("Field Commander"), Unit("Infantry Squad"), Unit("Sniper") },
-                Faction("United States of Liberteria"), Faction("The Draksa Reich"));
+                new[] { TestArmies.FieldCommander, TestArmies.InfantrySquad, TestArmies.InfantrySquad },
+                new[] { TestArmies.FieldCommander, TestArmies.InfantrySquad, TestArmies.BattlePriest },
+                South, North);
             ArmySelection.LocalSide = localSide;
             GameRandom.Seed(Seed);
             MultiplayerSession.Offline(localSide);

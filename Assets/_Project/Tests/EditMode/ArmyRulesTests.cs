@@ -9,23 +9,88 @@ using UnityEngine;
 
 namespace Eldoria.Tests
 {
-    /// <summary>Army lists: up to 6 units, at least 1 Commander, no duplicate Commander or Specialist units.</summary>
+    /// <summary>
+    /// Army lists: up to 6 units, at least 1 Commander, no duplicate Commander or Specialist units. The game has no units
+    /// of its own yet, so these use test-made units and a test-made catalog with two factions.
+    /// </summary>
     public class ArmyRulesTests
     {
-        private static UnitTemplate U(string file) => AssetDatabase.LoadAssetAtPath<UnitTemplate>($"Assets/_Project/Data/Units/{file}.asset");
-        private static UnitTemplate Infantry => U("InfantrySquad");
-        private static UnitTemplate Commander => U("FieldCommander");
-        private static UnitTemplate Priest => U("BattlefieldPriest");
-        private static UnitTemplate MG => U("MachineGunTeam");
-        private static UnitTemplate PA => U("PoweredArmorSquad");
-        private static UnitTemplate Sniper => U("Sniper");
+        private static UnitTemplate Infantry => TestArmies.InfantrySquad;
+        private static UnitTemplate Commander => TestArmies.FieldCommander;
+        private static UnitTemplate Priest => TestArmies.BattlePriest;
+        private static UnitTemplate Sniper => TestArmies.Sniper;
+
+        private static UnitTemplate mg, pa, commanderPA;
+        private static UnitTemplate MG => mg != null ? mg : mg = TestArmies.Unit("Machine Gun Team", UnitRole.HeavySupport,
+            TestArmies.Soldier("Sergeant", 5, 1, 75, 10f, new[] { "Biological" }, null, new[] { TestArmies.Weapon("Pistol") }),
+            TestArmies.Soldier("Machine Gunner", 5, 1, 75, 10f, new[] { "Biological" }, null, new[] { TestArmies.Weapon("MachineGun") }), 4);
+        private static UnitTemplate PA => pa != null ? pa : pa = TestArmies.Unit("Powered Armor Squad", UnitRole.Specialist,
+            TestArmies.Soldier("Sergeant in Powered Armor", 5, 2, 75, 6f, new[] { "Biological" }, null, new[] { TestArmies.Weapon("AssaultRifle") }),
+            TestArmies.Soldier("Trooper in Powered Armor", 5, 2, 75, 6f, new[] { "Biological" }, null, new[] { TestArmies.Weapon("AssaultRifle") }), 4);
+        private static UnitTemplate CommanderPA => commanderPA != null ? commanderPA : commanderPA = TestArmies.Unit("Field Commander in Powered Armor",
+            UnitRole.Commander, TestArmies.Soldier("Field Commander", 10, 2, 75, 6f, new[] { "Biological", "Officer", "Solo" }, null, new[] { TestArmies.Weapon("Pistol") }));
 
         private static List<UnitTemplate> List(params UnitTemplate[] units) => units.ToList();
+
+        private readonly List<Object> created = new List<Object>();
+
+        [TearDown]
+        public void TearDown()
+        {
+            foreach (var o in created) if (o != null) Object.DestroyImmediate(o);
+            created.Clear();
+        }
+
+        /// <summary>A test catalog: two factions, Blue (everything but the Powered Armor Squad) and Grey (everything but the Battle Priest).</summary>
+        private UnitCatalog TestCatalog()
+        {
+            var catalog = ScriptableObject.CreateInstance<UnitCatalog>();
+            created.Add(catalog);
+            catalog.units = List(Commander, CommanderPA, Infantry, MG, Priest, PA, Sniper).OrderBy(u => u.role.ListOrder()).ToList();
+            var blue = TestArmies.Faction("Test Blue", new Color(0.2f, 0.3f, 0.7f), Commander, CommanderPA, Infantry, MG, Priest, Sniper);
+            var grey = TestArmies.Faction("Test Grey", new Color(0.46f, 0.47f, 0.49f), Commander, CommanderPA, Infantry, MG, PA, Sniper);
+            created.Add(blue);
+            created.Add(grey);
+            catalog.factions = new List<Faction> { blue, grey };
+            catalog.defaultArmy = List(Infantry, Commander, Infantry, Priest, Infantry);
+            catalog.primaryColorMaterial = UnitCatalog.Load().primaryColorMaterial;
+            catalog.leaderMarker = UnitCatalog.Load().leaderMarker;
+            return catalog;
+        }
+
+        [Test]
+        public void TheGameHasNoFactionsOrUnitsYet()
+        {
+            var catalog = UnitCatalog.Load();
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(catalog.Available, Is.Empty);
+            Assert.That(catalog.Factions, Is.Empty);
+            Assert.That(catalog.defaultArmy, Is.Empty);
+            Assert.That(catalog.primaryColorMaterial, Is.Not.Null, "still there for deploying units");
+            Assert.That(catalog.leaderMarker, Is.Not.Null);
+            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }), Is.Empty);
+            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }), Is.Empty);
+            Assert.That(AssetDatabase.FindAssets("t:Faction", new[] { "Assets/_Project/Data/Factions" }), Is.Empty);
+        }
+
+        [Test]
+        public void WithNoFactionsOrUnitsTheBuilderSaysSoAndTheAIHasNoArmy()
+        {
+            var builder = new ArmyBuilderScreen(UnitCatalog.Load());
+            Assert.That(builder.HasUnits, Is.False);
+            Assert.That(builder.Factions, Is.Empty);
+            Assert.That(builder.Confirm(), Is.False);
+            Assert.That(new ArmyBuilderScreen(null).HasUnits, Is.False);
+            Assert.That(new ArmyBuilderScreen(TestCatalog()).HasUnits, Is.True);
+            Assert.That(ArmyRules.RandomArmy(UnitCatalog.Load().Available, new System.Random(1)), Is.Empty, "nothing to field");
+            Assert.That(MainMenu.StartBattle(null, List()), Is.EqualTo(new[] { ArmyBuilderScreen.NoUnitsMessage }));
+        }
 
         [Test]
         public void TheDemoArmyIsValid()
         {
-            Assert.That(ArmyRules.Problems(UnitCatalog.Load().defaultArmy), Is.Empty);
+            Assert.That(ArmyRules.Problems(TestArmies.DemoArmy), Is.Empty);
+            Assert.That(ArmyRules.Problems(TestCatalog().defaultArmy), Is.Empty);
         }
 
         [Test]
@@ -59,7 +124,7 @@ namespace Eldoria.Tests
         [Test]
         public void OnlyOneCommanderIsAllowedInAList()
         {
-            var commanderPA = U("FieldCommanderPoweredArmor");
+            var commanderPA = CommanderPA;
             Assert.That(ArmyRules.Problems(List(Commander, commanderPA)).Single(), Does.Contain("Only 1 Commander unit is allowed"));
             Assert.That(ArmyRules.WhyCannotAdd(List(Commander, Infantry), commanderPA), Does.Contain("already has its Commander"));
             Assert.That(ArmyRules.WhyCannotAdd(List(Infantry), commanderPA), Is.Null, "the first Commander is fine");
@@ -85,7 +150,7 @@ namespace Eldoria.Tests
         [Test]
         public void TheAIsRandomArmiesAreAlwaysValidAndFull()
         {
-            var available = UnitCatalog.Load().Available.ToList();
+            var available = TestCatalog().Available.ToList();
             var used = new HashSet<UnitTemplate>();
             for (int seed = 0; seed < 300; seed++)
             {
@@ -101,12 +166,10 @@ namespace Eldoria.Tests
         [Test]
         public void TheCatalogListsEveryUnitCommandersFirst()
         {
-            var catalog = UnitCatalog.Load();
-            Assert.That(catalog.Available.Count(), Is.EqualTo(13));
+            var catalog = TestCatalog();
+            Assert.That(catalog.Available.Count(), Is.EqualTo(7));
             Assert.That(catalog.Available.Select(u => u.role.ListOrder()), Is.Ordered);
             Assert.That(catalog.Available.First().role, Is.EqualTo(UnitRole.Commander));
-            Assert.That(catalog.primaryColorMaterial, Is.Not.Null);
-            Assert.That(catalog.leaderMarker, Is.Not.Null);
         }
 
         [Test]
@@ -125,16 +188,6 @@ namespace Eldoria.Tests
         }
 
         // ---- Unit stats and descriptions in the army builder ----
-
-        [Test]
-        public void EveryUnitHasADescriptionOfHowItPlays()
-        {
-            foreach (var unit in UnitCatalog.Load().Available)
-            {
-                Assert.That(unit.description, Is.Not.Null.And.Not.Empty, unit.displayName);
-                Assert.That(unit.description.Length, Is.InRange(200, 600), $"{unit.displayName}: a brief paragraph");
-            }
-        }
 
         [Test]
         public void TheBuilderListsEachSoldierTypesStats()
@@ -157,8 +210,7 @@ namespace Eldoria.Tests
                 "Pistol — Damage 2 · Shots 1 · Penetration 0 · Range 10 m · Pistol",
             }));
             Assert.That(UnitInfo.WeaponLines(Sniper).Single(), Is.EqualTo("Sniper Rifle — Damage 5 · Shots 1 · Penetration 1 · +50% accuracy · Range 50 m · Deployed"));
-            Assert.That(UnitInfo.WeaponLines(U("FlamethrowerTeam")).First(), Does.StartWith("Flamethrower — Damage 10 · Shots 3 · Penetration X · Range 10 m · Incendiary"));
-            Assert.That(UnitInfo.WeaponLines(MG).Select(l => l.Split(' ')[0]), Is.EqualTo(new[] { "Pistol", "SMG", "Machine" }));
+            Assert.That(UnitInfo.WeaponLines(MG).Select(l => l.Split(' ')[0]), Is.EqualTo(new[] { "Pistol", "Machine" }));
             Assert.That(UnitInfo.WeaponLines(MG).Last(), Is.EqualTo("Machine Gun — Damage 5 · Shots 5 · Penetration 1 · Range 20 m · Deployed"));
         }
 
@@ -175,7 +227,7 @@ namespace Eldoria.Tests
         [Test]
         public void TheArmyBuilderAddsRemovesAndChecks()
         {
-            var catalog = UnitCatalog.Load();
+            var catalog = TestCatalog();
             var builder = new ArmyBuilderScreen(catalog);
             builder.ChooseFaction(catalog.Factions.First());
             builder.Clear();
@@ -193,25 +245,15 @@ namespace Eldoria.Tests
 
         // ---- Factions ----
 
-        private static Faction F(string file) => AssetDatabase.LoadAssetAtPath<Faction>($"Assets/_Project/Data/Factions/{file}.asset");
-
         [Test]
-        public void ThereAreThreeFactionsAndEachHasEveryUnitExceptOtherFactionsOwn()
+        public void EachFactionOffersOnlyItsOwnUnitsInCatalogOrder()
         {
-            var catalog = UnitCatalog.Load();
-            Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[]
-                { "United States of Liberteria", "United Kingdom of Aelfland", "The Draksa Reich" }));
-            Assert.That(F("UnitedStatesOfLiberteria"), Is.Not.Null);
-            Assert.That(F("UnitedKingdomOfAelfland"), Is.Not.Null);
-            Assert.That(F("DraksaReich"), Is.Not.Null);
-            foreach (var f in catalog.Factions)
-            {
-                var expected = catalog.Available.Where(u =>
-                    (u.displayName != "Battle Mage" || f.displayName == "United States of Liberteria") &&
-                    (u.displayName != "Stahl Colossus" || f.displayName == "The Draksa Reich") &&
-                    (u.displayName != "Paladin Squad" || f.displayName == "United Kingdom of Aelfland"));
-                Assert.That(catalog.UnitsFor(f), Is.EquivalentTo(expected), f.displayName);
-            }
+            var catalog = TestCatalog();
+            var blue = catalog.Factions.First();
+            var grey = catalog.Factions.Last();
+            Assert.That(catalog.UnitsFor(blue), Is.EqualTo(catalog.Available.Where(u => u != PA)));
+            Assert.That(catalog.UnitsFor(grey), Is.EqualTo(catalog.Available.Where(u => u != Priest)));
+            Assert.That(catalog.UnitsFor(null), Is.EqualTo(catalog.Available), "no faction: every unit");
         }
 
         [Test]
@@ -225,7 +267,7 @@ namespace Eldoria.Tests
                 Assert.That(ArmyRules.IsValid(List(Commander, Infantry, Infantry), limited), Is.True);
                 Assert.That(ArmyRules.Problems(List(Commander, Sniper), limited).Single(), Does.Contain("Sniper isn't available to Test Faction"));
                 Assert.That(ArmyRules.WhyCannotAdd(List(Commander), Sniper, limited), Does.Contain("Not available to Test Faction"));
-                Assert.That(ArmyRules.Problems(List(U("FieldCommanderPoweredArmor")), limited), Has.Some.Contains("Field Commander in Powered Armor isn't available"),
+                Assert.That(ArmyRules.Problems(List(CommanderPA), limited), Has.Some.Contains("Field Commander in Powered Armor isn't available"),
                     "the faction decides the commanders too");
             }
             finally
@@ -235,25 +277,13 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void EachFactionHasItsColour()
-        {
-            Assert.That(F("UnitedStatesOfLiberteria").color, Is.EqualTo(new Color(0.16f, 0.30f, 0.15f)), "dark green");
-            Assert.That(F("UnitedKingdomOfAelfland").color, Is.EqualTo(new Color(0.50f, 0.74f, 0.36f)), "light green");
-            Assert.That(F("DraksaReich").color, Is.EqualTo(new Color(0.46f, 0.47f, 0.49f)), "gray");
-            var usc = F("UnitedStatesOfLiberteria").color;
-            Assert.That(usc.g > usc.r && usc.g > usc.b, Is.True, "green");
-            var aelf = F("UnitedKingdomOfAelfland").color;
-            Assert.That(aelf.g > aelf.r && aelf.g > aelf.b && aelf.g > usc.g, Is.True, "a lighter green");
-        }
-
-        [Test]
         public void ThePrimaryColourTintsOnlyTheUnitsPrimaryParts()
         {
             var catalog = UnitCatalog.Load();
             var unit = UnitFactory.Spawn(Infantry, Side.Player, Vector3.zero, Quaternion.identity);
             try
             {
-                var gray = F("DraksaReich").color;
+                var gray = new Color(0.46f, 0.47f, 0.49f);
                 int tinted = PrimaryColor.Apply(unit.gameObject, catalog.primaryColorMaterial, gray);
                 Assert.That(tinted, Is.GreaterThanOrEqualTo(10), "every soldier's body");
                 foreach (var r in unit.GetComponentsInChildren<Renderer>())
@@ -274,7 +304,7 @@ namespace Eldoria.Tests
         [Test]
         public void TheBuilderShowsOnlyTheFactionsUnits()
         {
-            var catalog = UnitCatalog.Load();
+            var catalog = TestCatalog();
             var faction = catalog.Factions.Last();
             var builder = new ArmyBuilderScreen(catalog);
             Assert.That(builder.Faction, Is.Null);
@@ -288,13 +318,14 @@ namespace Eldoria.Tests
         [Test]
         public void TheBuilderRemembersTheLastArmyForItsFaction()
         {
-            var catalog = UnitCatalog.Load();
+            var catalog = TestCatalog();
             var usc = catalog.Factions.First();
             var builder = new ArmyBuilderScreen(catalog, usc, List(Commander, Sniper));
             builder.ChooseFaction(usc);
             Assert.That(builder.Army, Is.EqualTo(List(Commander, Sniper)));
             builder.ChooseFaction(catalog.Factions.Last());
-            Assert.That(builder.Army, Is.EqualTo(catalog.defaultArmy), "another faction starts from the demo army");
+            var grey = catalog.Factions.Last();
+            Assert.That(builder.Army, Is.EqualTo(catalog.defaultArmy.Where(grey.Has)), "another faction starts from the demo army (its own units)");
         }
 
         [Test]

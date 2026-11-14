@@ -212,47 +212,6 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void TheRealSniperUnitShootsThePickedSoldierWithTheSniperRifle()
-        {
-            var template = AssetDatabase.LoadAssetAtPath<UnitTemplate>("Assets/_Project/Data/Units/Sniper.asset");
-            var sniperUnit = UnitFactory.Spawn(template, Side.Player, Vector3.zero, Quaternion.identity);
-            created.Add(sniperUnit.gameObject);
-            var sniper = sniperUnit.Leader;
-            var them = MakeUnit("Them", Side.AI, (targetT, new Vector3(0, 0, 10)), (targetT, new Vector3(3, 0, 45)));
-            var picked = them.Soldiers[1];   // 45 m away: only the Sniper Rifle reaches
-
-            var weapon = sniper.WeaponFor(null);
-            Assert.That(weapon.Name, Is.EqualTo("Sniper Rifle"));
-            var accuracy = Rules.Accuracy.ForAttack(sniper, weapon, sprinted: false);
-            Assert.That((accuracy.Final, accuracy.HitChance, accuracy.CritChance), Is.EqualTo((150, 100, 50)), "100% + 50: always hits, 50% crit");
-
-            var r = UnitShooting.Resolve(sniperUnit, them, false, new System.Random(3), chosenTarget: picked);
-            Assert.That(r.Shots.Single().Target, Is.EqualTo(picked));
-            Assert.That(r.Shots.Single().Attack.Hit, Is.True);
-            Assert.That(picked.Health, Is.LessThan(20));
-
-            // Deployed: after moving, the Sniper can't shoot (no other weapon), so there are no valid targets.
-            sniper.GainKeyword(KeywordLibrary.Get(KeywordLibrary.Moved), Turns.NextTurn);
-            Assert.That(UnitShooting.HasAnyTarget(sniperUnit), Is.False);
-        }
-
-        [Test]
-        public void TheSniperIsAsDesigned()
-        {
-            var t = AssetDatabase.LoadAssetAtPath<SoldierTemplate>("Assets/_Project/Data/Soldiers/Sniper.asset");
-            Assert.That(t.displayName, Is.EqualTo("Sniper"));
-            Assert.That((t.health, t.armorLevel, t.accuracy, t.movementRange), Is.EqualTo((5, 0, 100, 15f)));
-            Assert.That(t.keywords.Select(k => k.displayName), Is.EquivalentTo(new[] { "Biological", "Solo", "Sniper Precision" }));
-            var unit = AssetDatabase.LoadAssetAtPath<UnitTemplate>("Assets/_Project/Data/Units/Sniper.asset");
-            Assert.That((unit.displayName, unit.leader, unit.Size), Is.EqualTo(("Sniper", t, 1)), "a solo unit");
-            Assert.That(t.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Sniper Rifle" }));
-            Assert.That(t.PrimaryWeapon.displayName, Is.EqualTo("Sniper Rifle"));
-            Assert.That(t.prefab, Is.Not.Null);
-            var kw = t.keywords.Single(k => k.Is("Sniper Precision"));
-            Assert.That((kw.appliesTo, kw.category), Is.EqualTo((KeywordTarget.Soldier, KeywordCategory.Trait)));
-        }
-
-        [Test]
         public void ThereIsNoPlainSniperKeyword()
         {
             Assert.That(AssetDatabase.LoadAssetAtPath<Keyword>("Assets/_Project/Data/Keywords/Sniper.asset"), Is.Null, "redundant with Sniper Precision");

@@ -22,7 +22,7 @@ namespace Eldoria.Tests
         [UnitySetUp]
         public IEnumerator LoadScene()
         {
-            SceneManager.LoadScene("UrbanDemo");
+            TestArmies.LoadScene("UrbanDemo");
             yield return null;
             yield return null;
             measurer = BattlefieldNavigation.Measurer;

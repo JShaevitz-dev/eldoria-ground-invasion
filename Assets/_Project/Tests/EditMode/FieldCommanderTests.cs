@@ -32,52 +32,6 @@ namespace Eldoria.Tests
 
         // ---- The templates as designed ----
 
-        [Test]
-        public void FieldCommanderUnitIsOneFieldCommander()
-        {
-            var unit = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/FieldCommander.asset");
-            Assert.That(unit, Is.Not.Null);
-            Assert.That(unit.displayName, Is.EqualTo("Field Commander"));
-            Assert.That(unit.Size, Is.EqualTo(1));
-            Assert.That(unit.leader.displayName, Is.EqualTo("Field Commander"));
-        }
-
-        [Test]
-        public void FieldCommanderHasTheDesignedStats()
-        {
-            var fc = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{Data}/Soldiers/FieldCommander.asset");
-            Assert.That(fc.health, Is.EqualTo(10));
-            Assert.That(fc.armorLevel, Is.EqualTo(1));
-            Assert.That(fc.accuracy, Is.EqualTo(75));
-            Assert.That(fc.movementRange, Is.EqualTo(10f));
-            Assert.That(fc.keywords.Select(k => k.displayName), Is.EquivalentTo(new[] { "Biological", "Officer", "Solo" }));
-            Assert.That(fc.keywords.All(k => k.category == KeywordCategory.Trait), Is.True, "all three are Traits");
-            Assert.That(fc.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Pistol" }));
-            Assert.That(fc.PrimaryWeapon.displayName, Is.EqualTo("Pistol"));
-
-            var ability = fc.abilities.Single();
-            Assert.That(ability.displayName, Is.EqualTo("Lead from the front"));
-            Assert.That(ability.kind, Is.EqualTo(AbilityKind.Passive));
-            Assert.That(ability.radius, Is.EqualTo(15f));
-            Assert.That(ability.affects, Is.EqualTo(AuraAffects.Allies), "friendly soldiers only");
-            Assert.That(ability.includeSelf, Is.False, "the Field Commander doesn't benefit");
-            var bonus = ability.grantsNearby.interactions.Single();
-            Assert.That(bonus.effect, Is.EqualTo(KeywordEffect.AccuracyBonus));
-            Assert.That(bonus.amount, Is.EqualTo(15));
-        }
-
-        [Test]
-        public void InfantrySquadHasTheUpdatedStats()
-        {
-            var sgt = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{Data}/Soldiers/Sergeant.asset");
-            var trooper = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{Data}/Soldiers/Trooper.asset");
-            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{Data}/Weapons/Pistol.asset");
-            Assert.That(sgt.accuracy, Is.EqualTo(75));
-            Assert.That((trooper.health, trooper.armorLevel, trooper.accuracy), Is.EqualTo((5, 1, 75)));
-            Assert.That(pistol.accuracyBonus, Is.EqualTo(0));
-            Assert.That(AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/InfantrySquad.asset").displayName, Is.EqualTo("Infantry Squad"));
-        }
-
         // ---- Lead from the front ----
 
         private SoldierTemplate commanderT, trooperT;

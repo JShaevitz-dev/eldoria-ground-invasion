@@ -17,8 +17,8 @@ namespace Eldoria.Tests
         private const string Data = "Assets/_Project/Data";
         private readonly List<Object> created = new List<Object>();
 
-        private static UnitTemplate Unit() => AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/MediumTank.asset");
-        private static SoldierTemplate Tank() => AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{Data}/Soldiers/MediumTank.asset");
+        private static UnitTemplate Unit() => TestArmies.MediumTank;   // a test-made stand-in
+        private static SoldierTemplate Tank() => Unit().leader;
         private static WeaponTemplate Cannon() => AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{Data}/Weapons/Cannon100mm.asset");
 
         [SetUp]
@@ -44,37 +44,12 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void TheMediumTankIsAsDesigned()
-        {
-            var unit = Unit();
-            Assert.That((unit.displayName, unit.Size, unit.role), Is.EqualTo(("Medium Tank", 1, UnitRole.HeavySupport)));
-            Assert.That(unit.leader, Is.SameAs(Tank()));
-            var t = Tank();
-            Assert.That(t.displayName, Is.EqualTo("Medium Tank"));
-            Assert.That((t.health, t.armorLevel, t.accuracy, t.movementRange), Is.EqualTo((20, 4, 75, 30f)));
-            Assert.That(t.keywords.Select(k => k.displayName), Is.EquivalentTo(new[] { "Mechanical", "Tank", "Unstable" }));
-            Assert.That(t.HasKeyword("Biological"), Is.False, "a machine");
-            Assert.That(t.weapons.Single(), Is.SameAs(Cannon()));
-            Assert.That(t.PrimaryWeapon, Is.SameAs(Cannon()));
-            Assert.That(t.prefab, Is.Not.Null);
-        }
-
-        [Test]
         public void The100mmCannonIsAsDesigned()
         {
             var c = Cannon();
             Assert.That(c.displayName, Is.EqualTo("100mm Cannon"));
             Assert.That((c.baseDamage, c.PenetrationValue, c.range, c.shots, c.accuracyBonus), Is.EqualTo((10, (int?)4, 50f, 1, 0)));
             Assert.That(c.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Manual Load" }));
-        }
-
-        [Test]
-        public void EveryFactionCanTakeMediumTanksAndMoreThanOne()
-        {
-            foreach (var f in UnitCatalog.Load().Factions)
-                Assert.That(f.Has(Unit()), Is.True, f.displayName);
-            var commander = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/FieldCommander.asset");
-            Assert.That(ArmyRules.IsValid(new List<UnitTemplate> { commander, Unit(), Unit(), Unit() }), Is.True, "Heavy Support isn't unique");
         }
 
         [Test]
@@ -92,7 +67,7 @@ namespace Eldoria.Tests
             Assert.That(tooFar.Ok, Is.False, "35 m would be a sprint");
             Assert.That(tooFar.Reason, Does.Contain("can't sprint"));
 
-            var infantry = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/InfantrySquad.asset");
+            var infantry = TestArmies.InfantrySquad;
             var sergeant = Spawn(infantry, Side.Player, new Vector3(20f, 0f, 0f)).Leader;
             Assert.That((sergeant.CanSprint, sergeant.Sprint), Is.EqualTo((true, 20f)), "others still can");
         }
@@ -100,7 +75,7 @@ namespace Eldoria.Tests
         [Test]
         public void ManualLoadFiresOnceATurn()
         {
-            var infantry = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/InfantrySquad.asset");
+            var infantry = TestArmies.InfantrySquad;
             var tank = Spawn(Unit(), Side.Player, Vector3.zero);
             var enemy = Spawn(infantry, Side.AI, new Vector3(0f, 0f, 20f));
             var cannon = tank.Leader.Weapons.Single();
@@ -120,7 +95,7 @@ namespace Eldoria.Tests
         [Test]
         public void MechanicalSoldiersCantBeInCloseRange()
         {
-            var infantry = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/InfantrySquad.asset");
+            var infantry = TestArmies.InfantrySquad;
             var tank = Spawn(Unit(), Side.Player, Vector3.zero).Leader;
             var enemy = Spawn(infantry, Side.AI, new Vector3(0f, 0f, 1.5f));
             Assert.That(CloseRange.IsInCloseRange(tank), Is.False, "an enemy 1.5 m away");

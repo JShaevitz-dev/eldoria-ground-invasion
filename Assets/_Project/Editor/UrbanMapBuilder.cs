@@ -444,32 +444,12 @@ namespace Eldoria.EditorTools
         }
 
         /// <summary>
-        /// Both sides field the same army: three Infantry Squads, a Field Commander and a Battle Priest.
-        /// Squads deploy across the zone (west, centre, east) with the officers behind the gaps between them.
+        /// The armies placed in the scene: none, as this fork has no units yet. Armies chosen in the army builder are
+        /// deployed when a battle starts (ArmyDeployment); an empty "Armies" object keeps the scene's layout.
         /// </summary>
         private static void SpawnArmies()
         {
-            var infantry = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Root}/Data/Units/InfantrySquad.asset");
-            var commander = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Root}/Data/Units/FieldCommander.asset");
-            var priest = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Root}/Data/Units/BattlefieldPriest.asset");
-
-            var armies = new GameObject("Armies");
-            foreach (var side in new[] { Side.Player, Side.AI })
-            {
-                float s = side == Side.Player ? 1f : -1f;       // AI positions are the player's turned 180°
-                var facing = Quaternion.Euler(0f, side == Side.Player ? 0f : 180f, 0f);
-                string suffix = side == Side.Player ? "" : " (Enemy)";
-                var units = new[]
-                {
-                    SquadBuilder.SpawnUnit(infantry, side, new Vector3(-22f, 0f, -24f) * s, facing, "Infantry Squad 1" + suffix),
-                    SquadBuilder.SpawnUnit(infantry, side, new Vector3(0f, 0f, -24f) * s, facing, "Infantry Squad 2" + suffix),
-                    SquadBuilder.SpawnUnit(infantry, side, new Vector3(22f, 0f, -24f) * s, facing, "Infantry Squad 3" + suffix),
-                    SquadBuilder.SpawnUnit(commander, side, new Vector3(-11f, 0f, -27f) * s, facing, "Field Commander" + suffix),
-                    SquadBuilder.SpawnUnit(priest, side, new Vector3(11f, 0f, -27f) * s, facing, priest.displayName + suffix),
-                };
-                // Units sit side by side under "Armies", never inside one another (a unit owns only its own soldiers).
-                foreach (var u in units) u.transform.SetParent(armies.transform, true);
-            }
+            new GameObject("Armies");
         }
 
         private static Camera BuildLightingAndCamera()

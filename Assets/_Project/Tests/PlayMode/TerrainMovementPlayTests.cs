@@ -25,7 +25,7 @@ namespace Eldoria.Tests
         [UnitySetUp]
         public IEnumerator LoadScene()
         {
-            SceneManager.LoadScene("CubeRoom");
+            TestArmies.LoadScene("CubeRoom");
             yield return null;
             yield return null;
             measurer = BattlefieldNavigation.Measurer;

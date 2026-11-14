@@ -18,9 +18,8 @@ namespace Eldoria.Tests
         private const string Data = "Assets/_Project/Data";
         private readonly List<Object> created = new List<Object>();
 
-        private static UnitTemplate U(string file) => AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/{file}.asset");
+        private static UnitTemplate U(string file) => TestArmies.ByFile(file);   // test-made stand-ins
         private static WeaponTemplate W(string file) => AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{Data}/Weapons/{file}.asset");
-        private static Faction F(string file) => AssetDatabase.LoadAssetAtPath<Faction>($"{Data}/Factions/{file}.asset");
         private static Ability A(string file) => AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/{file}.asset");
 
         [SetUp]
@@ -46,39 +45,12 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void TheStahlColossusIsAsDesigned()
-        {
-            var unit = U("StahlColossus");
-            Assert.That((unit.displayName, unit.Size, unit.role), Is.EqualTo(("Stahl Colossus", 1, UnitRole.HeavySupport)));
-            var c = unit.leader;
-            Assert.That(c.displayName, Is.EqualTo("Stahl Colossus"));
-            Assert.That((c.health, c.armorLevel, c.accuracy, c.movementRange), Is.EqualTo((15, 3, 75, 15f)));
-            Assert.That(c.keywords.Select(k => k.displayName), Is.EquivalentTo(new[] { "Solo", "Mechanical" }));
-            Assert.That(c.weapons, Is.EqualTo(new[] { W("MachineGun"), W("IronClaw") }));
-            Assert.That(c.PrimaryWeapon, Is.SameAs(W("MachineGun")));
-            Assert.That(c.abilities, Is.EqualTo(new[] { A("IronClaw"), A("Stabilizers") }));
-            Assert.That(c.height, Is.EqualTo(3.6f), "twice a person's 1.8 m");
-            Assert.That(c.prefab, Is.Not.Null);
-        }
-
-        [Test]
         public void TheIronClawIsAsDesigned()
         {
             var claw = W("IronClaw");
             Assert.That(claw.displayName, Is.EqualTo("Iron Claw"));
             Assert.That((claw.baseDamage, claw.PenetrationValue, claw.range, claw.accuracyBonus, claw.shots), Is.EqualTo((10, (int?)0, 2f, 25, 1)));
             Assert.That(claw.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Melee" }));
-        }
-
-        [Test]
-        public void OnlyTheDraksaReichCanTakeIt()
-        {
-            Assert.That(F("DraksaReich").Has(U("StahlColossus")), Is.True);
-            Assert.That(F("UnitedStatesOfLiberteria").Has(U("StahlColossus")), Is.False);
-            Assert.That(F("UnitedKingdomOfAelfland").Has(U("StahlColossus")), Is.False);
-            var commander = U("FieldCommander");
-            Assert.That(ArmyRules.IsValid(new List<UnitTemplate> { commander, U("StahlColossus"), U("StahlColossus") }, F("DraksaReich")), Is.True,
-                "Heavy Support: more than one");
         }
 
         [Test]

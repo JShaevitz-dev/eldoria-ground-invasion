@@ -253,17 +253,5 @@ namespace Eldoria.Tests
         }
 
         // ---- The data ----
-
-        [Test]
-        public void TroopersAndSergeantsHaveFragGrenade()
-        {
-            var ability = AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/FragGrenade.asset");
-            Assert.That((ability.kind, ability.targets, ability.range, ability.areaRadius, ability.usesPerBattle),
-                Is.EqualTo((AbilityKind.Active, AbilityTarget.Point, 10f, 2.5f, 1)));
-            Assert.That((ability.areaWeapon.baseDamage, ability.areaWeapon.penetration), Is.EqualTo((5, 0)));
-            Assert.That(ability.areaWeapon.HasKeyword("Explosive"), Is.True);
-            foreach (var file in new[] { "Trooper", "Sergeant" })
-                Assert.That(AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{Data}/Soldiers/{file}.asset").abilities, Does.Contain(ability), file);
-        }
     }
 }

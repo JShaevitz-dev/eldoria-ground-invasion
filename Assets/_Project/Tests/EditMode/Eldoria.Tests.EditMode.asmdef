@@ -3,6 +3,7 @@
     "rootNamespace": "Eldoria.Tests",
     "references": [
         "Eldoria",
+        "Eldoria.Tests.PlayMode",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

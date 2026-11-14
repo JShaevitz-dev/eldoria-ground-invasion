@@ -76,7 +76,7 @@ namespace Eldoria.Tests
             faction = Make<Faction>();
             faction.displayName = "Test Faction";
             faction.units.Add(squad);
-            faction.units.Add(AssetDatabase.LoadAssetAtPath<UnitTemplate>("Assets/_Project/Data/Units/FieldCommander.asset"));
+            faction.units.Add(TestArmies.FieldCommander);
         }
 
         [TearDown]

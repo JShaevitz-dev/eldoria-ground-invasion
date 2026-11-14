@@ -13,16 +13,19 @@ namespace Eldoria.Tests
     /// <summary>Chosen armies replace the scene's armies on the Boxed in map, in their deployment zones.</summary>
     public class ArmyDeploymentPlayTests
     {
-        private static UnitTemplate Unit(string name) => UnitCatalog.Load().Available.First(u => u.displayName == name);
-        private static Faction Faction(string name) => UnitCatalog.Load().Factions.First(f => f.displayName == name);
+        private static readonly UnitTemplate Commander = TestArmies.FieldCommander, Priest = TestArmies.BattlePriest,
+            Squad = TestArmies.InfantrySquad;
+        private static readonly UnitTemplate Lone = TestArmies.Unit("Lone Rifleman", UnitRole.Specialist, TestArmies.Trooper);
+        private static readonly Faction Blue = TestArmies.Faction("Test Blue", new Color(0.16f, 0.30f, 0.15f), Commander, Priest, Squad, Lone);
+        private static readonly Faction Grey = TestArmies.Faction("Test Grey", new Color(0.46f, 0.47f, 0.49f), Commander, Squad, Lone);
 
         [UnitySetUp]
         public IEnumerator DeployTwoFullArmies()
         {
             ArmySelection.Set(
-                new[] { Unit("Field Commander"), Unit("Battle Priest"), Unit("Sniper"), Unit("Powered Armor Squad"), Unit("Machine Gun Team"), Unit("Infantry Squad") },
-                new[] { Unit("Field Commander"), Unit("Infantry Squad"), Unit("Infantry Squad"), Unit("Machine Gun Team"), Unit("Machine Gun Team"), Unit("Sniper") },
-                Faction("United States of Liberteria"), Faction("The Draksa Reich"));
+                new[] { Commander, Priest, Lone, Squad, Squad, Squad },
+                new[] { Commander, Squad, Squad, Lone, Squad, Lone },
+                Blue, Grey);
             SceneManager.LoadScene(MainMenu.GameScene);
             yield return null;
             yield return null;
@@ -36,7 +39,7 @@ namespace Eldoria.Tests
         {
             var controller = Object.FindFirstObjectByType<MovementController>();
             Assert.That(controller.PlayerUnits.Select(u => u.DisplayName), Is.EqualTo(new[]
-                { "Field Commander", "Battle Priest", "Sniper", "Powered Armor Squad", "Machine Gun Team", "Infantry Squad" }));
+                { "Field Commander", "Battle Priest", "Lone Rifleman", "Infantry Squad 1", "Infantry Squad 2", "Infantry Squad 3" }));
             // Left to right across the deployment zone.
             var xs = controller.PlayerUnits.Select(u => u.Leader.Position.x).ToList();
             Assert.That(xs, Is.Ordered);
@@ -50,7 +53,7 @@ namespace Eldoria.Tests
             Assert.That(names, Is.EqualTo(new[]
             {
                 "Field Commander (Enemy)", "Infantry Squad 1 (Enemy)", "Infantry Squad 2 (Enemy)",
-                "Machine Gun Team 1 (Enemy)", "Machine Gun Team 2 (Enemy)", "Sniper (Enemy)",
+                "Infantry Squad 3 (Enemy)", "Lone Rifleman 1 (Enemy)", "Lone Rifleman 2 (Enemy)",
             }));
         }
 

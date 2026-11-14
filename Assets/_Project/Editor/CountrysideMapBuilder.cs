@@ -357,23 +357,13 @@ namespace Eldoria.EditorTools
             return zone;
         }
 
-        /// <summary>The armies placed in the scene (used when the map is opened directly): the demo army on both sides.</summary>
+        /// <summary>
+        /// The armies placed in the scene: none, as this fork has no units yet. Armies chosen in the army builder are
+        /// deployed in the zones when a battle starts (ArmyDeployment).
+        /// </summary>
         private static void SpawnArmies(List<DeploymentZone> zones)
         {
-            UnitTemplate U(string file) => AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Root}/Data/Units/{file}.asset");
-            var army = new List<UnitTemplate> { U("InfantrySquad"), U("FieldCommander"), U("InfantrySquad"), U("BattlefieldPriest"), U("InfantrySquad") };
-            var root = new GameObject("Armies");
-            foreach (var zone in zones)
-            {
-                var side = zone.Side;
-                var names = ArmyDeployment.UnitNames(army, side);
-                var facing = Quaternion.Euler(0f, side == Side.Player ? 0f : 180f, 0f);
-                for (int i = 0; i < army.Count; i++)
-                {
-                    var unit = SquadBuilder.SpawnUnit(army[i], side, ArmyDeployment.Slot(zone.transform.position, zone.Size, side, i), facing, names[i]);
-                    unit.transform.SetParent(root.transform, true);
-                }
-            }
+            new GameObject("Armies");
         }
 
         private static Camera BuildLightingAndCamera()

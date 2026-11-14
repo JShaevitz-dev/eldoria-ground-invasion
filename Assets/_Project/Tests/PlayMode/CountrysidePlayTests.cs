@@ -19,7 +19,7 @@ namespace Eldoria.Tests
         public IEnumerator LoadMap()
         {
             ArmySelection.Clear();
-            SceneManager.LoadScene(Battlefields.EnglishCountryside.Scene);
+            TestArmies.LoadScene(Battlefields.EnglishCountryside.Scene);
             yield return null;
             yield return null;
         }
@@ -98,7 +98,7 @@ namespace Eldoria.Tests
         [UnityTest]
         public IEnumerator TheKnollBlocksLineOfSight()
         {
-            var sniper = UnitCatalog.Load().Available.First(u => u.displayName == "Sniper");
+            var sniper = TestArmies.FieldCommander;   // any unit of one soldier
             Unit Place(float x, float z) => UnitFactory.Spawn(sniper, Side.Player, new Vector3(x, L.GroundHeight(x, z), z), Quaternion.identity);
             var west = Place(L.KnollCentre.x - L.KnollRadius, L.KnollCentre.y);
             var east = Place(L.KnollCentre.x + L.KnollRadius, L.KnollCentre.y);

@@ -43,6 +43,18 @@ namespace Eldoria.Gameplay
         /// <summary>Why the last Confirm was refused (empty if it wasn't).</summary>
         public IReadOnlyList<string> Problems => problems;
 
+        /// <summary>Shown instead of the faction choice when the game has no factions or units to build an army from.</summary>
+        public const string NoUnitsMessage =
+            "This version of Eldoria has no factions or units yet, so a battle can't be started.\n\n" +
+            "Add factions (Data/Factions) and units (Data/Units) and rebuild the unit catalog to play.";
+
+        /// <summary>True if the catalog has at least one faction and one unit, so an army can be built.</summary>
+        public static bool CatalogHasUnits(UnitCatalog catalog) =>
+            catalog != null && catalog.Factions.Any() && catalog.Available.Any();
+
+        /// <summary>True if an army can be built (see <see cref="CatalogHasUnits"/>).</summary>
+        public bool HasUnits => CatalogHasUnits(catalog);
+
         /// <param name="previousFaction">The faction of the player's last confirmed army, if any.</param>
         /// <param name="previousArmy">That army: the list starts from it if the same faction is chosen again.</param>
         /// <param name="previousLoadouts">That army's loadouts (same order).</param>
@@ -353,6 +365,15 @@ namespace Eldoria.Gameplay
             float w = Mathf.Min(700f, Screen.width - 40f), h = Mathf.Min(560f, Screen.height - 40f);
             GUILayout.BeginArea(new Rect((Screen.width - w) / 2f, (Screen.height - h) / 2f, w, h));
             GUILayout.Label("CHOOSE YOUR FACTION", title);
+            if (!HasUnits)
+            {
+                GUILayout.Space(24f);
+                GUILayout.Label(NoUnitsMessage, bad);
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Back", bigButton, GUILayout.Height(50f))) result = Result.Back;
+                GUILayout.EndArea();
+                return result;
+            }
             GUILayout.Label("Your faction decides which units and commanders you can take.", small);
             GUILayout.Space(16f);
             foreach (var faction in factions)
@@ -364,7 +385,6 @@ namespace Eldoria.Gameplay
                 Swatch(new Rect(b.x + 18f, b.y + 18f, b.height - 36f, b.height - 36f), faction.color);
                 GUILayout.Space(8f);
             }
-            if (factions.Count == 0) GUILayout.Label("No factions found.", bad);
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Back", bigButton, GUILayout.Height(50f))) result = Result.Back;
             GUILayout.EndArea();

@@ -15,12 +15,10 @@ namespace Eldoria.Tests
     {
         private MovementController controller;
 
-        private static UnitTemplate Unit(string name) => UnitCatalog.Load().Available.First(u => u.displayName == name);
-
         [UnitySetUp]
         public IEnumerator LoadBattle()
         {
-            var army = new[] { Unit("Field Commander"), Unit("Infantry Squad") };
+            var army = new[] { TestArmies.FieldCommander, TestArmies.InfantrySquad };
             ArmySelection.Set(army, army);
             SceneManager.LoadScene("Countryside");
             yield return null;

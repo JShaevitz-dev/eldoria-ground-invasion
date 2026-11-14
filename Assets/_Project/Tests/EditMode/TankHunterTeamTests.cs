@@ -18,9 +18,8 @@ namespace Eldoria.Tests
         private const string Data = "Assets/_Project/Data";
         private readonly List<Object> created = new List<Object>();
 
-        private static UnitTemplate U(string file) => AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/{file}.asset");
+        private static UnitTemplate U(string file) => TestArmies.ByFile(file);   // test-made stand-ins
         private static Ability Rocket() => AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/RocketLauncher.asset");
-        private static Faction F(string file) => AssetDatabase.LoadAssetAtPath<Faction>($"{Data}/Factions/{file}.asset");
 
         [SetUp]
         public void SetUp()
@@ -47,29 +46,6 @@ namespace Eldoria.Tests
         private static Soldier RocketTrooper(Unit unit) => unit.Soldiers.Single(s => s.Template.displayName == "Rocket Trooper");
 
         [Test]
-        public void TheTeamIsASergeantThreeTroopersAndARocketTrooper()
-        {
-            var team = U("TankHunterTeam");
-            Assert.That((team.displayName, team.Size, team.role), Is.EqualTo(("Tank Hunter Team", 5, UnitRole.HeavySupport)));
-            Assert.That(team.leader.displayName, Is.EqualTo("Sergeant"));
-            Assert.That(team.members.Select(m => (m.soldier.displayName, m.count)), Is.EqualTo(new[] { ("Trooper", 3), ("Rocket Trooper", 1) }));
-
-            Assert.That(team.leader.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle", "Pistol" }));
-            Assert.That(team.members[0].soldier.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle" }));
-            var rocketeer = team.members[1].soldier;
-            Assert.That(rocketeer.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle" }), "the rocket isn't fired in volleys");
-            Assert.That(rocketeer.abilities, Is.EqualTo(new[] { Rocket() }));
-            foreach (var s in team.Roster())
-            {
-                Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((5, 1, 75, 10f)), s.displayName);
-                Assert.That(s.PrimaryWeapon.displayName, Is.EqualTo("Assault Rifle"));
-                Assert.That(s.abilities.Any(a => a.displayName == "Frag Grenade"), Is.False, "no grenade");
-                Assert.That(s.prefab, Is.Not.Null);
-            }
-            foreach (var f in UnitCatalog.Load().Factions) Assert.That(f.Has(team), Is.True, f.displayName);
-        }
-
-        [Test]
         public void TheRocketLauncherAbilityIsAnAimedShotWithTheRocketLauncher()
         {
             var a = Rocket();
@@ -77,21 +53,6 @@ namespace Eldoria.Tests
             Assert.That(a.IsAimedAttack, Is.True);
             Assert.That(a.attackWeapon.displayName, Is.EqualTo("Rocket Launcher"));
             Assert.That(a.range, Is.EqualTo(50f));
-        }
-
-        [Test]
-        public void TheRifleShowsUnderEachFactionsName()
-        {
-            var team = U("TankHunterTeam");
-            Assert.That(UnitInfo.SoldierLines(team, F("UnitedStatesOfLiberteria")).First(), Does.EndWith("Semi-auto rifle, Pistol"));
-            Assert.That(UnitInfo.SoldierLines(team, F("UnitedKingdomOfAelfland")).Last(), Does.EndWith("Bolt-Action Rifle"));
-            Assert.That(UnitInfo.SoldierLines(team, F("DraksaReich")).Last(), Does.EndWith("Bolt-Action Rifle"));
-            Assert.That(UnitInfo.WeaponLines(team).Last(), Is.EqualTo("Rocket Launcher — Damage 5 · Shots 1 · Penetration 5 · Range 50 m · Manual Load"));
-            Assert.That(UnitInfo.AbilityLines(team).Single(), Is.EqualTo("Rocket Launcher (active)"));
-
-            var unit = Spawn("TankHunterTeam", Side.Player, Vector3.zero);
-            unit.SetFaction(F("UnitedStatesOfLiberteria"));
-            Assert.That(unit.Soldiers.All(s => s.WeaponFor(null).Name == "Semi-auto rifle"), Is.True, "in play too");
         }
 
         [Test]

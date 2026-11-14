@@ -4,20 +4,47 @@ using System.Linq;
 using System.Threading;
 using Eldoria.Gameplay;
 using Eldoria.Network;
+using Eldoria.Rules;
 using Eldoria.Units;
 using NUnit.Framework;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Eldoria.Tests
 {
     /// <summary>Multiplayer: the messages between the two games, and the connection itself (on this computer).</summary>
     public class MultiplayerTests
     {
+        private readonly List<Object> created = new List<Object>();
+
         [TearDown]
         public void CleanUp()
         {
             MultiplayerSession.Leave();
             ArmySelection.Clear();
+            foreach (var o in created) if (o != null) Object.DestroyImmediate(o);
+            created.Clear();
+        }
+
+        /// <summary>
+        /// A test catalog (the game has no units of its own yet): one faction with the test Field Commander, Infantry Squad
+        /// and Battle Priest, plus a squad whose troopers can swap their rifle for an SMG and take a piece of equipment.
+        /// </summary>
+        private UnitCatalog TestCatalog()
+        {
+            var plating = ScriptableObject.CreateInstance<Equipment>();
+            plating.name = plating.displayName = "Armor Plating";
+            plating.armorLevel = 1;
+            var rifle = TestArmies.Weapon("AssaultRifle");
+            var trooper = TestArmies.Soldier("Custom Trooper", 5, 1, 75, 10f, new[] { "Biological" }, null, new[] { rifle });
+            trooper.weaponOptions.Add(new WeaponOption { weapon = rifle, alternatives = new List<WeaponTemplate> { TestArmies.Weapon("SMG") } });
+            trooper.equipmentOptions.Add(plating);
+            var custom = TestArmies.Unit("Custom Squad", UnitRole.Infantry, TestArmies.Sergeant, trooper, 4);
+            var catalog = ScriptableObject.CreateInstance<UnitCatalog>();
+            catalog.units = new List<UnitTemplate> { TestArmies.FieldCommander, TestArmies.InfantrySquad, custom, TestArmies.BattlePriest };
+            catalog.factions = new List<Faction> { TestArmies.Faction("Test Faction", Color.gray, catalog.units.ToArray()) };
+            created.AddRange(new Object[] { plating, trooper, custom, catalog, catalog.factions[0] });
+            return catalog;
         }
 
         [Test]
@@ -43,7 +70,7 @@ namespace Eldoria.Tests
         [Test]
         public void AnArmyListSurvivesTheTrip()
         {
-            var catalog = UnitCatalog.Load();
+            var catalog = TestCatalog();
             var faction = catalog.Factions.First();
             var units = catalog.UnitsFor(faction).Take(4).ToList();
             var loadouts = units.Select(_ => new UnitLoadout()).ToList();
@@ -76,15 +103,16 @@ namespace Eldoria.Tests
         [Test]
         public void AnArmyWithUnknownUnitsIsRejected()
         {
-            var msg = new ArmyMsg { faction = UnitCatalog.Load().Factions.First().name, units = new List<string> { "NoSuchUnit" } };
-            Assert.That(msg.TryResolve(UnitCatalog.Load(), out _, out _, out _, out var error), Is.False);
+            var catalog = TestCatalog();
+            var msg = new ArmyMsg { faction = catalog.Factions.First().name, units = new List<string> { "NoSuchUnit" } };
+            Assert.That(msg.TryResolve(catalog, out _, out _, out _, out var error), Is.False);
             Assert.That(error, Does.Contain("NoSuchUnit"));
         }
 
         [Test]
         public void TheEnemyIsWhicheverSideThisPlayerIsNot()
         {
-            var units = new[] { UnitCatalog.Load().Available.First() };
+            var units = new[] { TestArmies.FieldCommander };
             Assert.That(ArmySelection.LocalSide, Is.EqualTo(Side.Player));
             Assert.That(ArmyDeployment.UnitNames(units, Side.AI)[0], Does.EndWith("(Enemy)"));
             Assert.That(ArmyDeployment.UnitNames(units, Side.Player)[0], Does.Not.EndWith("(Enemy)"));

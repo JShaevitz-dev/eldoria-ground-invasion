@@ -32,7 +32,7 @@ namespace Eldoria.Tests
             rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>("Assets/_Project/Data/Weapons/AssaultRifle.asset");
             pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>("Assets/_Project/Data/Weapons/Pistol.asset");
             flamer = AssetDatabase.LoadAssetAtPath<WeaponTemplate>("Assets/_Project/Data/Weapons/Flamethrower.asset");
-            infantry = AssetDatabase.LoadAssetAtPath<UnitTemplate>("Assets/_Project/Data/Units/InfantrySquad.asset");
+            infantry = TestArmies.InfantrySquad;
 
             reich = Make<Faction>();
             reich.displayName = "Test Reich";
@@ -144,22 +144,6 @@ namespace Eldoria.Tests
                 Is.EqualTo("Sturmgewehr — Damage 5 · Shots 2 · Penetration 1 · +10% accuracy · Range 15 m"));
             Assert.That(UnitInfo.SoldierLines(infantry, reich).First(), Does.EndWith("Sturmgewehr, Pistol"));
             Assert.That(UnitInfo.WeaponLines(infantry).First(), Does.StartWith("Assault Rifle — Damage 4 · Shots 1"), "no faction: the weapon's own");
-        }
-
-        [Test]
-        public void TheGamesFactionsNameTheAssaultRifle()
-        {
-            Faction F(string file) => AssetDatabase.LoadAssetAtPath<Faction>($"Assets/_Project/Data/Factions/{file}.asset");
-            var liberteria = WeaponStats.For(rifle, F("UnitedStatesOfLiberteria"));
-            Assert.That((liberteria.Name, liberteria.Shots, liberteria.BaseDamage, liberteria.Range), Is.EqualTo(("Semi-auto rifle", 2, 4, 20f)),
-                "Liberteria: a semi-auto rifle with 2 shots, otherwise the Assault Rifle");
-            foreach (var file in new[] { "UnitedKingdomOfAelfland", "DraksaReich" })
-            {
-                var bolt = WeaponStats.For(rifle, F(file));
-                Assert.That((bolt.Name, bolt.Shots, bolt.BaseDamage, bolt.Range), Is.EqualTo(("Bolt-Action Rifle", 1, 4, 20f)), file);
-            }
-            foreach (var file in new[] { "UnitedStatesOfLiberteria", "UnitedKingdomOfAelfland", "DraksaReich" })
-                Assert.That(WeaponStats.For(pistol, F(file)).Name, Is.EqualTo("Pistol"), "other weapons keep their names");
         }
 
         [Test]

@@ -89,10 +89,7 @@ namespace Eldoria.EditorTools
             camGo.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
             camGo.transform.localPosition = camGo.transform.localRotation * new Vector3(0f, 0f, -40f);
 
-            SquadBuilder.SpawnTestSquad();
-            SquadBuilder.SpawnEnemySquad();
-            SquadBuilder.SpawnFieldCommander();
-            SquadBuilder.SpawnBattlefieldPriest();
+            // No test units: this fork has no units yet.
 
             // --- Game controller (player movement orders for the test squad) ---
             var gameController = new GameObject("GameController");

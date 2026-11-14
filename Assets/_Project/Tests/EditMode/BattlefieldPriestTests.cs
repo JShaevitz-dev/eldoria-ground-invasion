@@ -105,28 +105,6 @@ namespace Eldoria.Tests
 
         // ---- The templates as designed ----
 
-        [Test]
-        public void BattlefieldPriestHasTheDesignedStats()
-        {
-            var unit = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/BattlefieldPriest.asset");
-            Assert.That(unit.Size, Is.EqualTo(1));
-            var p = unit.leader;
-            Assert.That(p.displayName, Is.EqualTo("Battle Priest"));
-            Assert.That((p.health, p.armorLevel, p.accuracy, p.movementRange), Is.EqualTo((5, 0, 50, 10f)));
-            Assert.That(p.keywords.Select(k => k.displayName), Is.EquivalentTo(new[] { "Biological", "Officer", "Solo", "Magic" }));
-            Assert.That(p.keywords.All(k => k.category == KeywordCategory.Trait), Is.True);
-            Assert.That(p.PrimaryWeapon.displayName, Is.EqualTo("Pistol"));
-
-            var heal = p.abilities.Single(a => a.displayName == "Divine Healing");
-            Assert.That((heal.kind, heal.targets, heal.affects, heal.range, heal.heal), Is.EqualTo((AbilityKind.Active, AbilityTarget.Soldier, AuraAffects.Allies, 25f, 5)));
-            Assert.That(heal.targetMustHave.displayName, Is.EqualTo("Biological"));
-
-            var sanct = p.abilities.Single(a => a.displayName == "Divine Sanctuary");
-            Assert.That((sanct.kind, sanct.targets, sanct.affects, sanct.range), Is.EqualTo((AbilityKind.Active, AbilityTarget.Unit, AuraAffects.Allies, 25f)));
-            Assert.That(sanct.grantsKeyword.interactions.Single().effect, Is.EqualTo(KeywordEffect.ArmorBonus));
-            Assert.That(sanct.grantsKeyword.interactions.Single().amount, Is.EqualTo(1));
-        }
-
         // ---- Divine Healing ----
 
         [Test]
@@ -211,7 +189,7 @@ namespace Eldoria.Tests
         [Test]
         public void ThePriestsSpellsPlayTheHallelujah()
         {
-            var p = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/BattlefieldPriest.asset").leader;
+            var p = TestArmies.BattlePriest.leader;
             foreach (var spell in p.abilities)
             {
                 Assert.That(spell.IsSpell, Is.True);

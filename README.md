@@ -1,4 +1,9 @@
-# Eldoria
+# Eldoria Ground Invasion
+
+> **A fork of Eldoria with no factions or units yet.** Every game system is here (army lists and factions, movement,
+> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, both maps and the menus), but there are no
+> faction, unit or soldier assets, so the army builder is empty and a battle can't be started: the game says so
+> instead. The weapons, abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
 Eldoria is a WWII-inspired fantasy turn-based strategy game focused on company-level warfare across a variety of
 battlefields. The goal of this project is to offer the tactical freedom of tabletop wargames with the convenience and
@@ -10,17 +15,18 @@ getting the rules right.
 
 ## Play it
 
-1. Download [`Eldoria-Windows.zip`](Eldoria-Windows.zip) from this repo.
-2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
-3. Pick **Play** on the main menu (or **Multiplayer**, see below). You can turn on the turn timer there too (it's off by default, 10 minutes per turn).
-4. **Choose a battlefield:** the Boxed in or the Open Season.
-5. **Choose your faction:** the United States of Liberteria, the United Kingdom of Aelfland or the Draksa Reich. Your
-   faction decides which units and commanders you can take.
-6. **Build your army:** up to 6 units, exactly 1 Commander, and no duplicate Specialist units. Units whose soldiers
-   have weapon or equipment options can be customized. Then
-   press **Confirm army**.
+Build the game (see **Windows build** below) and run `Builds/Eldoria/Eldoria.exe`. The main menu has **Play**,
+**Multiplayer**, **Quit** and the turn timer option (off by default, 10 minutes per turn).
 
-You play against the AI on one of two maps:
+Until factions and units are added, **Play** lets you choose a battlefield and then shows that there are no factions or
+units, so no battle can start. Once there are, you'll:
+
+1. **Choose a battlefield:** the Boxed in or the Open Season.
+2. **Choose your faction**, which decides which units and commanders you can take.
+3. **Build your army:** up to 6 units, exactly 1 Commander, and no duplicate Specialist units. Units whose soldiers
+   have weapon or equipment options can be customized. Then press **Confirm army**.
+
+The two maps:
 
 - **Boxed in:** an 80 × 60 m city block with a central plaza, laid out with 180° symmetry so both sides start out even.
 - **Open Season:** 100 × 100 m of open, rolling farmland. Hills block line of sight. A river crosses the map:
@@ -95,27 +101,17 @@ At a glance:
   shot entirely.
 - **Keywords drive the interactions**, such as Biological, Toxic, Incendiary, Deployed, Solo, Spell and Sniper Precision.
 
-### Units
+### Units and factions
 
-| Unit | Role |
-|---|---|
-| Field Commander | Commander |
-| Field Commander in Powered Armor | Commander |
-| Battle Priest | Specialist |
-| Infantry Squad | Infantry |
-| Machine Gun Team | Heavy Support |
-| Flamethrower Team | Specialist |
-| Medium Tank | Heavy Support |
-| Tank Hunter Team | Heavy Support |
-| Battle Mage (United States of Liberteria only) | Specialist |
-| Stahl Colossus (Draksa Reich only) | Heavy Support |
-| Paladin Squad (United Kingdom of Aelfland only) | Heavy Support |
-| Powered Armor Squad | Specialist |
-| Sniper | Specialist |
+None yet. A **faction** (Data/Factions) has a name, a colour, the units it can take and optional weapon changes. A
+**unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
+weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
+them. Every unit has a role: Commander, Infantry, Heavy Support or Specialist.
 
-Every faction can take every unit except another faction's own (so far, Liberteria's Battle Mage, Aelfland's Paladin Squad and the Draksa Reich's Stahl Colossus). An army has exactly 1 Commander, and Specialist units are limited to one of each.
-
-Weapons: Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, plus the Frag Grenade ability.
+Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,
+Rocket Launcher, Broadsword, Iron Claw), abilities (Frag Grenade, Lead from the front, Divine Healing, Divine Sanctuary,
+Fireball, Firestorm, Rocket Launcher, Iron Claw, Stabilizers), every keyword, and the placeholder soldier models in
+Prefabs/Units.
 
 ## Working on the project
 
@@ -134,15 +130,19 @@ Assets/_Project/
     Gameplay/     player input, HUD, AI turns, audio, menus
     CameraControl/
     Core/         battlefield scale and the shared random number generator
-  Data/           ScriptableObject assets: Units, Soldiers, Weapons, Keywords, Abilities
+  Data/           ScriptableObject assets: Weapons, Keywords, Abilities (Factions, Units, Soldiers: none yet)
   Editor/         builders for data, maps, scenes and the Windows build
   Scenes/         MainMenu, UrbanDemo, Countryside, CubeRoom (test room)
   Tests/          EditMode and PlayMode tests
 Docs/Rules.md     the rules
 ```
 
-**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Main Menu, Build Cube Room, Spawn Test Unit, Build Game (Windows).
-Game data is created and upgraded in code by `SquadBuilder`, so the assets can be rebuilt at any time.
+**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
+`SquadBuilder` keeps the keyword library and the unit catalog (Resources/UnitCatalog) in step with the assets in Data.
+
+**Tests** build their units from test-made ScriptableObjects (`Tests/PlayMode/TestArmies.cs`: stand-ins for an infantry
+squad, a commander, a priest and a few others, using the kept weapons, abilities and models), and place them on the maps
+where the tests need armies.
 
 **Tests:** run them in Unity's Test Runner, or from the command line:
 
@@ -160,11 +160,12 @@ Unity.exe -batchmode -projectPath . -runTests -testPlatform PlayMode -testResult
 Unity.exe -batchmode -quit -projectPath . -executeMethod Eldoria.EditorTools.GameBuilder.BuildWindows
 ```
 
-The game is written to `Builds/Eldoria/`. Run `Eldoria.exe -smokeTest` to have it play a few AI turns on its own and
-report whether everything loaded.
+The game is written to `Builds/Eldoria/`. Run `Eldoria.exe -smokeTest` to have it open the menus on its own and report
+whether everything loaded (with no units, it checks that the army builder says so and no battle starts).
 
-To test multiplayer, run two copies on one computer, starting the host first. They connect over `127.0.0.1`, play three
-turns against each other, and check that both games agree on the battle after every order:
+To test multiplayer, run two copies on one computer, starting the host first. They connect over `127.0.0.1` and the
+host's map choice reaches the other game; with no units, both check that their army is refused (with units, they play
+three turns against each other and check that both games agree on the battle after every order):
 
 ```bash
 Eldoria.exe -batchmode -nographics -mpSmoke host -logFile host.log
@@ -176,7 +177,7 @@ Eldoria.exe -batchmode -nographics -mpSmoke join -logFile join.log
 
 ## Status
 
-Early proof of concept, with army list building. Next up: more units and factions.
+A fork of the Eldoria proof of concept with its factions and units removed. Next up: new factions and units.
 
 ## Audience and business model
 

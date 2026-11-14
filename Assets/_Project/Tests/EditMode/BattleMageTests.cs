@@ -19,9 +19,8 @@ namespace Eldoria.Tests
         private const string Data = "Assets/_Project/Data";
         private readonly List<Object> created = new List<Object>();
 
-        private static UnitTemplate U(string file) => AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{Data}/Units/{file}.asset");
+        private static UnitTemplate U(string file) => TestArmies.ByFile(file);   // test-made stand-ins
         private static Ability A(string file) => AssetDatabase.LoadAssetAtPath<Ability>($"{Data}/Abilities/{file}.asset");
-        private static Faction F(string file) => AssetDatabase.LoadAssetAtPath<Faction>($"{Data}/Factions/{file}.asset");
 
         [SetUp]
         public void SetUp()
@@ -43,33 +42,6 @@ namespace Eldoria.Tests
             var unit = UnitFactory.Spawn(U(file), side, at, side == Side.Player ? Quaternion.identity : Quaternion.Euler(0f, 180f, 0f));
             created.Add(unit);
             return unit;
-        }
-
-        [Test]
-        public void TheBattleMageIsAsDesigned()
-        {
-            var unit = U("BattleMage");
-            Assert.That((unit.displayName, unit.Size, unit.role), Is.EqualTo(("Battle Mage", 1, UnitRole.Specialist)));
-            var m = unit.leader;
-            Assert.That(m.displayName, Is.EqualTo("Battle Mage"));
-            Assert.That((m.health, m.armorLevel, m.accuracy, m.movementRange), Is.EqualTo((5, 0, 75, 20f)));
-            Assert.That(m.keywords.Select(k => k.displayName), Is.EquivalentTo(new[] { "Biological", "Solo", "Officer", "Magic" }));
-            Assert.That(m.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Pistol" }));
-            Assert.That(m.abilities, Is.EqualTo(new[] { A("Firestorm"), A("Fireball") }));
-            Assert.That(m.abilities.All(a => a.IsSpell), Is.True, "both are spells");
-            Assert.That(m.prefab, Is.Not.Null);
-        }
-
-        [Test]
-        public void OnlyLiberteriaCanTakeTheBattleMage()
-        {
-            Assert.That(F("UnitedStatesOfLiberteria").Has(U("BattleMage")), Is.True);
-            Assert.That(F("UnitedKingdomOfAelfland").Has(U("BattleMage")), Is.False);
-            Assert.That(F("DraksaReich").Has(U("BattleMage")), Is.False);
-            var commander = U("FieldCommander");
-            Assert.That(ArmyRules.Problems(new List<UnitTemplate> { commander, U("BattleMage") }, F("DraksaReich")).Single(),
-                Does.Contain("Battle Mage isn't available to The Draksa Reich"));
-            Assert.That(ArmyRules.IsValid(new List<UnitTemplate> { commander, U("BattleMage") }, F("UnitedStatesOfLiberteria")), Is.True);
         }
 
         [Test]
