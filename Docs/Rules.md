@@ -2,9 +2,10 @@
 
 Living record of the rules decided so far. **Status** shows what the code does today.
 
-> **This fork (Eldoria Ground Invasion) has no factions or units yet.** The game systems below (army lists, factions,
-> movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are all in place, but there are no unit,
-> soldier or faction assets for them to use, so the army builder is empty and a battle can't be started. The weapons,
+> **This fork (Eldoria Ground Invasion) has its first three factions and two units, the ISF's Rifle Squad and Heavy
+> Weapons Team.** The game
+> systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
+> all in place, but no faction has a Commander yet and every army needs exactly one, so a battle can't be started. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 >
 > **Setting:** a space opera (see [Lore.md](Lore.md)), replacing the original WWII-inspired fantasy. Some names below
@@ -56,14 +57,28 @@ Living record of the rules decided so far. **Status** shows what the code does t
 
 Every unit has a **role**: **Infantry**, **Commander**, **Heavy Support** or **Specialist** (any unit not given another
 role). It's shown in the HUD when the unit is selected, and the army builder lists units in that order, Commanders first.
-*No units yet.*
+
+| Role | Units |
+|---|---|
+| **Infantry** | ISF Rifle Squad |
+| **Commander** | *none yet* |
+| **Heavy Support** | Heavy Weapons Team |
+| **Specialist** | *none yet* |
 
 ### Factions — *implemented*
 
 Every army belongs to a **faction**. The faction a player chooses at the start of building their list decides **which units and commanders** they can take.
 
-*No factions yet.* A faction is an asset (Data/Factions) with a name, a colour, the units it can take, and any weapon
-changes and names (below).
+| Faction | Race | Colour |
+|---|---|---|
+| **International Space Force of Humanity** | Humanity (Free Nations Alliance) | slate navy blue |
+| **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
+| **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
+
+Only the ISF has units so far (the ISF Rifle Squad and the Heavy Weapons Team), and no faction has a Commander, so none can field an army yet.
+A faction is an asset (Data/Factions) with a name, a colour, the units
+it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
+[Lore.md](Lore.md) for each race.
 
 **Faction colours:** a unit's **primary colour** (its soldiers' bodies and caps) is its faction's colour. Every faction uses the same models and materials: the primary-colour parts are tinted per unit when it deploys, so a new faction only needs a colour, not new textures. Other parts keep their own colours (skin, weapons, gold trim, the officer's cape, the priest's white robe, powered armor plates). Both sides can choose the same faction; the soldier labels (blue for yours, red for the enemy's) still tell them apart. The army builder shows each faction's colour.
 
@@ -86,22 +101,53 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 
 **Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the catalog's demo army (keeping only units the faction has; none set yet), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
 
-**With no factions or units** (this fork, for now): the army builder says so (*"This version of Eldoria has no factions or units yet, so a battle can't be started"*) instead of the faction choice, with a **Back** button, and the main menu notes it under the title. Starting a battle (or sending a multiplayer army) is refused with the same message. Add Faction, Unit and Soldier template assets under Data, then run **Eldoria > Rebuild Unit Catalog** so the army builder lists them.
+**A faction can only field an army once it has a Commander unit.** While **no faction** has one (for now), the army builder says so (*"No faction has a Commander yet, so a battle can't be started"*) instead of the faction choice, listing the factions greyed out with how far along each is (*"2 units · no Commander yet"*, *"no units yet"*), with a **Back** button, and the main menu notes it under the title (*"No Commanders yet"*). Starting a battle (or sending a multiplayer army) is refused with the same message. Once some faction has a Commander, the faction choice works as usual and each faction shows its units (*"3 units available"*, or *"· no Commander yet"* for one that can't field an army). Add Unit and Soldier template assets under Data, put each unit in its faction's unit list, then run **Eldoria > Rebuild Unit Catalog** so the army builder lists them.
 
 **Weapons and equipment (customizing a unit):** a soldier type can offer **weapon swaps** (a weapon it carries, and what it can be swapped for, e.g. *Assault Rifle → SMG*) and **equipment** it can be given. A unit in your list whose soldiers have any options gets a **Customize** button, which opens a panel listing each of those soldier types with its weapon choices and equipment.
 - Choices apply to **every soldier of that type in the unit** (e.g. all the Troopers); the Sergeant is set separately. Each unit in the list has its own choices, even two of the same unit.
 - **A swapped weapon replaces the original**; if it was the primary weapon, the new one is the primary.
 - **Equipment** can give **keywords**, **abilities**, **extra weapons** (carried as well, not as the primary) and **stat changes** (Health, Armor Level, Accuracy, Movement; added to the soldier's own). The list shows a short summary of a unit's choices.
 - Choices are kept with your last army, and applied when your army deploys. The AI's armies don't customize.
-- *No soldier type has any options yet: they're set on each soldier's data (Weapon Options, Equipment Options) or given to me.*
+- *So far only the ISF Heavy Weapons has an option (Machine Gun → Rocket Launcher or Flamethrower); options are set on each soldier's data (Weapon Options, Equipment Options).*
 
-**The AI's army:** the AI picks a **random faction** and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
+**The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
 **Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
 
-### The units
+### ISF Rifle Squad
 
-*None yet.* Each unit is a Unit template (Data/Units) made of Soldier templates (Data/Soldiers). The kept starting kit:
+*International Space Force of Humanity · Infantry.* 1 **ISF Rifleman Sergeant** (leader) + 9 **ISF Riflemen**.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
+|---|---|---|---|---|---|---|---|
+| ISF Rifleman Sergeant | 5 | 2 | 75% | 10 m | Biological | Assault Rifle, Pistol | Frag Grenade |
+| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade |
+
+- **Frag Grenade** (active, once per battle per unit): pick a spot on the ground within 10 m of the unit leader (no line of sight needed). Every soldier within 2.5 m of it, friend or foe, takes 5 damage, penetration 0 (armor counts). Object and structure terrain between the blast and a soldier shields them. Throwing it is the unit's action.
+- Built from the original Eldoria's Trooper and Sergeant, with Armor 2 (up from 1). Placeholder models: the old Trooper and Sergeant.
+
+### Heavy Weapons Team
+
+*International Space Force of Humanity · Heavy Support.* Based on the original Eldoria's Machine Gun Team, with ISF names, Armor 2 and Assault Rifles in place of SMGs. 1 **ISF Rifleman Sergeant** (leader) + 3 **ISF Riflemen** + 1 **ISF Heavy Weapons**. All are **Biological**; no Frag Grenade.
+
+| Soldier | Health | Armor | Accuracy | Move | Weapons |
+|---|---|---|---|---|---|
+| ISF Rifleman Sergeant | 5 | 2 | 75% | 10 m | Pistol |
+| ISF Rifleman (×3) | 5 | 2 | 75% | 10 m | Assault Rifle (primary), Pistol |
+| ISF Heavy Weapons | 5 | 2 | 75% | 10 m | Machine Gun, *or* Rocket Launcher, *or* Flamethrower |
+
+- **Machine Gun:** Damage 5, Shots 5, Penetration 1, Range 20 m, **Deployed** (can't fire after moving that turn).
+- **Weapon options:** in the army builder (**Customize**), the ISF Heavy Weapons can swap the Machine Gun for either:
+  - a **Rocket Launcher**: Damage 5, Shots 1, Penetration 5, Range 50 m, **Manual Load** (fires once a turn);
+  - a **Flamethrower**: Damage 10, Shots 3, no penetration value (always full damage), Range 10 m, **Incendiary** (only harms Biological targets) and **Unstable** (when its carrier dies: 10% chance to explode, 5 damage to every soldier within 5 m).
+
+  The chosen weapon replaces the Machine Gun as the soldier's primary weapon. Each Heavy Weapons Team in an army has its own choice.
+- **Assault Rifle:** Damage 4, Shots 1, Penetration 1, Range 20 m.
+- Heavy Support, so an army can take more than one.
+
+### Starting kit
+
+Each unit is a Unit template (Data/Units) made of Soldier templates (Data/Soldiers). Kept from the original Eldoria:
 
 - **Weapons** (Data/Weapons): Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon, Rocket Launcher, Broadsword, Iron Claw.
 - **Abilities** (Data/Abilities): Frag Grenade (once per battle) and a tank's Frag Grenade (every turn), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
@@ -315,13 +361,13 @@ How it works (for development): both games run the battle themselves. The host r
 | Well | No | No | In the farmyard |
 | Bridge parapet | No | No | Along both sides of the bridge |
 
-- When the scene is opened directly in the editor, there are no armies on it (this fork has no units yet).
+- When the scene is opened directly in the editor, there are no armies on it.
 
 ### Boxed in — *built (Scenes/UrbanDemo, Eldoria > Build Boxed in)*
 
 - **80 × 60 m**, with **180° rotational symmetry**: every feature in the south half has a twin at the opposite point, turned round, so both sides face the same choices.
 - **Deployment zones:** the player sets up in the southern **8 m** of the map, the AI in the northern 8 m.
-- **Armies:** chosen in the army builder (see Army lists). With no list chosen (the scene opened directly in the editor), there are no armies on it (this fork has no units yet).
+- **Armies:** chosen in the army builder (see Army lists). With no list chosen (the scene opened directly in the editor), there are no armies on it.
 - **Centre:** an open plaza with a fountain (half-cover, blocks movement) and a statue (full cover), ringed by planters and low walls.
 - **Each half:** an apartment block (two rooms), a corner shop with a raised loading dock (reached by a slope), a garage and a ruined house, plus streets with cars, sandbags, crates and a shipping container.
 - **Buildings** are roofless, with doorways (2 m) and **windows**. A window can be **seen and shot through**, its sill gives **Half-cover**, and soldiers can **climb through** it (mantle: no extra movement cost).

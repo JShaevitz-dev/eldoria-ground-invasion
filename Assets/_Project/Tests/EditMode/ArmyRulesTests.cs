@@ -59,31 +59,192 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void TheGameHasNoFactionsOrUnitsYet()
+        public void TheGameHasItsThreeFactionsAndOnlyTheIsfsTwoUnitsSoFar()
         {
             var catalog = UnitCatalog.Load();
             Assert.That(catalog, Is.Not.Null);
-            Assert.That(catalog.Available, Is.Empty);
-            Assert.That(catalog.Factions, Is.Empty);
+            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "ISF Rifle Squad", "Heavy Weapons Team" }), "Infantry, then Heavy Support");
+            Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[] { "International Space Force of Humanity", "Imperial Army of The Draconis Imperialis", "Most Holy Army of The Rask Divine Collective" }));
+            var factions = catalog.Factions.ToList();
+            Assert.That(factions[0].Units.Select(u => u.displayName), Is.EqualTo(new[] { "ISF Rifle Squad", "Heavy Weapons Team" }));
+            Assert.That(factions[1].Units, Is.Empty, "Draconis Imperialis: no units yet");
+            Assert.That(factions[2].Units, Is.Empty, "Rask: no units yet");
             Assert.That(catalog.defaultArmy, Is.Empty);
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null, "still there for deploying units");
             Assert.That(catalog.leaderMarker, Is.Not.Null);
-            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }), Is.Empty);
-            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }), Is.Empty);
-            Assert.That(AssetDatabase.FindAssets("t:Faction", new[] { "Assets/_Project/Data/Factions" }), Is.Empty);
+            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(2));
+            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(5));
+            Assert.That(AssetDatabase.FindAssets("t:Faction", new[] { "Assets/_Project/Data/Factions" }).Length, Is.EqualTo(3));
         }
 
         [Test]
-        public void WithNoFactionsOrUnitsTheBuilderSaysSoAndTheAIHasNoArmy()
+        public void EachFactionHasItsOwnColour()
         {
-            var builder = new ArmyBuilderScreen(UnitCatalog.Load());
-            Assert.That(builder.HasUnits, Is.False);
-            Assert.That(builder.Factions, Is.Empty);
+            var factions = UnitCatalog.Load().Factions.ToList();
+            Assert.That(factions[0].color, Is.EqualTo(new Color(0.20f, 0.29f, 0.42f)), "Humanity: slate navy blue");
+            Assert.That(factions[1].color, Is.EqualTo(new Color(0.55f, 0.09f, 0.11f)), "Draconis Imperialis: imperial crimson");
+            Assert.That(factions[2].color, Is.EqualTo(new Color(0.66f, 0.48f, 0.18f)), "Rask: ochre/bronze");
+            Assert.That(factions.Select(f => f.color).Distinct().Count(), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void WithNoCommandersTheBuilderSaysSoAndNoBattleStarts()
+        {
+            var catalog = UnitCatalog.Load();
+            var builder = new ArmyBuilderScreen(catalog);
+            Assert.That(builder.CanFieldArmies, Is.False, "no faction has a Commander yet");
+            Assert.That(builder.Factions.Count, Is.EqualTo(3), "the factions are there");
+            Assert.That(builder.FactionStatus(builder.Factions[0]), Is.EqualTo("2 units \u00b7 no Commander yet"));
+            Assert.That(builder.FactionStatus(builder.Factions[1]), Is.EqualTo("no units yet"));
             Assert.That(builder.Confirm(), Is.False);
-            Assert.That(new ArmyBuilderScreen(null).HasUnits, Is.False);
-            Assert.That(new ArmyBuilderScreen(TestCatalog()).HasUnits, Is.True);
-            Assert.That(ArmyRules.RandomArmy(UnitCatalog.Load().Available, new System.Random(1)), Is.Empty, "nothing to field");
-            Assert.That(MainMenu.StartBattle(null, List()), Is.EqualTo(new[] { ArmyBuilderScreen.NoUnitsMessage }));
+            Assert.That(new ArmyBuilderScreen(null).CanFieldArmies, Is.False);
+            Assert.That(new ArmyBuilderScreen(TestCatalog()).CanFieldArmies, Is.True);
+            Assert.That(ArmyRules.RandomArmy(catalog.Available, new System.Random(1)), Is.Empty, "no Commander: nothing the AI can field");
+            var isf = catalog.Factions.First();
+            Assert.That(MainMenu.StartBattle(isf, List(catalog.Available.First())), Is.EqualTo(new[] { ArmyBuilderScreen.NoArmiesMessage }));
+        }
+
+        [Test]
+        public void OnlyAFactionWithACommanderCanFieldAnArmy()
+        {
+            var catalog = TestCatalog();
+            var noCommander = TestArmies.Faction("Test No Commander", Color.white, Infantry, Priest);
+            created.Add(noCommander);
+            Assert.That(ArmyBuilderScreen.FactionCanFieldArmy(catalog, catalog.Factions.First()), Is.True);
+            Assert.That(ArmyBuilderScreen.FactionCanFieldArmy(catalog, noCommander), Is.False);
+            Assert.That(new ArmyBuilderScreen(catalog).FactionStatus(catalog.Factions.First()), Is.EqualTo("6 units available"));
+        }
+
+        // ---- The ISF's Heavy Weapons Team (the original Eldoria's Machine Gun Team) ----
+
+        [Test]
+        public void TheHeavyWeaponsTeamIsAnIsfSergeantThreeRiflemenAndAHeavyWeaponsSoldier()
+        {
+            var team = UnitCatalog.Load().Available.Single(u => u.displayName == "Heavy Weapons Team");
+            Assert.That(team.role, Is.EqualTo(UnitRole.HeavySupport));
+            Assert.That(UnitCatalog.Load().Factions.First().Has(team), Is.True, "the ISF's");
+            Assert.That(ArmyRules.Composition(team), Is.EqualTo("ISF Rifleman Sergeant + 3\u00d7 ISF Rifleman + ISF Heavy Weapons"));
+            Assert.That(team.Size, Is.EqualTo(5));
+            Assert.That(team.description, Does.Contain("ISF Heavy Weapons").And.Contain("Rocket Launcher").And.Contain("Flamethrower").And.Contain("Assault Rifles").And.Not.Contain("SMG"));
+            Assert.That(UnitInfo.SoldierLines(team), Is.EqualTo(new[]
+            {
+                "ISF Rifleman Sergeant \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Pistol",
+                "3\u00d7 ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Pistol",
+                "ISF Heavy Weapons \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Machine Gun",
+            }));
+            Assert.That(UnitInfo.WeaponLines(team).Last(), Is.EqualTo("Machine Gun \u2014 Damage 5 \u00b7 Shots 5 \u00b7 Penetration 1 \u00b7 Range 20 m \u00b7 Deployed"));
+            foreach (var s in team.Roster().Distinct())
+            {
+                Assert.That(s.HasKeyword("Biological"), Is.True, s.displayName);
+                Assert.That(s.abilities, Is.Empty, $"{s.displayName}: no Frag Grenade");
+                Assert.That(s.prefab, Is.Not.Null, s.displayName);
+            }
+        }
+
+        [Test]
+        public void TheHeavyWeaponsSoldierCanSwapTheMachineGunForARocketLauncherOrAFlamethrower()
+        {
+            var catalog = UnitCatalog.Load();
+            var isf = catalog.Factions.First();
+            var team = catalog.Available.Single(u => u.displayName == "Heavy Weapons Team");
+            var heavy = team.Roster().Single(s => s.displayName == "ISF Heavy Weapons");
+            var option = heavy.weaponOptions.Single();
+            Assert.That(option.weapon.displayName, Is.EqualTo("Machine Gun"));
+            Assert.That(option.alternatives.Select(w => w.displayName), Is.EqualTo(new[] { "Rocket Launcher", "Flamethrower" }));
+            var rockets = option.alternatives[0];
+            var flamer = option.alternatives[1];
+            Assert.That((rockets.baseDamage, rockets.shots, rockets.PenetrationValue, rockets.range), Is.EqualTo((5, 1, (int?)5, 50f)));
+            Assert.That(rockets.HasKeyword("Manual Load"), Is.True, "once a turn");
+            Assert.That((flamer.baseDamage, flamer.shots, flamer.PenetrationValue, flamer.range), Is.EqualTo((10, 3, (int?)null, 10f)));
+            Assert.That(flamer.HasKeyword("Incendiary") && flamer.HasKeyword("Unstable"), Is.True);
+            Assert.That(team.Roster().Where(s => s != heavy).All(s => !s.HasOptions), Is.True, "only the heavy weapons soldier has a choice");
+
+            // In the army builder: only that soldier type can be customized, and the swap is kept per slot.
+            var builder = new ArmyBuilderScreen(catalog);
+            builder.ChooseFaction(isf);
+            builder.Clear();
+            Assert.That(builder.Add(team), Is.Null);
+            Assert.That(builder.CustomizableSoldiers(0), Is.EqualTo(new[] { heavy }));
+            Assert.That(builder.SetWeapon(0, heavy, option.weapon, rockets), Is.Null);
+            Assert.That(builder.Loadouts[0].Describe(), Is.EqualTo("ISF Heavy Weapons: Rocket Launcher"));
+            Assert.That(builder.Add(team), Is.Null, "a second team, with its own choice");
+            Assert.That(builder.SetWeapon(1, heavy, option.weapon, flamer), Is.Null);
+            Assert.That(builder.Loadouts[1].Describe(), Is.EqualTo("ISF Heavy Weapons: Flamethrower"));
+            Assert.That(builder.SetWeapon(1, heavy, option.weapon, TestArmies.Weapon("SniperRifle")), Does.Contain("can't be swapped"), "only the listed weapons");
+
+            // Deployed: the heavy weapons soldier carries the Rocket Launcher instead of the Machine Gun; the others are unchanged.
+            var unit = UnitFactory.Spawn(team, Side.Player, Vector3.zero, Quaternion.identity);
+            try
+            {
+                ArmyDeployment.ApplyLoadout(unit, builder.Loadouts[0]);
+                var soldier = unit.Soldiers.Single(s => s.Template == heavy);
+                Assert.That(soldier.Weapons.Select(w => w.Name), Is.EqualTo(new[] { "Rocket Launcher" }));
+                Assert.That(soldier.PrimaryWeapon.Name, Is.EqualTo("Rocket Launcher"));
+                Assert.That(unit.Soldiers.Where(s => s != soldier).All(s => s.Weapons.All(w => w.Name != "Rocket Launcher")), Is.True);
+                var riflemen = unit.Soldiers.Where(s => s.Template.displayName == "ISF Rifleman").ToList();
+                Assert.That(riflemen.Count, Is.EqualTo(3));
+                Assert.That(riflemen.All(s => s.PrimaryWeapon.Name == "Assault Rifle"), Is.True, "Assault Rifles, not SMGs");
+            }
+            finally
+            {
+                Object.DestroyImmediate(unit.gameObject);
+            }
+
+            var flameUnit = UnitFactory.Spawn(team, Side.Player, Vector3.zero, Quaternion.identity);
+            try
+            {
+                ArmyDeployment.ApplyLoadout(flameUnit, builder.Loadouts[1]);
+                Assert.That(flameUnit.Soldiers.Single(s => s.Template == heavy).PrimaryWeapon.Name, Is.EqualTo("Flamethrower"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(flameUnit.gameObject);
+            }
+        }
+
+        [Test]
+        public void HeavySupportCanBeTakenMoreThanOnceAlongsideRifleSquads()
+        {
+            var catalog = UnitCatalog.Load();
+            var team = catalog.Available.Single(u => u.displayName == "Heavy Weapons Team");
+            var squad = catalog.Available.Single(u => u.displayName == "ISF Rifle Squad");
+            Assert.That(ArmyRules.WhyCannotAdd(List(squad, team), team, catalog.Factions.First()), Is.Null);
+            Assert.That(ArmyRules.Problems(List(squad, team, team), catalog.Factions.First()).Single(), Does.Contain("Commander"),
+                "only the missing Commander is wrong");
+        }
+
+        // ---- The ISF Rifle Squad ----
+
+        [Test]
+        public void TheIsfRifleSquadIsASergeantAndNineRiflemen()
+        {
+            var squad = UnitCatalog.Load().Available.Single(u => u.displayName == "ISF Rifle Squad");
+            Assert.That(squad.role, Is.EqualTo(UnitRole.Infantry));
+            Assert.That(ArmyRules.Composition(squad), Is.EqualTo("ISF Rifleman Sergeant + 9\u00d7 ISF Rifleman"));
+            Assert.That(squad.Size, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void IsfRiflemenHaveArmor2()
+        {
+            var squad = UnitCatalog.Load().Available.Single(u => u.displayName == "ISF Rifle Squad");
+            var sergeant = squad.leader;
+            var rifleman = squad.members.Single().soldier;
+            foreach (var s in new[] { sergeant, rifleman })
+            {
+                Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((5, 2, 75, 10f)), s.displayName);
+                Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Biological" }), s.displayName);
+                Assert.That(s.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Frag Grenade" }), s.displayName);
+                Assert.That(s.PrimaryWeapon.displayName, Is.EqualTo("Assault Rifle"), s.displayName);
+                Assert.That(s.prefab, Is.Not.Null, s.displayName);
+            }
+            Assert.That(rifleman.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle" }));
+            Assert.That(sergeant.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle", "Pistol" }));
+            Assert.That(UnitInfo.SoldierLines(squad), Is.EqualTo(new[]
+            {
+                "ISF Rifleman Sergeant \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Pistol",
+                "9\u00d7 ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle",
+            }));
         }
 
         [Test]

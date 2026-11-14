@@ -1,9 +1,11 @@
 # Eldoria Ground Invasion
 
-> **A fork of Eldoria with no factions or units yet.** Every game system is here (army lists and factions, movement,
-> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, both maps and the menus), but there are no
-> faction, unit or soldier assets, so the army builder is empty and a battle can't be started: the game says so
-> instead. The weapons, abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
+> **A fork of Eldoria with its first three factions and the ISF's first two units, the ISF Rifle Squad and the Heavy
+> Weapons Team.** Every game system is
+> here (army lists and factions, movement, terrain and cover, shooting, keywords, abilities, the AI, multiplayer, both
+> maps and the menus), but no faction has a Commander yet and every army needs one, so a battle can't be started: the
+> game says so instead. The weapons,
+> abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
 Eldoria Ground Invasion is a space opera turn-based strategy game focused on company-level warfare across a variety of
 battlefields. Its tone sits between Star Trek and Warhammer 40k. The Free Nations Alliance (humanity, the Skael, the
@@ -23,8 +25,8 @@ getting the rules right.
 Build the game (see **Windows build** below) and run `Builds/Eldoria/Eldoria.exe`. The main menu has **Play**,
 **Multiplayer**, **Quit** and the turn timer option (off by default, 10 minutes per turn).
 
-Until factions and units are added, **Play** lets you choose a battlefield and then shows that there are no factions or
-units, so no battle can start. Once there are, you'll:
+Until a faction has a Commander, **Play** lets you choose a battlefield and then shows the factions (greyed out, with
+how many units each has) and that no faction has a Commander yet, so no battle can start. Once one does, you'll:
 
 1. **Choose a battlefield:** the Boxed in or the Open Season.
 2. **Choose your faction**, which decides which units and commanders you can take.
@@ -106,12 +108,30 @@ At a glance:
   shot entirely.
 - **Keywords drive the interactions**, such as Biological, Toxic, Incendiary, Deployed, Solo, Spell and Sniper Precision.
 
-### Units and factions
+### Factions
 
-None yet. A **faction** (Data/Factions) has a name, a colour, the units it can take and optional weapon changes. A
-**unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
+| Faction | Race | Colour |
+|---|---|---|
+| **International Space Force of Humanity** | Humanity (Free Nations Alliance) | slate navy blue |
+| **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
+| **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
+
+A **faction** (Data/Factions) has a name, a colour, the units it can take and optional weapon changes. The three are
+created by **Eldoria > Rebuild Unit Catalog** (`SquadBuilder.FactionNames`), which keeps any edits made to them in the
+Inspector.
+
+### Units
+
+| Unit | Faction | Role | Made of |
+|---|---|---|---|
+| **ISF Rifle Squad** | International Space Force of Humanity | Infantry | ISF Rifleman Sergeant + 9 ISF Riflemen (Armor 2, Assault Rifles, Frag Grenade) |
+| **Heavy Weapons Team** | International Space Force of Humanity | Heavy Support | ISF Rifleman Sergeant (Pistol) + 3 ISF Riflemen (Assault Rifles) + ISF Heavy Weapons (Machine Gun, Rocket Launcher or Flamethrower); Armor 2 |
+
+No Commanders yet. A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
-them. Every unit has a role: Commander, Infantry, Heavy Support or Specialist.
+them (and add each unit to its faction's unit list). Both are created in code
+(`SquadBuilder.EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
+Specialist.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,
 Rocket Launcher, Broadsword, Iron Claw), abilities (Frag Grenade, Lead from the front, Divine Healing, Divine Sanctuary,
@@ -135,7 +155,7 @@ Assets/_Project/
     Gameplay/     player input, HUD, AI turns, audio, menus
     CameraControl/
     Core/         battlefield scale and the shared random number generator
-  Data/           ScriptableObject assets: Weapons, Keywords, Abilities (Factions, Units, Soldiers: none yet)
+  Data/           ScriptableObject assets: Weapons, Keywords, Abilities, Factions, Units, Soldiers
   Editor/         builders for data, maps, scenes and the Windows build
   Scenes/         MainMenu, UrbanDemo, Countryside, CubeRoom (test room)
   Tests/          EditMode and PlayMode tests
@@ -166,10 +186,10 @@ Unity.exe -batchmode -quit -projectPath . -executeMethod Eldoria.EditorTools.Gam
 ```
 
 The game is written to `Builds/Eldoria/`. Run `Eldoria.exe -smokeTest` to have it open the menus on its own and report
-whether everything loaded (with no units, it checks that the army builder says so and no battle starts).
+whether everything loaded (with no Commanders yet, it checks that the army builder says so and no battle starts).
 
 To test multiplayer, run two copies on one computer, starting the host first. They connect over `127.0.0.1` and the
-host's map choice reaches the other game; with no units, both check that their army is refused (with units, they play
+host's map choice reaches the other game; with no Commanders yet, both check that their army is refused (once there are, they play
 three turns against each other and check that both games agree on the battle after every order):
 
 ```bash
@@ -182,7 +202,7 @@ Eldoria.exe -batchmode -nographics -mpSmoke join -logFile join.log
 
 ## Status
 
-A fork of the Eldoria proof of concept with its factions and units removed. Next up: new factions and units.
+A fork of the Eldoria proof of concept with its factions and units removed. Its first three factions are in; next up: their units.
 
 ## Audience and business model
 

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Eldoria.Units
 {
     /// <summary>
-    /// A faction (e.g. "United States of Liberteria"). The faction a player picks when building their army list decides
+    /// A faction (e.g. "International Space Force of Humanity"). The faction a player picks when building their army list decides
     /// which units (Commanders included) they can take. A faction can also change the stats of weapons its soldiers
     /// use (added to the weapon's own stats) and give weapons its own names (aliases of the same stat block).
     /// </summary>

@@ -10,9 +10,10 @@ namespace Eldoria.EditorTools
     /// Editor helpers for the game's data:
     ///   Keywords: every keyword asset (Data/Keywords) + the keyword library (Resources/KeywordLibrary)
     ///   Unit catalog: Resources/UnitCatalog, listing every unit template in Data/Units and every faction in Data/Factions
+    ///   Factions: the game's factions (Data/Factions), created if missing (see FactionNames)
     ///   SpawnUnit: places a unit from a template in the open scene
-    /// This fork has no factions or units yet: add Faction assets to Data/Factions and UnitTemplate assets (with their
-    /// SoldierTemplates in Data/Soldiers) to Data/Units, then run Eldoria > Rebuild Unit Catalog so the army builder lists them.
+    /// There are no units yet: add UnitTemplate assets (with their SoldierTemplates in Data/Soldiers) to Data/Units and
+    /// to their factions' unit lists, then run Eldoria > Rebuild Unit Catalog so the army builder lists them.
     /// </summary>
     public static class SquadBuilder
     {
@@ -20,10 +21,160 @@ namespace Eldoria.EditorTools
         private const string DataDir = Root + "/Data";
         private const string MaterialDir = Root + "/Materials";
 
+        /// <summary>The factions (Data/Factions), in the order the army builder shows them: file name, display name, colour.</summary>
+        public static readonly (string file, string name, Color color)[] FactionNames =
+        {
+            ("Humanity", "International Space Force of Humanity", new Color(0.20f, 0.29f, 0.42f)),                // slate navy blue
+            ("DraconisImperialis", "Imperial Army of The Draconis Imperialis", new Color(0.55f, 0.09f, 0.11f)),   // imperial crimson
+            ("Rask", "Most Holy Army of The Rask Divine Collective", new Color(0.66f, 0.48f, 0.18f)),             // liturgical ochre/bronze
+        };
+
+        /// <summary>
+        /// Creates any missing faction from <see cref="FactionNames"/> (existing ones keep their Inspector edits: units,
+        /// weapon changes and names). Returns them in table order.
+        /// </summary>
+        public static List<Faction> EnsureFactions()
+        {
+            EnsureFolder(Root, "Data");
+            EnsureFolder(DataDir, "Factions");
+            return FactionNames.Select(f => GetOrCreate<Faction>($"{DataDir}/Factions/{f.file}.asset", a =>
+            {
+                a.displayName = f.name;
+                a.color = f.color;
+            })).ToList();
+        }
+
+        // ------------------------------------------------------------------ International Space Force of Humanity
+
+        /// <summary>
+        /// ISF Rifle Squad (Infantry, ISF): 1 ISF Rifleman Sergeant (leader) + 9 ISF Riflemen.
+        ///   ISF Rifleman: Health 5, Armor 2, Accuracy 75%, Move 10 m; Biological; Frag Grenade; Assault Rifle.
+        ///   ISF Rifleman Sergeant: the same, plus a Pistol.
+        /// (From the original Eldoria's Trooper and Sergeant, with Armor 2.) Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureIsfRifleSquad(Faction isf, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+            var grenade = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/FragGrenade.asset");
+            GameObject Model(string name) => AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/{name}.prefab");
+
+            var rifleman = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfRifleman.asset", s =>
+            {
+                s.displayName = "ISF Rifleman";
+                s.health = 5; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { keywords["Biological"] };
+                s.abilities = new List<Ability> { grenade };
+                s.weapons = new List<WeaponTemplate> { rifle };
+                s.primaryWeapon = rifle;
+                s.prefab = Model("Trooper");
+            });
+            var sergeant = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfRiflemanSergeant.asset", s =>
+            {
+                s.displayName = "ISF Rifleman Sergeant";
+                s.health = 5; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { keywords["Biological"] };
+                s.abilities = new List<Ability> { grenade };
+                s.weapons = new List<WeaponTemplate> { rifle, pistol };
+                s.primaryWeapon = rifle;
+                s.prefab = Model("Sergeant");
+            });
+            var squad = GetOrCreate<UnitTemplate>($"{DataDir}/Units/IsfRifleSquad.asset", u =>
+            {
+                u.displayName = "ISF Rifle Squad";
+                u.role = UnitRole.Infantry;
+                u.leader = sergeant;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 9 } };
+            });
+            if (!isf.units.Contains(squad))
+            {
+                isf.units.Add(squad);
+                EditorUtility.SetDirty(isf);
+            }
+            return squad;
+        }
+
+        /// <summary>
+        /// Heavy Weapons Team (Heavy Support, ISF), based on the original Eldoria's Machine Gun Team: 1 ISF Rifleman
+        /// Sergeant (Pistol) + 3 ISF Riflemen (Assault Rifle, Pistol) + 1 ISF Heavy Weapons (Machine Gun: Damage 5, Shots 5,
+        /// Penetration 1, 20 m, Deployed; can swap it for a Rocket Launcher: Damage 5, Shots 1, Penetration 5, 50 m, Manual
+        /// Load; or a Flamethrower: Damage 10, Shots 3, no penetration value, 10 m, Incendiary, Unstable). All Health 5,
+        /// Armor 2, Accuracy 75%, Move 10 m, Biological; no Frag Grenade. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureHeavyWeaponsTeam(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            var mg = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/MachineGun.asset");
+            var rockets = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/RocketLauncher.asset");
+            var flamer = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Flamethrower.asset");
+            GameObject Model(string name) => AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/{name}.prefab");
+
+            void Stats(SoldierTemplate s)
+            {
+                s.health = 5; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { keywords["Biological"] };
+                s.abilities = new List<Ability>();
+            }
+
+            var sergeant = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/HeavyWeaponsSergeant.asset", s =>
+            {
+                s.displayName = "ISF Rifleman Sergeant";
+                Stats(s);
+                s.weapons = new List<WeaponTemplate> { pistol };
+                s.primaryWeapon = pistol;
+                s.prefab = Model("Sergeant");
+            });
+            var rifleman = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/HeavyWeaponsRifleman.asset", s =>
+            {
+                s.displayName = "ISF Rifleman";
+                Stats(s);
+                s.weapons = new List<WeaponTemplate> { rifle, pistol };
+                s.primaryWeapon = rifle;
+                s.prefab = Model("Trooper");
+            });
+            var gunner = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfHeavyWeapons.asset", s =>
+            {
+                s.displayName = "ISF Heavy Weapons";
+                Stats(s);
+                s.weapons = new List<WeaponTemplate> { mg };
+                s.primaryWeapon = mg;
+                s.weaponOptions = new List<WeaponOption> { new WeaponOption { weapon = mg, alternatives = new List<WeaponTemplate> { rockets, flamer } } };
+                s.prefab = Model("MachineGunner");
+            });
+            var team = GetOrCreate<UnitTemplate>($"{DataDir}/Units/HeavyWeaponsTeam.asset", u =>
+            {
+                u.displayName = "Heavy Weapons Team";
+                u.role = UnitRole.HeavySupport;
+                u.description = "A heavy fire base built around its ISF Heavy Weapons soldier, who carries one of three weapons. The Machine Gun (5 shots a volley, 5 damage, penetration 1, 20 m) can't fire after moving, so set the team up covering a firing lane and let it hold there. A Rocket Launcher (1 shot, 5 damage, penetration 5, 50 m, once a turn) cracks armor at long range. A Flamethrower (3 shots, 10 damage whatever the armor, 10 m) burns out living soldiers up close, but can't harm machines and may explode when its carrier dies. Three ISF Riflemen with Assault Rifles add firepower out to 20 m and protect the gunner; the ISF Rifleman Sergeant carries only a pistol. With five soldiers and no grenade, it's best covering ground rather than leading an assault. Heavy Support can be taken more than once.";
+                u.leader = sergeant;
+                u.members = new List<UnitTemplate.Member>
+                {
+                    new UnitTemplate.Member { soldier = rifleman, count = 3 },
+                    new UnitTemplate.Member { soldier = gunner, count = 1 },
+                };
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(team))
+            {
+                faction.units.Add(team);
+                EditorUtility.SetDirty(faction);
+            }
+            return team;
+        }
+
         [MenuItem("Eldoria/Rebuild Unit Catalog")]
         public static void RebuildUnitCatalog()
         {
-            EnsureKeywords();
+            var keywords = EnsureKeywords();
+            var factions = EnsureFactions();
+            EnsureIsfRifleSquad(factions[0], keywords);
+            EnsureHeavyWeaponsTeam(factions[0], keywords);
+            AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
             AssetDatabase.SaveAssets();
             Debug.Log($"[Eldoria] Unit catalog: {catalog.units.Count} unit(s), {catalog.factions.Count} faction(s).");
@@ -31,7 +182,8 @@ namespace Eldoria.EditorTools
 
         /// <summary>
         /// The unit catalog for army lists (Resources/UnitCatalog): every unit in Data/Units, Commanders first, then
-        /// Infantry, Heavy Support and Specialists; every faction in Data/Factions (by name); and the materials for
+        /// Infantry, Heavy Support and Specialists; every faction in Data/Factions (those in FactionNames first, in that
+        /// order, then any others by name); and the materials for
         /// deploying units at runtime. The demo army (the builder's starting list) is left as it is.
         /// </summary>
         public static UnitCatalog EnsureUnitCatalog()
@@ -46,13 +198,21 @@ namespace Eldoria.EditorTools
             catalog.factions = AssetDatabase.IsValidFolder($"{DataDir}/Factions")
                 ? AssetDatabase.FindAssets("t:Faction", new[] { $"{DataDir}/Factions" })
                     .Select(g => AssetDatabase.LoadAssetAtPath<Faction>(AssetDatabase.GUIDToAssetPath(g)))
-                    .Where(f => f != null).OrderBy(f => f.displayName).ToList()
+                    .Where(f => f != null)
+                    .OrderBy(f => FactionOrder(f)).ThenBy(f => f.displayName).ToList()
                 : new List<Faction>();
 
             catalog.primaryColorMaterial = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
             catalog.leaderMarker = GetOrCreateMaterial("Sergeant_Gold", new Color(0.95f, 0.72f, 0.2f));
             EditorUtility.SetDirty(catalog);
             return catalog;
+        }
+
+        /// <summary>A faction's place in <see cref="FactionNames"/> (by asset file name); factions not listed come after.</summary>
+        private static int FactionOrder(Faction faction)
+        {
+            int i = System.Array.FindIndex(FactionNames, f => f.file == faction.name);
+            return i < 0 ? int.MaxValue : i;
         }
 
         /// <summary>

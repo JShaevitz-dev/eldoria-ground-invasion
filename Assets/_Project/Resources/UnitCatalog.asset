@@ -12,8 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cdd1678abb3dba4e8ad84eaaa44c4cb, type: 3}
   m_Name: UnitCatalog
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitCatalog
-  units: []
-  factions: []
+  units:
+  - {fileID: 11400000, guid: 8973ea19fb8e3ad439e58d11573ad62c, type: 2}
+  - {fileID: 11400000, guid: 208f3ba086dd55a4abe6a69b0eb7d465, type: 2}
+  factions:
+  - {fileID: 11400000, guid: 4e983f98f3f1c7c408f24aacf442e65b, type: 2}
+  - {fileID: 11400000, guid: 13966efe91652554da3a0664bf292433, type: 2}
+  - {fileID: 11400000, guid: d8de60fa60305dd4fbeead9595ac256a, type: 2}
   defaultArmy: []
   primaryColorMaterial: {fileID: 2100000, guid: e0d8028b1591613478974b18cc60760a, type: 2}
   leaderMarker: {fileID: 2100000, guid: 4727a367c15b3324caf89d459f73536e, type: 2}

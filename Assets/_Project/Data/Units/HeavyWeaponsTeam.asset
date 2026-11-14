@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: HeavyWeaponsTeam
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Heavy Weapons Team
+  role: 2
+  description: 'A heavy fire base built around its ISF Heavy Weapons soldier, who carries one of three weapons. The Machine Gun (5 shots a volley, 5 damage, penetration 1, 20 m) can''t fire after moving, so set the team up covering a firing lane and let it hold there. A Rocket Launcher (1 shot, 5 damage, penetration 5, 50 m, once a turn) cracks armor at long range. A Flamethrower (3 shots, 10 damage whatever the armor, 10 m) burns out living soldiers up close, but can''t harm machines and may explode when its carrier dies. Three ISF Riflemen with Assault Rifles add firepower out to 20 m and protect the gunner; the ISF Rifleman Sergeant carries only a pistol. With five soldiers and no grenade, it''s best covering ground rather than leading an assault. Heavy Support can be taken more than once.'
+  leader: {fileID: 11400000, guid: 23bbd74616ef28946b3dd5253c731842, type: 2}
+  members:
+  - soldier: {fileID: 11400000, guid: 40e5bdbf73f7c0148b774a8c6bced978, type: 2}
+    count: 3
+  - soldier: {fileID: 11400000, guid: 6ebd187c9ca97764b9abdfbce56ada53, type: 2}
+    count: 1
+  deploymentSpacing: 2

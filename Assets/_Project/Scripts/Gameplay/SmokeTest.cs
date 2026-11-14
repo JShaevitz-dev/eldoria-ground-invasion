@@ -8,7 +8,7 @@ namespace Eldoria.Gameplay
 {
     /// <summary>
     /// A quick end-to-end check of a built game, off unless the program is started with <c>-smokeTest</c>:
-    /// from the main menu it opens the map choice and the army builder (which, with no factions or units in this fork,
+    /// from the main menu it opens the map choice and the army builder (which, with no units yet,
     /// says a battle can't be started), checks the runtime shaders and sounds, then quits with exit code 0 (passed) or 1 (an error was logged or a check failed).
     /// Usage: Eldoria.exe -batchmode -nographics -smokeTest -logFile smoke.log
     /// With a window (no -batchmode) and <c>-smokeScreenshots folder</c>, it also saves screenshots of the main menu and
@@ -69,12 +69,15 @@ namespace Eldoria.Gameplay
             Check(Battlefields.All.Count == 2, "the map choice offers Boxed in and Open Season");
             menu.ChooseMap(Battlefields.EnglishCountryside);
             yield return Screenshot("factions.png");
-            // This fork has no factions or units yet: the army builder says so and no battle can start.
+            // The three factions are there, but none has a Commander yet: the army builder says so and no battle can start.
             Check(menu.Builder != null, "the army builder opens");
-            Check(menu.Builder != null && !menu.Builder.HasUnits && menu.Builder.Factions.Count == 0,
-                $"the army builder has no factions or units ({menu.Builder?.Factions.Count} factions)");
-            var refused = MainMenu.StartBattle(null, new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>());
-            Check(refused.Count == 1 && refused[0] == ArmyBuilderScreen.NoUnitsMessage, "starting a battle is refused with the no-units message");
+            Check(menu.Builder != null && menu.Builder.Factions.Count == 3, $"the army builder has the three factions ({menu.Builder?.Factions.Count})");
+            Check(menu.Builder != null && !menu.Builder.CanFieldArmies, "no faction can field an army yet (no Commanders)");
+            var isf = menu.Builder?.Factions.FirstOrDefault();
+            var squad = isf != null ? isf.Units.FirstOrDefault(u => u.displayName == "ISF Rifle Squad") : null;
+            Check(squad != null, "the ISF has its Rifle Squad");
+            var refused = MainMenu.StartBattle(isf, new System.Collections.Generic.List<Eldoria.Units.UnitTemplate> { squad });
+            Check(refused.Count == 1 && refused[0] == ArmyBuilderScreen.NoArmiesMessage, "starting a battle is refused with the no-Commander message");
             yield return null;
             Check(SceneManager.GetActiveScene().name == MainMenu.MenuScene, "the game stays on the main menu");
 

@@ -1,2 +1,3 @@
-Faction assets (Eldoria.Units.Faction) go here: each lists the units it can take.
-This fork has none yet. After adding some, run Eldoria > Rebuild Unit Catalog.
+Faction assets (Eldoria.Units.Faction): International Space Force of Humanity, Imperial Army of The Draconis
+Imperialis, Most Holy Army of The Rask Divine Collective. Created by Eldoria > Rebuild Unit Catalog (SquadBuilder.FactionNames).
+Add each new unit to its faction's unit list.

@@ -98,7 +98,7 @@ namespace Eldoria.Gameplay
         /// </summary>
         public List<string> SubmitMultiplayerArmy(Faction faction, IReadOnlyList<UnitTemplate> army, IReadOnlyList<UnitLoadout> loadouts = null)
         {
-            if (!ArmyBuilderScreen.CatalogHasUnits(UnitCatalog.Load())) return new List<string> { ArmyBuilderScreen.NoUnitsMessage };
+            if (!ArmyBuilderScreen.CatalogCanFieldArmies(UnitCatalog.Load())) return new List<string> { ArmyBuilderScreen.NoArmiesMessage };
             var problems = faction == null ? new List<string> { "Choose a faction first." } : ArmyRules.Problems(army, faction);
             if (problems.Count > 0 || MultiplayerSession.Active == null) return problems;
             lastArmy = new List<UnitTemplate>(army);
@@ -242,18 +242,19 @@ namespace Eldoria.Gameplay
         public void OpenArmyBuilder() => Builder = new ArmyBuilderScreen(UnitCatalog.Load(), lastFaction, lastArmy, lastLoadouts);
 
         /// <summary>
-        /// Starts a battle with this faction and army, if it's valid: the AI picks a random faction and builds a random valid
+        /// Starts a battle with this faction and army, if it's valid: the AI picks a random faction (of those with a Commander) and builds a random valid
         /// army from it, and both go to the chosen map. Returns why the army isn't valid (empty if the battle started).
         /// </summary>
         /// <param name="loadouts">Each unit's weapon swaps and equipment (same order as <paramref name="army"/>), if any.</param>
         public static List<string> StartBattle(Faction faction, IReadOnlyList<UnitTemplate> army, IReadOnlyList<UnitLoadout> loadouts = null)
         {
             var catalog = UnitCatalog.Load();
-            if (!ArmyBuilderScreen.CatalogHasUnits(catalog)) return new List<string> { ArmyBuilderScreen.NoUnitsMessage };
+            if (!ArmyBuilderScreen.CatalogCanFieldArmies(catalog)) return new List<string> { ArmyBuilderScreen.NoArmiesMessage };
             var problems = faction == null ? new List<string> { "Choose a faction first." } : ArmyRules.Problems(army, faction);
             if (problems.Count > 0) return problems;
             var rng = Core.GameRandom.Shared;
-            var factions = catalog != null ? catalog.Factions.ToList() : new List<Faction>();
+            // The AI only picks a faction that can field a valid army (one with a Commander).
+            var factions = catalog != null ? catalog.Factions.Where(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)).ToList() : new List<Faction>();
             var aiFaction = factions.Count > 0 ? factions[rng.Next(factions.Count)] : faction;
             var aiArmy = ArmyRules.RandomArmy(catalog != null ? catalog.UnitsFor(aiFaction) : army, rng);
             lastArmy = new List<UnitTemplate>(army);
@@ -331,8 +332,8 @@ namespace Eldoria.Gameplay
             float cx = Screen.width / 2f, cy = Screen.height / 2f;
             GUI.Label(new Rect(cx - 400f, cy - 220f, 800f, 100f), "ELDORIA", titleStyle);
             GUI.Label(new Rect(cx - 400f, cy - 125f, 800f, 30f), "Turn-based tactics", subtitleStyle);
-            if (!ArmyBuilderScreen.CatalogHasUnits(UnitCatalog.Load()))
-                GUI.Label(new Rect(cx - 400f, cy - 95f, 800f, 30f), "No factions or units yet: battles can't be started.", subtitleStyle);
+            if (!ArmyBuilderScreen.CatalogCanFieldArmies(UnitCatalog.Load()))
+                GUI.Label(new Rect(cx - 400f, cy - 95f, 800f, 30f), "No Commanders yet: battles can't be started.", subtitleStyle);
 
             const float w = 260f, h = 60f;
             if (GUI.Button(new Rect(cx - w / 2f, cy - 40f, w, h), "Play", buttonStyle)) OpenMapChoice();

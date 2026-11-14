@@ -80,9 +80,9 @@ namespace Eldoria.Network
             if (!session.IsConnected) yield break;
 
             var catalog = UnitCatalog.Load();
-            if (!ArmyBuilderScreen.CatalogHasUnits(catalog))
+            if (!ArmyBuilderScreen.CatalogCanFieldArmies(catalog))
             {
-                // This fork has no factions or units yet: check the map arrives and armies are refused, then stop.
+                // No faction has a Commander yet: check the map arrives and armies are refused, then stop.
                 if (hosting) menu.ChooseMap(Battlefields.EnglishCountryside);
                 else
                 {
@@ -90,7 +90,7 @@ namespace Eldoria.Network
                     Check(session.MapScene == Battlefields.EnglishCountryside.Scene, $"the host's map arrived ({session.MapScene})");
                 }
                 var none = menu.SubmitMultiplayerArmy(null, new System.Collections.Generic.List<UnitTemplate>());
-                Check(none.Count == 1 && none[0] == ArmyBuilderScreen.NoUnitsMessage, "no units: the army is refused with the no-units message");
+                Check(none.Count == 1 && none[0] == ArmyBuilderScreen.NoArmiesMessage, "no Commanders: the army is refused with the no-Commander message");
                 yield break;
             }
             var faction = catalog.Factions.ElementAt(hosting ? 0 : catalog.Factions.Count() - 1);

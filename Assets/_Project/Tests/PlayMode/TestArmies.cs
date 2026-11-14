@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 namespace Eldoria.Tests
 {
     /// <summary>
-    /// Test-made units. This fork has no factions or units of its own, so tests that need soldiers build them here from
+    /// Test-made units. The game has no units of its own yet, so tests that need soldiers build them here from
     /// ScriptableObjects made in code, using the game's weapons, abilities, keywords and placeholder models.
     /// The stand-ins match the old demo units the maps used to have (Infantry Squad, Field Commander, Battle Priest), and
     /// <see cref="LoadScene"/> places them on a map where those units used to stand, so the map and movement tests keep
