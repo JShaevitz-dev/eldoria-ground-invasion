@@ -209,7 +209,7 @@ namespace Eldoria.EditorTools
         }
 
         /// <summary>
-        /// ISF Ranger (Specialist, ISF), the original Eldoria's Sniper renamed: 1 ISF Ranger (Health 5, Armor 0, Accuracy
+        /// ISF Ranger (Specialist, ISF), the original Eldoria's Sniper renamed, with Armor 1: 1 ISF Ranger (Health 5, Armor 1, Accuracy
         /// 100%, Move 15 m; Biological, Sniper Precision, Solo; Sniper Rifle: Damage 5, Shots 1, Penetration 1, +50%
         /// accuracy, 50 m, Deployed). Existing assets keep their Inspector edits.
         /// </summary>
@@ -221,7 +221,7 @@ namespace Eldoria.EditorTools
             var ranger = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfRanger.asset", s =>
             {
                 s.displayName = "ISF Ranger";
-                s.health = 5; s.armorLevel = 0; s.accuracy = 100; s.movementRange = 15f;
+                s.health = 5; s.armorLevel = 1; s.accuracy = 100; s.movementRange = 15f;
                 s.keywords = new List<Keyword> { keywords["Biological"], keywords["Sniper Precision"], keywords["Solo"] };
                 s.abilities = new List<Ability>();
                 s.weapons = new List<WeaponTemplate> { rifle };
@@ -234,7 +234,7 @@ namespace Eldoria.EditorTools
                 u.role = UnitRole.Specialist;
                 u.description = "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, " +
                     "with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing " +
-                    "sergeants and officers. The Sniper Rifle can't fire after moving, and with 5 health and no armor the Ranger " +
+                    "sergeants and officers. The Sniper Rifle can't fire after moving, and with 5 health and only light armor the Ranger " +
                     "must stay out of sight; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo " +
                     "unit: one per army.";
                 u.leader = ranger;

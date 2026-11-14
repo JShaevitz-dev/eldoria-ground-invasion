@@ -116,11 +116,11 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 
 ### ISF Ranger
 
-*International Space Force of Humanity · Specialist.* The original Eldoria's Sniper, renamed. One soldier.
+*International Space Force of Humanity · Specialist.* The original Eldoria's Sniper, renamed, with Armor 1. One soldier.
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
 |---|---|---|---|---|---|---|
-| ISF Ranger | 5 | 0 | 100% | 15 m | Biological, Sniper Precision, Solo | Sniper Rifle |
+| ISF Ranger | 5 | 1 | 100% | 15 m | Biological, Sniper Precision, Solo | Sniper Rifle |
 
 - **Sniper Rifle:** Damage 5, Shots 1, Penetration 1, **+50% accuracy**, Range 50 m, **Deployed** (can't fire after moving that turn).
 - **Sniper Precision:** when the Ranger shoots, the player picks the exact enemy soldier to target (the AI prefers Solo soldiers and sergeants).

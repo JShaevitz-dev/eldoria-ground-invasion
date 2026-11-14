@@ -123,7 +123,7 @@ Inspector.
 | Unit | Faction | Role | Made of |
 |---|---|---|---|
 | **Field Commander** | International Space Force of Humanity | Commander | Field Commander (Health 10, Armor 2, Pistol, Lead from the front) |
-| **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (the original Eldoria's Sniper: Accuracy 100%, Sniper Rifle, Sniper Precision) |
+| **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (the original Eldoria's Sniper with Armor 1: Accuracy 100%, Sniper Rifle, Sniper Precision) |
 | **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) |
 | **Dragonborn Squad** | Imperial Army of The Draconis Imperialis | Infantry | Dragonborn Sergeant + 4 Dragonborn Footmen (Health 10, Armor 2; Dragon Glaive: a 20 m rifle and a 2 m Melee blade) |
 | **ISF Rifle Squad** | International Space Force of Humanity | Infantry | ISF Rifleman Sergeant + 9 ISF Riflemen (Armor 2, Assault Rifles, Frag Grenade) |

@@ -15,7 +15,7 @@ MonoBehaviour:
   displayName: ISF Ranger
   prefab: {fileID: 6053854536986303268, guid: 537640af405c944478d543107031f458, type: 3}
   health: 5
-  armorLevel: 0
+  armorLevel: 1
   accuracy: 100
   movementRange: 15
   keywords:
