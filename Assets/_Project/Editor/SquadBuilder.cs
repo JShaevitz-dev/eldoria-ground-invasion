@@ -208,6 +208,46 @@ namespace Eldoria.EditorTools
             return unit;
         }
 
+        /// <summary>
+        /// ISF Ranger (Specialist, ISF), the original Eldoria's Sniper renamed: 1 ISF Ranger (Health 5, Armor 0, Accuracy
+        /// 100%, Move 15 m; Biological, Sniper Precision, Solo; Sniper Rifle: Damage 5, Shots 1, Penetration 1, +50%
+        /// accuracy, 50 m, Deployed). Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureIsfRanger(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/SniperRifle.asset");
+            var ranger = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfRanger.asset", s =>
+            {
+                s.displayName = "ISF Ranger";
+                s.health = 5; s.armorLevel = 0; s.accuracy = 100; s.movementRange = 15f;
+                s.keywords = new List<Keyword> { keywords["Biological"], keywords["Sniper Precision"], keywords["Solo"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate> { rifle };
+                s.primaryWeapon = rifle;
+                s.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/Sniper.prefab");
+            });
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/IsfRanger.asset", u =>
+            {
+                u.displayName = "ISF Ranger";
+                u.role = UnitRole.Specialist;
+                u.description = "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, " +
+                    "with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing " +
+                    "sergeants and officers. The Sniper Rifle can't fire after moving, and with 5 health and no armor the Ranger " +
+                    "must stay out of sight; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo " +
+                    "unit: one per army.";
+                u.leader = ranger;
+                u.members = new List<UnitTemplate.Member>();
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
         // ------------------------------------------------------------------ Imperial Army of The Draconis Imperialis
 
         /// <summary>Dragon Claw: Damage 5, Shots 1, Penetration 1, Accuracy Bonus 0, Range 2 m; Melee, Natural.</summary>
@@ -505,6 +545,7 @@ namespace Eldoria.EditorTools
             EnsureDragonbornSquad(factions[1], keywords);
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
+            EnsureIsfRanger(factions[0], keywords);
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
             AssetDatabase.SaveAssets();

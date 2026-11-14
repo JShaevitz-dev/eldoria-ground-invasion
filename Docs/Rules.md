@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Eldoria Ground Invasion) has its first three factions. Two can field armies:** the ISF (Field
-> Commander, ISF Rifle Squad, Heavy Weapons Team) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad). The Rask have no units yet. The game
+> Commander, ISF Rifle Squad, Heavy Weapons Team, ISF Ranger) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad). The Rask have no units yet. The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -63,7 +63,7 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 | **Infantry** | ISF Rifle Squad, Dragonborn Squad |
 | **Commander** | Field Commander, Dragon Hierarch |
 | **Heavy Support** | Heavy Weapons Team |
-| **Specialist** | *none yet* |
+| **Specialist** | ISF Ranger |
 
 ### Factions — *implemented*
 
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, the ISF Rifle Squad and the Heavy Weapons Team, and the Draconis Imperialis has the Dragon Hierarch and the Dragonborn Squad, so both can field armies (the AI picks one of them); the Rask have no units yet.
+So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team and the ISF Ranger, and the Draconis Imperialis has the Dragon Hierarch and the Dragonborn Squad, so both can field armies (the AI picks one of them); the Rask have no units yet.
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -113,6 +113,18 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
 **Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
+
+### ISF Ranger
+
+*International Space Force of Humanity · Specialist.* The original Eldoria's Sniper, renamed. One soldier.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
+|---|---|---|---|---|---|---|
+| ISF Ranger | 5 | 0 | 100% | 15 m | Biological, Sniper Precision, Solo | Sniper Rifle |
+
+- **Sniper Rifle:** Damage 5, Shots 1, Penetration 1, **+50% accuracy**, Range 50 m, **Deployed** (can't fire after moving that turn).
+- **Sniper Precision:** when the Ranger shoots, the player picks the exact enemy soldier to target (the AI prefers Solo soldiers and sergeants).
+- A Specialist and a Solo unit: one per army.
 
 ### Dragon Hierarch
 

@@ -63,17 +63,17 @@ namespace Eldoria.Tests
         {
             var catalog = UnitCatalog.Load();
             Assert.That(catalog, Is.Not.Null);
-            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Dragon Hierarch", "Field Commander", "Dragonborn Squad", "ISF Rifle Squad", "Heavy Weapons Team" }), "Commanders, Infantry, then Heavy Support");
+            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Dragon Hierarch", "Field Commander", "Dragonborn Squad", "ISF Rifle Squad", "Heavy Weapons Team", "ISF Ranger" }), "Commanders, Infantry, Heavy Support, then Specialists");
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[] { "International Space Force of Humanity", "Imperial Army of The Draconis Imperialis", "Most Holy Army of The Rask Divine Collective" }));
             var factions = catalog.Factions.ToList();
-            Assert.That(factions[0].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team" }));
+            Assert.That(factions[0].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team", "ISF Ranger" }));
             Assert.That(factions[1].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Dragon Hierarch", "Dragonborn Squad" }), "Draconis Imperialis");
             Assert.That(factions[2].Units, Is.Empty, "Rask: no units yet");
             Assert.That(catalog.defaultArmy, Is.Empty);
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null, "still there for deploying units");
             Assert.That(catalog.leaderMarker, Is.Not.Null);
-            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(5));
-            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(9));
+            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(6));
+            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(10));
             Assert.That(AssetDatabase.FindAssets("t:Faction", new[] { "Assets/_Project/Data/Factions" }).Length, Is.EqualTo(3));
         }
 
@@ -93,7 +93,7 @@ namespace Eldoria.Tests
             var catalog = UnitCatalog.Load();
             var builder = new ArmyBuilderScreen(catalog);
             Assert.That(builder.CanFieldArmies, Is.True);
-            Assert.That(builder.FactionStatus(builder.Factions[0]), Is.EqualTo("3 units available"));
+            Assert.That(builder.FactionStatus(builder.Factions[0]), Is.EqualTo("4 units available"));
             Assert.That(builder.FactionStatus(builder.Factions[1]), Is.EqualTo("2 units available"));
             Assert.That(builder.FactionStatus(builder.Factions[2]), Is.EqualTo("no units yet"));
             Assert.That(catalog.Factions.Select(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(new[] { true, true, false }));
