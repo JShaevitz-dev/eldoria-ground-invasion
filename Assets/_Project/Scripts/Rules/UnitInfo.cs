@@ -21,10 +21,17 @@ namespace Eldoria.Rules
                 var s = group.Key;
                 int n = group.Count();
                 string who = n > 1 ? $"{n}× {s.displayName}" : s.displayName;
-                string weapons = string.Join(", ", WeaponsOf(s).Select(w => WeaponStats.For(w, faction).Name));
-                lines.Add($"{who} — Health {s.health} · Armor {s.armorLevel} · Accuracy {s.accuracy}% · " +
-                          $"Move {s.movementRange:0.#} m " + (s.HasKeyword(MovementRules.MechanicalKeyword) ? "(can't sprint)"
-                              : $"(sprint {s.movementRange * MovementRules.SprintMultiplier:0.#} m)") + (weapons.Length > 0 ? $" · {weapons}" : ""));
+                // Standard equipment counts towards the stats shown, and is listed after the weapons.
+                var gear = (s.equipment ?? new List<Equipment>()).Where(e => e != null).ToList();
+                int health = s.health + gear.Sum(e => e.health), armor = s.armorLevel + gear.Sum(e => e.armorLevel);
+                int accuracy = s.accuracy + gear.Sum(e => e.accuracy);
+                float move = s.movementRange + gear.Sum(e => e.movement);
+                string weapons = string.Join(", ", WeaponsOf(s).Select(w => WeaponStats.For(w, faction).Name)
+                    .Concat(gear.SelectMany(e => e.weapons).Where(w => w != null).Select(w => WeaponStats.For(w, faction).Name))
+                    .Concat(gear.Select(e => e.displayName)));
+                lines.Add($"{who} — Health {health} · Armor {armor} · Accuracy {accuracy}% · " +
+                          $"Move {move:0.#} m " + (s.HasKeyword(MovementRules.MechanicalKeyword) ? "(can't sprint)"
+                              : $"(sprint {move * MovementRules.SprintMultiplier:0.#} m)") + (weapons.Length > 0 ? $" · {weapons}" : ""));
             }
             return lines;
         }

@@ -38,7 +38,7 @@ namespace Eldoria.Tests
             var catalog = UnitCatalog.Load();
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[] { "International Space Force of Humanity", "Imperial Army of The Draconis Imperialis", "Most Holy Army of The Rask Divine Collective" }));
             Assert.That(ArmyBuilderScreen.CatalogCanFieldArmies(catalog), Is.True);
-            Assert.That(catalog.Factions.Select(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(new[] { true, true, false }));
+            Assert.That(catalog.Factions.Select(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(new[] { true, true, true }));
         }
 
         [UnityTest]
@@ -54,14 +54,14 @@ namespace Eldoria.Tests
             Assert.That(menu.Builder.CanFieldArmies, Is.True);
             Assert.That(menu.Builder.Faction, Is.Null, "a faction is chosen first");
             Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("7 units available"));
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("3 units available"));
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("1 unit \u00b7 no Commander yet"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("8 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("5 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("4 units available"));
 
             menu.Builder.ChooseFaction(Isf);
             yield return null;   // draws the unit list
-            Assert.That(menu.Builder.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "ISF Ranger" }),
-                "Commanders first, then Infantry, then Heavy Support");
+            Assert.That(menu.Builder.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "ISF Boarding Team", "ISF Ranger" }),
+                "Commanders first, then Infantry, then Heavy Support, then Specialists");
             Assert.That(menu.Builder.Army, Is.Empty, "no demo army set yet: the list starts empty");
         }
 

@@ -27,7 +27,7 @@ namespace Eldoria.Tests
             Assert.That((amr.baseDamage, amr.shots, amr.range), Is.EqualTo((10, 1, 50f)));
             Assert.That(amr.PenetrationValue, Is.Null, "Penetration X");
             Assert.That(amr.accuracyBonus, Is.EqualTo(0), "no accuracy bonus (the Sniper Rifle has +50%)");
-            Assert.That(amr.keywords.Select(k => k.displayName), Is.EqualTo(sniper.keywords.Select(k => k.displayName)), "Deployed, like the Sniper Rifle");
+            Assert.That(amr.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Deployed" }), "Deployed (the Sniper Rifle isn't)");
         }
 
         [Test]

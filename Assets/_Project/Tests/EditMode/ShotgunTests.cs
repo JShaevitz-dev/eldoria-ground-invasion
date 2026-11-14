@@ -33,12 +33,12 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void OnlyTheIsfRangerCanTakeIt()
+        public void TheIsfRangerCanTakeItAndTheBoardingTeamCarriesIt()
         {
             var carriers = UnitCatalog.Load().Available.SelectMany(u => u.Roster()).Distinct()
                 .Where(t => t.weapons.Contains(Shotgun) || t.weaponOptions.Any(o => o.alternatives.Contains(Shotgun)))
                 .Select(t => t.displayName);
-            Assert.That(carriers, Is.EqualTo(new[] { "ISF Ranger" }));
+            Assert.That(carriers, Is.EquivalentTo(new[] { "ISF Ranger", "Boarding Sergeant", "Boarding Specialist" }));
         }
     }
 }

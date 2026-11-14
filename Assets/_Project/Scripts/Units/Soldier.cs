@@ -36,7 +36,11 @@ namespace Eldoria.Units
         [System.NonSerialized] private List<Ability> abilitiesWithEquipment;
 
         public SoldierLoadout Loadout => loadout;
-        private IEnumerable<Equipment> Gear => loadout != null ? loadout.Equipment.Where(e => e != null) : Enumerable.Empty<Equipment>();
+        /// <summary>Equipment the soldier carries: their type's standard equipment, plus any chosen in the army builder.</summary>
+        private IEnumerable<Equipment> Gear =>
+            (template != null && template.equipment != null ? template.equipment : Enumerable.Empty<Equipment>())
+            .Concat(loadout != null ? loadout.Equipment : Enumerable.Empty<Equipment>())
+            .Where(e => e != null).Distinct();
 
         /// <summary>
         /// Applies the army builder choices: swapped weapons replace the ones they stand for (a swapped primary weapon is the
@@ -53,15 +57,20 @@ namespace Eldoria.Units
             foreach (var e in Gear)
                 foreach (var w in e.weapons)
                     if (w != null) weapons.Add(new Weapon(w, this));
-            if (loadout != null && template != null)
-            {
-                abilitiesWithEquipment = new List<Ability>(template.abilities);
-                foreach (var e in Gear)
-                    foreach (var a in e.abilities)
-                        if (a != null && !abilitiesWithEquipment.Contains(a)) abilitiesWithEquipment.Add(a);
-            }
+            RefreshEquipmentAbilities();
             initialized = true;
             health = MaxHealth;
+        }
+
+        /// <summary>The template's abilities plus those the soldier's equipment gives (none needed without equipment).</summary>
+        private void RefreshEquipmentAbilities()
+        {
+            abilitiesWithEquipment = null;
+            if (template == null || !Gear.Any()) return;
+            abilitiesWithEquipment = new List<Ability>(template.abilities);
+            foreach (var e in Gear)
+                foreach (var a in e.abilities)
+                    if (a != null && !abilitiesWithEquipment.Contains(a)) abilitiesWithEquipment.Add(a);
         }
 
         public SoldierTemplate Template => template;
@@ -100,7 +109,7 @@ namespace Eldoria.Units
             get
             {
                 if (template == null) return null;
-                if (loadout == null) return template.keywords;
+                if (!Gear.Any()) return template.keywords;
                 var list = new List<Keyword>(template.keywords);
                 foreach (var e in Gear)
                     foreach (var k in e.keywords) Keyword.AddUnique(list, k);   // equipment keywords
@@ -258,10 +267,16 @@ namespace Eldoria.Units
                 if (w != null && w.Owner != this) w.Owner = this;
             if (initialized || template == null) return;
             initialized = true;
-            health = template.health;
             if (weapons.Count == 0)
+            {
                 foreach (var w in template.weapons)
                     if (w != null) weapons.Add(new Weapon(w, this));
+                foreach (var e in Gear)
+                    foreach (var w in e.weapons)
+                        if (w != null) weapons.Add(new Weapon(w, this));
+            }
+            RefreshEquipmentAbilities();
+            health = MaxHealth;
         }
 
         /// <summary>Reduces health; the soldier is killed at 0.</summary>

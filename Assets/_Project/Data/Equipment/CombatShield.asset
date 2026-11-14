@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b77744f63fc029947b00810f7702ea43, type: 3}
+  m_Name: CombatShield
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Equipment
+  displayName: Combat Shield
+  description: A shield carried on the arm. Adds 1 to the soldier's Armor Level.
+  keywords: []
+  abilities: []
+  weapons: []
+  health: 0
+  armorLevel: 1
+  accuracy: 0
+  movement: 0

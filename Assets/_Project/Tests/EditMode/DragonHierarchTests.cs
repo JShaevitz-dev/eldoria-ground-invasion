@@ -42,8 +42,8 @@ namespace Eldoria.Tests
             Assert.That(Draconis.Has(unit), Is.True);
             Assert.That(Catalog.Factions.First().Has(unit), Is.False, "not the ISF's");
             Assert.That(unit.role, Is.EqualTo(UnitRole.Commander));
-            Assert.That(unit.Size, Is.EqualTo(1));
-            Assert.That(ArmyRules.Composition(unit), Is.EqualTo("Dragon Hierarch"));
+            Assert.That(unit.Size, Is.EqualTo(3));
+            Assert.That(ArmyRules.Composition(unit), Is.EqualTo("Dragon Hierarch + 2\u00d7 Dragonborn Honorguard"));
             Assert.That(ArmyBuilderScreen.FactionCanFieldArmy(Catalog, Draconis), Is.True, "a Commander makes the faction playable");
             Assert.That(ArmyRules.IsValid(new List<UnitTemplate> { unit }, Draconis), Is.True);
         }
@@ -61,7 +61,7 @@ namespace Eldoria.Tests
             Assert.That(d.prefab, Is.Not.Null, "the dragon model");
             Assert.That(d.radius, Is.EqualTo(1f), "wider than a person, but close enough in to reach with a 2 m claw");
             Assert.That(d.height, Is.GreaterThan(3f), "a large dragon");
-            Assert.That(UnitInfo.SoldierLines(Hierarch).Single(),
+            Assert.That(UnitInfo.SoldierLines(Hierarch).First(),
                 Is.EqualTo("Dragon Hierarch — Health 15 · Armor 2 · Accuracy 50% · Move 30 m (sprint 60 m) · Dragon Claw"));
         }
 
@@ -72,7 +72,7 @@ namespace Eldoria.Tests
             Assert.That((claw.baseDamage, claw.shots, claw.PenetrationValue, claw.accuracyBonus, claw.range),
                 Is.EqualTo((5, 1, (int?)1, 0, 2f)));
             Assert.That(claw.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Melee", "Natural" }));
-            Assert.That(UnitInfo.WeaponLines(Hierarch).Single(),
+            Assert.That(UnitInfo.WeaponLines(Hierarch).First(),
                 Is.EqualTo("Dragon Claw — Damage 5 · Shots 1 · Penetration 1 · Range 2 m · Melee, Natural"));
         }
 

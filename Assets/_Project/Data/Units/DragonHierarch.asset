@@ -16,5 +16,7 @@ MonoBehaviour:
   role: 1
   description: 
   leader: {fileID: 11400000, guid: c5061a10a406acf44928a759878631b6, type: 2}
-  members: []
+  members:
+  - soldier: {fileID: 11400000, guid: c51b10c4e09a0a549870096ba85736c2, type: 2}
+    count: 2
   deploymentSpacing: 4

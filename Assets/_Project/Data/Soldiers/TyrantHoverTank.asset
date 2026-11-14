@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c831d2daf4333a42b1b9b15f92f56c6, type: 3}
+  m_Name: TyrantHoverTank
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
+  displayName: Tyrant Hover-tank
+  prefab: {fileID: 6411165502194887805, guid: 7223b13faf57b934da16fc5611cde319, type: 3}
+  health: 15
+  armorLevel: 4
+  accuracy: 100
+  movementRange: 30
+  keywords:
+  - {fileID: 11400000, guid: 79be367eee8536e40ad85e8e7cfe97e4, type: 2}
+  - {fileID: 11400000, guid: 2ab6be3cef3ec9b4eafa9ab24e5f4c93, type: 2}
+  - {fileID: 11400000, guid: 1750c0ef950029b488f63ed6e7f565e8, type: 2}
+  abilities: []
+  weapons:
+  - {fileID: 11400000, guid: 744f4da9975e67c4ca3dd8ce2576e32e, type: 2}
+  primaryWeapon: {fileID: 11400000, guid: 744f4da9975e67c4ca3dd8ce2576e32e, type: 2}
+  radius: 1.8
+  height: 2
+  weaponOptions: []
+  equipmentOptions: []

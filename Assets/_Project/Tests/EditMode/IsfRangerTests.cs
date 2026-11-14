@@ -11,7 +11,7 @@ namespace Eldoria.Tests
     /// <summary>
     /// The ISF Ranger (Specialist): the original Eldoria's Sniper, renamed, with Armor 1. One ISF Ranger (Health 5, Armor 1, Accuracy
     /// 100%, Move 15 m; Biological, Sniper Precision, Solo) with a Sniper Rifle (Damage 10, Shots 1, Penetration 1, +50%
-    /// accuracy, 50 m, Deployed).
+    /// accuracy, 50 m, no keywords).
     /// </summary>
     public class IsfRangerTests
     {
@@ -48,7 +48,7 @@ namespace Eldoria.Tests
             Assert.That(r.PrimaryWeapon, Is.SameAs(rifle));
             Assert.That(rifle.displayName, Is.EqualTo("Sniper Rifle"));
             Assert.That((rifle.baseDamage, rifle.shots, rifle.PenetrationValue, rifle.accuracyBonus, rifle.range), Is.EqualTo((10, 1, (int?)1, 50, 50f)));
-            Assert.That(rifle.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Deployed" }));
+            Assert.That(rifle.keywords, Is.Empty, "not Deployed");
             Assert.That(UnitInfo.SoldierLines(Ranger).Single(),
                 Is.EqualTo("ISF Ranger \u2014 Health 5 \u00b7 Armor 1 \u00b7 Accuracy 100% \u00b7 Move 15 m (sprint 30 m) \u00b7 Sniper Rifle"));
             Assert.That(UnitInfo.SharedKeywords(Ranger), Does.Contain("Sniper Precision"));

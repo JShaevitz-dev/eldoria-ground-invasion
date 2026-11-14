@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Eldoria Ground Invasion) has its first three factions. Two can field armies:** the ISF (Field
-> Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad, Kobold Militia). The Rask have only the Rask Rifle Team so far (no Commander), so they can't field an army yet. The game
+> Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank). The Rask have the Rask Ultima (Commander), the Rask Rifle Team, the Stinger Heavy Robot and the Intimidator Medium Robot. The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -61,9 +61,9 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 | Role | Units |
 |---|---|
 | **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia, Rask Rifle Team |
-| **Commander** | Field Commander, Dragon Hierarch |
-| **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech |
-| **Specialist** | ISF Ranger |
+| **Commander** | Field Commander, Dragon Hierarch, Rask Ultima |
+| **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, Stinger Heavy Robot, Tyrant Hover-tank, Intimidator Medium Robot |
+| **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad |
 
 ### Factions — *implemented*
 
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech and the ISF Ranger, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Squad and the Kobold Militia, so both can field armies (the AI picks one of them); the Rask have the Rask Rifle Team but no Commander yet, so they can't.
+So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger and the ISF Boarding Team, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad and the Tyrant Hover-tank, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot and the Intimidator Medium Robot, so all three can field armies (the AI picks one of them).
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -110,6 +110,10 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - **Equipment** can give **keywords**, **abilities**, **extra weapons** (carried as well, not as the primary) and **stat changes** (Health, Armor Level, Accuracy, Movement; added to the soldier's own). The list shows a short summary of a unit's choices.
 - Choices are kept with your last army, and applied when your army deploys. The AI's armies don't customize.
 - *So far only the ISF Heavy Weapons (Machine Gun → Rocket Launcher or Flamethrower) and the ISF Ranger (Sniper Rifle → Anti-Materiel Rifle or Shotgun) have options; options are set on each soldier's data (Weapon Options, Equipment Options).*
+- **Standard equipment:** a soldier type can also carry equipment **as standard** (Equipment, on the soldier's data), always applied, without any army builder choice. Its stat changes are included in the unit's stats in the army builder.
+- **Equipment in the game** (Data/Equipment); no soldier type offers either as an army builder choice yet:
+  - **Combat Shield:** adds **1** to the soldier's Armor Level. Carried as standard by the ISF Boarding Team.
+  - **Frag Grenade:** gives the active ability **Frag Grenade** (thrown once per battle; 2.5 m blast).
 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
@@ -156,6 +160,20 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - **Wide body:** it stands on a circle of 0.7 m radius.
 - Heavy Support, so an army can take more than one.
 
+### ISF Boarding Team
+
+*International Space Force of Humanity · Specialist.* 1 **Boarding Sergeant** (leader) + 4 **Boarding Specialists**: ISF troopers with a shotgun and a tall shield on the arm. The ISF Rifleman's stats, with a **Combat Shield** carried as standard.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment |
+|---|---|---|---|---|---|---|---|
+| Boarding Sergeant | 5 | 2 (**3** with the shield) | 75% | 10 m (sprint 20 m) | Biological | Shotgun | Combat Shield |
+| Boarding Specialist (×4) | 5 | 2 (**3** with the shield) | 75% | 10 m (sprint 20 m) | Biological | Shotgun | Combat Shield |
+
+- **Shotgun:** Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m.
+- **Combat Shield:** +1 Armor Level, so they fight at **Armor 3**.
+- They have the ISF Rifleman's stats, not its Frag Grenade.
+- A Specialist, so one per army.
+
 ### ISF Ranger
 
 *International Space Force of Humanity · Specialist.* The original Eldoria's Sniper, renamed, with Armor 1. One soldier.
@@ -166,24 +184,27 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 - **Chromashift Textiles** (passive ability): **attacks against the Ranger take −25% accuracy.** It gives the Ranger the **Chromashift** status (a keyword whose effect, when defending, is −25% to the attacker's accuracy), the same way cover works; it adds to any cover penalty, and Indirect fire ignores it like every accuracy modifier. Only the Ranger itself has it, not soldiers near it.
 
-- **Sniper Rifle:** **Damage 10** (raised from the original Eldoria's 5), Shots 1, Penetration 1, **+50% accuracy**, Range 50 m, **Deployed** (can't fire after moving that turn).
+- **Sniper Rifle:** **Damage 10** (raised from the original Eldoria's 5), Shots 1, Penetration 1, **+50% accuracy**, Range 50 m, no keywords (it can fire after moving).
 - **Weapon options:** in the army builder (**Customize**), the ISF Ranger can swap the Sniper Rifle for either:
-  - an **Anti-Materiel Rifle**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed**. It trades the Sniper Rifle's +50% aim for damage that armor can't stop;
+  - an **Anti-Materiel Rifle**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed** (can't fire after moving that turn). It trades the Sniper Rifle's +50% aim for damage that armor can't stop;
   - a **Shotgun**: Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords (so it can fire after moving, but not in close range).
 - **Sniper Precision:** when the Ranger shoots, the player picks the exact enemy soldier to target (the AI prefers Solo soldiers and sergeants).
 - A Specialist and a Solo unit: one per army.
 
 ### Dragon Hierarch
 
-*Imperial Army of The Draconis Imperialis · Commander.* One soldier: a large quadrupedal dragon with wings and golden armor, of the Dragons, the Empire's ruling caste (see [Lore.md](Lore.md)).
+*Imperial Army of The Draconis Imperialis · Commander.* 1 **Dragon Hierarch** (leader): a large quadrupedal dragon with wings and golden armor, of the Dragons, the Empire's ruling caste (see [Lore.md](Lore.md)); escorted by 2 **Dragonborn Honorguard** in gold armor and crimson capes.
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
 |---|---|---|---|---|---|---|
 | Dragon Hierarch | 15 | 2 | 50% | 30 m (sprint 60 m) | Biological, Large | Dragon Claw |
+| Dragonborn Honorguard (×2) | 10 | 2 | **95%** | 10 m (sprint 20 m) | Biological | Dragon Glaive (Range), Dragon Glaive (melee) |
 
 - **Dragon Claw:** Damage 5, Shots 1, Penetration 1, Accuracy Bonus 0, Range **2 m**; **Melee** (usable in close range) and **Natural** (can't be disabled by Disarm).
 - **Footprint:** the model is about 6 m long and 3.6 m tall, but the dragon stands on a circle of **1 m radius** (it needs room for that along its route, like other wide soldiers). Reach is measured between soldiers' centres, so with a 2 m claw it can hit a soldier standing right next to it (1.35 m apart for a person); a wider footprint couldn't reach anyone.
 - Against its Armor 2, Assault Rifles and the Machine Gun (Penetration 1) do half damage, Pistols and SMGs (Penetration 0) do none, and the Rocket Launcher (Penetration 5) does 150%; the Flamethrower (no penetration value) does full damage.
+- **Dragonborn Honorguard:** the Dragonborn Footman's stats and Dragon Glaives (see the Dragonborn Squad), but **95% accuracy**.
+- The dragon leads the unit's move; the Honorguard then follow it, ending within 5 m of it (cohesion), however far it went.
 - The Draconis Imperialis's Commander, so every Draconis army has one.
 
 ### Dragonborn Squad
@@ -203,19 +224,81 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - The ranged glaive is their **primary weapon**. In **close range** (a Biological enemy under 2 m away) they can't use it, so they switch to the **melee glaive** (Melee weapons work in close range).
 - Infantry, so an army can take more than one.
 
-### Rask Rifle Team
+### Rask Ultima
 
-*Most Holy Army of The Rask Divine Collective · Infantry.* 1 **Rask Superior** (leader) + 19 **Rask Riflemen**: anthropomorphic rats standing at two-thirds the height of a human (1.2 m), holding rifles and wearing armor (see [Lore.md](Lore.md), the Rask). Same stats as the Kobold Militiaman.
+*Most Holy Army of The Rask Divine Collective · Commander.* One soldier: a Rask officer with a gold crest and gorget, gold epaulettes and a purple cape, carrying a pistol. The Rask Rifleman's stats, but **Health 10** and **Armor 2**.
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
 |---|---|---|---|---|---|---|
-| Rask Superior | 5 | 0 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
-| Rask Rifleman (×19) | 5 | 0 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
+| Rask Ultima | 10 | 2 | 50% | 20 m (sprint 40 m) | Biological, Solo, Officer | Pistol |
+
+- **Pistol:** Damage 2, Shots 1, Penetration 0, Range 10 m; Pistol (usable in close range).
+- The Rask's Commander, so every Rask army has one, and the Rask can now field armies.
+
+### Rask Rifle Team
+
+*Most Holy Army of The Rask Divine Collective · Infantry.* 1 **Rask Superior** (leader) + 19 **Rask Riflemen**: anthropomorphic rats standing at two-thirds the height of a human (1.2 m), holding rifles and wearing armor (see [Lore.md](Lore.md), the Rask). Same stats as the Kobold Militiaman, but Armor 1.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
+|---|---|---|---|---|---|---|
+| Rask Superior | 5 | 1 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
+| Rask Rifleman (×19) | 5 | 1 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
 
 - **Solntse Laser Rifle:** the Rask's name for the **Assault Rifle**, with **Damage +2** for Rask soldiers: Damage 6, Shots 1, Penetration 1, Range 20 m.
 - **Swarm:** the unit keeps cohesion out to **10 m** from its leader.
-- The armor is the models' look only: their Armor Level is 0, as given.
-- The Rask's only unit so far, and not a Commander, so the Rask can't field an army yet.
+- **Armor 1** (raised from the Kobold Militiaman's 0).
+- Led into battle by the Rask Ultima, the Rask's Commander.
+
+### Intimidator Medium Robot
+
+*Most Holy Army of The Rask Divine Collective · Heavy Support.* One soldier: a gorilla-like robot that walks on all fours (on its knuckles), with a machine gun mounted on each shoulder.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Abilities |
+|---|---|---|---|---|---|---|---|
+| Intimidator Medium Robot | 10 | 3 | 75% | 30 m (can't sprint) | Mechanical, Robotic | Twin Intimidator Machine Guns | Stabilizers (passive) |
+
+- **Twin Intimidator Machine Guns:** the Machine Gun's stats but **10 shots**: Damage 5, Shots 10, Penetration 1, +0% accuracy, Range 20 m; **Deployed**.
+- **Stabilizers** (passive) nullify Deployed, so it can fire after moving.
+- **Mechanical:** can't sprint and is never in close range. Radius 1 m.
+
+### Stinger Heavy Robot
+
+*Most Holy Army of The Rask Divine Collective · Heavy Support.* One soldier: a six-legged, beetle-like war robot with a large cannon on its back angled up at about 45 degrees.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Abilities |
+|---|---|---|---|---|---|---|---|
+| Stinger Heavy Robot | 25 | 5 | 75% | 30 m (can't sprint) | Mechanical, Heavy, Robotic | Plasma Mortar | Stabilizers (passive) |
+
+- **Plasma Mortar:** the Mortar Launcher's stats as a weapon of its own: Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; **Deployed**, **Manual Load** (fires once a turn), **Explosive**.
+- **Stabilizers** (passive) nullify Deployed, so it can fire the Plasma Mortar after moving.
+- **Mechanical:** can't sprint and is never in close range. **Heavy** is a new trait with no effect of its own yet.
+- Its footprint (radius 1.6 m) is smaller than the spread of its legs.
+
+### Dragonborn Skymaster Squad
+
+*Imperial Army of The Draconis Imperialis · Specialist.* 1 **Dragonborn Skylord** (leader) + 4 **Dragonborn Skymasters**: Dragonborn with jetpacks in place of their wings, each holding a pistol in either hand. The Dragonborn Footman's stats, but **Move 40 m** and **Jump Pack**.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
+|---|---|---|---|---|---|---|
+| Dragonborn Skylord | 10 | 2 | 75% | 40 m (sprint 80 m) | Biological, Jump Pack | Twin Raptor Pistols |
+| Dragonborn Skymaster (×4) | 10 | 2 | 75% | 40 m (sprint 80 m) | Biological, Jump Pack | Twin Raptor Pistols |
+
+- **Twin Raptor Pistols:** Damage 4, **Shots 2**, Penetration 1, +0% accuracy, Range 20 m; **Pistol** (usable in close range).
+- **Jump Pack:** climbing onto an object costs them **no movement** (normally 10 m).
+- A Specialist, so one per army.
+
+### Tyrant Hover-tank
+
+*Imperial Army of The Draconis Imperialis · Heavy Support.* One soldier: a dagger-shaped tank hovering just off the ground, with a railgun turret on top and a cockpit at the front flown by a Kobold pilot.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
+|---|---|---|---|---|---|---|
+| Tyrant Hover-tank | 15 | 4 | 100% | 30 m (can't sprint) | Mechanical, Unstable, Hover | Tyrant Railgun |
+
+- **Tyrant Railgun:** Damage 5, Shots 1, **Penetration 7**, +0% accuracy, Range 50 m; **Manual Load** (fires once a turn). Penetration 7 is higher than any Armor Level in the game, so it always does 150% damage (7).
+- **Hover:** terrain can't reduce its movement: a move costs only its flat distance (no 10 m climbing cost, no wading penalty, and going up and over a hill costs no more than crossing flat ground). It still has to find a route around anything that blocks movement.
+- **Mechanical:** can't sprint and is never in close range. **Unstable:** when destroyed, a 10% chance to explode (5 damage to every soldier within 5 m).
+- A wide body (radius 1.8 m, like the Sagittarius MBT).
 
 ### Kobold Militia
 
@@ -278,6 +361,10 @@ Each unit is a Unit template (Data/Units) made of Soldier templates (Data/Soldie
 
 - **Weapons** (Data/Weapons): Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon, Rocket Launcher, Broadsword, Iron Claw.
 - **Mortar Launcher** (carried by the ISF Mortar Team): the Frag Grenade weapon's stats with **Penetration 3**, **Range 50 m** and the keywords **Deployed** (can't fire after moving that turn), **Manual Load** (fires once a turn) and **Explosive** (like the grenade): Damage 5, Shots 1, +0% accuracy. It's a weapon fired at a soldier like any other: it doesn't have the Frag Grenade ability's 2.5 m blast.
+- **Plasma Mortar** (carried by the Rask's Stinger Heavy Robot): the Mortar Launcher's stats: Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; Deployed, Manual Load, Explosive.
+- **Twin Intimidator Machine Guns** (on the Rask's Intimidator Medium Robot): the Machine Gun's stats with 10 shots: Damage 5, Shots 10, Penetration 1, +0% accuracy, Range 20 m; Deployed.
+- **Tyrant Railgun** (on the Tyrant Hover-tank): Damage 5, Shots 1, Penetration 7, +0% accuracy, Range 50 m; Manual Load.
+- **Twin Raptor Pistols** (carried by the Dragonborn Skymaster Squad): Damage 4, Shots 2, Penetration 1, +0% accuracy, Range 20 m; Pistol.
 - **Shotgun** (an option for the ISF Ranger): Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords.
 - **Anti-Materiel Rifle** (an option for the ISF Ranger): the Sniper Rifle's stats but **Damage 10**, **no penetration value** and **no accuracy bonus**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed**.
 - **Abilities** (Data/Abilities): Frag Grenade (once per battle) and a tank's Frag Grenade (every turn), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
@@ -299,9 +386,12 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 
 - **Swarm** (soldier, Trait): **expands the unit's cohesion radius to 10 m** (normally 5 m). If the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader; the green cohesion ring and the gather order use 10 m. The Kobold Militia and the Rask Rifle Team have it.
 - **Large** (soldier, Trait): a very large creature, e.g. the Dragon Hierarch. No effect on its own yet; other rules can check for it.
+- **Jump Pack** (soldier, Trait): **able to climb up objects without movement cost**: climbing onto an object costs the soldier 0 m instead of 10 m. The Dragonborn Skymaster Squad has it.
+- **Hover** (soldier, Trait): **terrain cannot reduce the movement of this soldier**: a move costs only its flat (horizontal) distance, with no climbing cost, no wading penalty and nothing extra for slopes. The Tyrant Hover-tank has it.
+- **Heavy** (soldier, Trait): a heavy war machine, e.g. the Stinger Heavy Robot. No effect on its own yet; other rules can check for it.
 - **Natural** (weapon, Trait): a natural weapon such as claws or teeth, which **can't be disabled by Disarm**. *Disarm isn't in the game yet, so for now it has no effect.*
 
-Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Natural, Swarm) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front, Chromashift).
+Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Heavy, Jump Pack, Hover, Natural, Swarm) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front, Chromashift).
 
 - Some traits **do nothing on their own**: **Officer** and **Solo** only matter because other weapons and abilities check for them (e.g. something that only affects Officers, or has no effect on Solo soldiers) — done with keyword interactions such as *"if the target has / lacks Officer → …"*.
 
@@ -380,7 +470,7 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - The route is measured **along the surface of structure terrain**: going over a hill costs the distance up and down it; crossing a ditch costs the distance down and back up.
 - The route is measured **straight through object terrain**: objects never add distance.
 - **Cohesion** (the 5 m, or 10 m with Swarm) is measured as a **straight line** from the leader, **not following terrain and ignoring elevation**.
-- **Climbing onto an object of any height costs 10 m** of movement (on top of walking to it). Soldiers climb on and off from right beside the object.
+- **Climbing onto an object of any height costs 10 m** of movement (on top of walking to it); **0 m** for a soldier with **Jump Pack** or **Hover**. Soldiers climb on and off from right beside the object.
 - **Climbing down costs 0 m**, but the soldier **still counts as having moved** this turn.
 - Any soldier given a move counts as having moved, even if it costs 0 m. A leader who holds position has not moved.
 - Walking up a **slope** is not climbing: it's measured along the slope.

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: StingerHeavyRobot
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Stinger Heavy Robot
+  role: 2
+  description: 'The Rask''s six-legged siege engine: a beetle-shaped war robot with
+    25 health and Armor Level 5, proof against almost everything but the heaviest
+    guns. The Plasma Mortar on its back (5 damage, penetration 3, 50 m, once a turn)
+    cracks armored targets at long range, and its Stabilizers let it fire even after
+    moving. Mechanical: it strides 30 m but can''t sprint. Heavy Support, so you
+    can field more than one.'
+  leader: {fileID: 11400000, guid: f3d05ff75d89d024ba09a3096bb0942b, type: 2}
+  members: []
+  deploymentSpacing: 5

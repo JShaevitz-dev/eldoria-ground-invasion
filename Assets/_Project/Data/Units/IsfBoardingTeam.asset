@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: IsfBoardingTeam
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: ISF Boarding Team
+  role: 3
+  description: 'Close-quarters assault troops trained to storm ships and strongpoints.
+    Each carries a Shotgun (10 damage, penetration 1, 10 m) and a Combat Shield that
+    raises their Armor Level to 3, so they can close the distance under fire and
+    clear rooms and trenches at point-blank range. A Specialist: one per army.'
+  leader: {fileID: 11400000, guid: 64f3fb8b73fab8e4884cfb3d78dd5cb9, type: 2}
+  members:
+  - soldier: {fileID: 11400000, guid: 986bc51868d5dec4c82440e6bf910475, type: 2}
+    count: 4
+  deploymentSpacing: 1.5

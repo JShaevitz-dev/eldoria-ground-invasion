@@ -15,7 +15,7 @@ MonoBehaviour:
   displayName: Rask Superior
   prefab: {fileID: 296126967357530392, guid: 3d433801b53fbed4ea4c94f4502dcf1f, type: 3}
   health: 5
-  armorLevel: 0
+  armorLevel: 1
   accuracy: 50
   movementRange: 20
   keywords:

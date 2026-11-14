@@ -9,8 +9,8 @@ using UnityEngine;
 namespace Eldoria.Tests
 {
     /// <summary>
-    /// The Rask's Rask Rifle Team (Infantry): 1 Rask Superior + 19 Rask Riflemen with the Kobold Militiaman's stats (Health 5,
-    /// Armor 0, Accuracy 50%, Move 20 m; Biological, Swarm), carrying Assault Rifles the Rask call "Solntse Laser Rifles",
+    /// The Rask's Rask Rifle Team (Infantry): 1 Rask Superior + 19 Rask Riflemen with the Kobold Militiaman's stats but Armor 1
+    /// (Health 5, Armor 1, Accuracy 50%, Move 20 m; Biological, Swarm), carrying Assault Rifles the Rask call "Solntse Laser Rifles",
     /// which do 6 damage for them.
     /// </summary>
     public class RaskRifleTeamTests
@@ -29,11 +29,11 @@ namespace Eldoria.Tests
             Assert.That(unit.role, Is.EqualTo(UnitRole.Infantry));
             Assert.That(unit.Size, Is.EqualTo(20));
             Assert.That(ArmyRules.Composition(unit), Is.EqualTo("Rask Superior + 19\u00d7 Rask Rifleman"));
-            Assert.That(ArmyBuilderScreen.FactionCanFieldArmy(Catalog, Rask), Is.False, "no Rask Commander yet");
+            Assert.That(ArmyBuilderScreen.FactionCanFieldArmy(Catalog, Rask), Is.True, "the Rask Ultima is their Commander");
         }
 
         [Test]
-        public void TheyHaveTheKoboldMilitiamansStats()
+        public void TheyHaveTheKoboldMilitiamansStatsButArmor1()
         {
             var kobold = Catalog.Available.Single(u => u.displayName == "Kobold Militia").members.Single().soldier;
             var superior = Team.leader;
@@ -42,8 +42,9 @@ namespace Eldoria.Tests
             Assert.That(rifleman.displayName, Is.EqualTo("Rask Rifleman"));
             foreach (var s in new[] { superior, rifleman })
             {
-                Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((kobold.health, kobold.armorLevel, kobold.accuracy, kobold.movementRange)), s.displayName);
-                Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((5, 0, 50, 20f)), s.displayName);
+                Assert.That((s.health, s.accuracy, s.movementRange), Is.EqualTo((kobold.health, kobold.accuracy, kobold.movementRange)), s.displayName);
+                Assert.That(kobold.armorLevel, Is.EqualTo(0), "the kobolds stay at Armor 0");
+                Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((5, 1, 50, 20f)), s.displayName);
                 Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Biological", "Swarm" }), s.displayName);
                 Assert.That(s.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle" }), s.displayName);
                 Assert.That(s.height, Is.EqualTo(1.2f), "two-thirds of a human's height");

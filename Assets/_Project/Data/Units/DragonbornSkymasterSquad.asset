@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: DragonbornSkymasterSquad
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Dragonborn Skymaster Squad
+  role: 3
+  description: 'Dragonborn shock troops on jetpacks. They move 40 m (80 m sprinting)
+    and their Jump Packs carry them onto rooftops, walls and crates at no extra cost,
+    so they can strike anywhere on the field. Each fires Twin Raptor Pistols (2 shots,
+    4 damage, penetration 1, 20 m), pistols they can still use in close range. A
+    Specialist: one per army.'
+  leader: {fileID: 11400000, guid: e59a2f886b0b1ec4ab9439a95779cb59, type: 2}
+  members:
+  - soldier: {fileID: 11400000, guid: 6e4d1795e070f994795d01d9a5324ddf, type: 2}
+    count: 4
+  deploymentSpacing: 2

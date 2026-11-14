@@ -303,7 +303,7 @@ namespace Eldoria.EditorTools
         /// <summary>
         /// ISF Ranger (Specialist, ISF), the original Eldoria's Sniper renamed, with Armor 1: 1 ISF Ranger (Health 5, Armor 1, Accuracy
         /// 100%, Move 15 m; Biological, Sniper Precision, Solo; Sniper Rifle: Damage 10, Shots 1, Penetration 1, +50%
-        /// accuracy, 50 m, Deployed; can swap it for the Anti-Materiel Rifle or the Shotgun); Chromashift Textiles (passive: attacks against
+        /// accuracy, 50 m; can swap it for the Anti-Materiel Rifle or the Shotgun); Chromashift Textiles (passive: attacks against
         /// it take -25% accuracy). Existing assets keep their Inspector edits.
         /// </summary>
         public static UnitTemplate EnsureIsfRanger(Faction faction, Dictionary<string, Keyword> keywords)
@@ -346,7 +346,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "ISF Ranger";
                 u.role = UnitRole.Specialist;
-                u.description = "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. Or swap the Sniper Rifle for an Anti-Materiel Rifle (10 damage that ignores armor, but without the +50% aim) or a Shotgun (10 damage up close, out to 10 m, and it can fire after moving). The two rifles can't fire after moving, and with 5 health and only light armor the Ranger must stay out of sight, though its Chromashift Textiles give anyone aiming at it -25% accuracy; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit: one per army.";
+                u.description = "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. Or swap the Sniper Rifle for an Anti-Materiel Rifle (10 damage that ignores armor, but without the +50% aim) or a Shotgun (10 damage up close, out to 10 m, and it can fire after moving). The Anti-Materiel Rifle can't fire after moving, and with 5 health and only light armor the Ranger must stay out of sight, though its Chromashift Textiles give anyone aiming at it -25% accuracy; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit: one per army.";
                 u.leader = ranger;
                 u.members = new List<UnitTemplate.Member>();
             });
@@ -461,9 +461,11 @@ namespace Eldoria.EditorTools
 
         /// <summary>
         /// Dragon Hierarch (Commander, Draconis Imperialis): 1 Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m;
-        /// Biological, Large; Dragon Claw). A large quadrupedal dragon with wings and golden armor. Its footprint (radius 1 m)
-        /// is smaller than the model, so its 2 m claw can reach a soldier standing next to it (reach is measured between
-        /// soldiers' centres). Existing assets keep their Inspector edits.
+        /// Biological, Large; Dragon Claw) + 2 Dragonborn Honorguard (the Dragonborn Footman's stats but Accuracy 95%: Health
+        /// 10, Armor 2, Move 10 m; Biological; Dragon Glaive (Range) and Dragon Glaive (melee)). A large quadrupedal dragon with
+        /// wings and golden armor. Its footprint (radius 1 m) is smaller than the model, so its 2 m claw can reach a soldier
+        /// standing next to it (reach is measured between soldiers' centres). Existing assets keep their Inspector edits; the
+        /// Honorguard are added to an existing unit that lacks them.
         /// </summary>
         public static UnitTemplate EnsureDragonHierarch(Faction faction, Dictionary<string, Keyword> keywords)
         {
@@ -486,6 +488,23 @@ namespace Eldoria.EditorTools
                 dragon.prefab = BuildDragonPrefab("DragonHierarch", dragon);
                 EditorUtility.SetDirty(dragon);
             }
+            var (ranged, melee) = EnsureDragonGlaive(keywords);
+            var honorguard = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/DragonbornHonorguard.asset", t =>
+            {
+                t.displayName = "Dragonborn Honorguard";
+                t.health = 10; t.armorLevel = 2; t.accuracy = 95; t.movementRange = 10f;   // the Footman's, but 95%
+                t.keywords = new List<Keyword> { keywords["Biological"] };
+                t.abilities = new List<Ability>();
+                t.weapons = new List<WeaponTemplate> { ranged, melee };
+                t.primaryWeapon = ranged;
+                t.radius = 0.4f;
+                t.height = 2.2f;
+            });
+            if (honorguard.prefab == null)
+            {
+                honorguard.prefab = BuildDragonbornPrefab("DragonbornHonorguard", honorguard, false, honorguard: true);
+                EditorUtility.SetDirty(honorguard);
+            }
             var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/DragonHierarch.asset", u =>
             {
                 u.displayName = "Dragon Hierarch";
@@ -493,6 +512,10 @@ namespace Eldoria.EditorTools
                 u.leader = dragon;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 4f;
+            }, u =>
+            {
+                if (!u.members.Any(m => m != null && m.soldier == honorguard))
+                    u.members.Add(new UnitTemplate.Member { soldier = honorguard, count = 2 });
             });
             if (!faction.units.Contains(unit))
             {
@@ -769,12 +792,225 @@ namespace Eldoria.EditorTools
         }
 
         /// <summary>
+        /// Twin Raptor Pistols: a pair of pistols fired together. Damage 4, Shots 2, Penetration 1, Accuracy Bonus 0, Range
+        /// 20 m; Pistol (usable in close range). Carried by the Dragonborn Skymaster Squad.
+        /// </summary>
+        public static WeaponTemplate EnsureTwinRaptorPistols(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/TwinRaptorPistols.asset", w =>
+            {
+                w.displayName = "Twin Raptor Pistols";
+                w.baseDamage = 4; w.shots = 2;
+                w.hasPenetration = true; w.penetration = 1;
+                w.accuracyBonus = 0;
+                w.range = 20f;
+                w.keywords = new List<Keyword> { keywords["Pistol"] };
+            });
+        }
+
+        /// <summary>
+        /// Dragonborn Skymaster Squad (Specialist, Draconis Imperialis): 1 Dragonborn Skylord (leader) + 4 Dragonborn
+        /// Skymasters, with the Dragonborn Footman's stats but Move 40 m and the Jump Pack keyword (climbing onto objects
+        /// costs no movement): Health 10, Armor 2, Accuracy 75%; Biological, Jump Pack; Twin Raptor Pistols. Dragonborn with
+        /// jetpacks in place of wings, holding a pistol in each hand. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureDragonbornSkymasterSquad(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var pistols = EnsureTwinRaptorPistols(keywords);
+
+            SoldierTemplate Skymaster(string file, string name, bool leader)
+            {
+                var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", t =>
+                {
+                    t.displayName = name;
+                    t.health = 10; t.armorLevel = 2; t.accuracy = 75; t.movementRange = 40f;   // the Footman's, but Move 40
+                    t.keywords = new List<Keyword> { keywords["Biological"], keywords["Jump Pack"] };
+                    t.abilities = new List<Ability>();
+                    t.weapons = new List<WeaponTemplate> { pistols };
+                    t.primaryWeapon = pistols;
+                    t.radius = 0.4f;
+                    t.height = 2.2f;
+                });
+                if (s.prefab == null)
+                {
+                    s.prefab = BuildDragonbornPrefab(file, s, leader, skymaster: true);
+                    EditorUtility.SetDirty(s);
+                }
+                return s;
+            }
+
+            var skylord = Skymaster("DragonbornSkylord", "Dragonborn Skylord", true);
+            var skymaster = Skymaster("DragonbornSkymaster", "Dragonborn Skymaster", false);
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/DragonbornSkymasterSquad.asset", u =>
+            {
+                u.displayName = "Dragonborn Skymaster Squad";
+                u.role = UnitRole.Specialist;
+                u.description = "Dragonborn shock troops on jetpacks. They move 40 m (80 m sprinting) and their Jump Packs carry them onto rooftops, walls and crates at no extra cost, so they can strike anywhere on the field. Each fires Twin Raptor Pistols (2 shots, 4 damage, penetration 1, 20 m), pistols they can still use in close range. A Specialist: one per army.";
+                u.leader = skylord;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = skymaster, count = 4 } };
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Tyrant Railgun: Damage 5, Shots 1, Penetration 7, Accuracy Bonus 0, Range 50 m; Manual Load (fires once a turn).
+        /// Mounted on the Draconis Tyrant Hover-tank.
+        /// </summary>
+        public static WeaponTemplate EnsureTyrantRailgun(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/TyrantRailgun.asset", w =>
+            {
+                w.displayName = "Tyrant Railgun";
+                w.baseDamage = 5; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 7;
+                w.accuracyBonus = 0;
+                w.range = 50f;
+                w.keywords = new List<Keyword> { keywords["Manual Load"] };
+            });
+        }
+
+        /// <summary>
+        /// Tyrant Hover-tank (Heavy Support, Draconis Imperialis): 1 Tyrant Hover-tank (Health 15, Armor 4, Accuracy 100%, Move
+        /// 30 m; Mechanical, Unstable, Hover (terrain can't reduce its movement); Tyrant Railgun). A dagger-shaped tank
+        /// hovering just off the ground, a railgun turret on top and a Kobold pilot in the cockpit at the front. A wide body
+        /// (radius 1.8 m, like the Sagittarius MBT). Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureTyrantHoverTank(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var railgun = EnsureTyrantRailgun(keywords);
+            var tank = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/TyrantHoverTank.asset", s =>
+            {
+                s.displayName = "Tyrant Hover-tank";
+                s.health = 15; s.armorLevel = 4; s.accuracy = 100; s.movementRange = 30f;
+                s.keywords = new List<Keyword> { keywords["Mechanical"], keywords["Unstable"], keywords["Hover"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate> { railgun };
+                s.primaryWeapon = railgun;
+                s.radius = 1.8f;
+                s.height = 2.0f;
+            });
+            if (tank.prefab == null)
+            {
+                tank.prefab = BuildTyrantPrefab("TyrantHoverTank", tank);
+                EditorUtility.SetDirty(tank);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/TyrantHoverTank.asset", u =>
+            {
+                u.displayName = "Tyrant Hover-tank";
+                u.role = UnitRole.HeavySupport;
+                u.description = "A dagger-shaped Draconis hover-tank flown by a Kobold pilot. Its Tyrant Railgun (5 damage, penetration 7, 50 m, once a turn) punches through any armor in the game, and at 100% accuracy it rarely misses. It glides 30 m over hills, rivers and obstacles alike, as terrain can't slow it (Hover), but being Mechanical it can't sprint. With 15 health and Armor Level 4 it shrugs off small arms, and when destroyed it has a 10% chance to explode (Unstable). Heavy Support, so you can field more than one.";
+                u.leader = tank;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A placeholder Tyrant Hover-tank built from primitives, facing +z: a dagger-shaped hull (a long blade body coming to
+        /// a point at the front, a raised spine, a crossguard of side fins and an engine "pommel" at the back) hovering
+        /// 0.75 m off the ground on glowing lift pads, a railgun turret (twin rails with glowing coils) set back on top, and
+        /// an open cockpit on the point at the front with a Kobold pilot. The hull uses the primary colour (the faction's colour when deployed)
+        /// with gold trim.
+        /// </summary>
+        private static GameObject BuildTyrantPrefab(string name, SoldierTemplate template)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var hull = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var dark = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+            var glow = GetOrCreateMaterial("Plasma_Glow", new Color(0.45f, 0.9f, 1f));
+            var flame = GetOrCreateMaterial("Jet_Flame", new Color(1f, 0.55f, 0.12f));
+            var scales = GetOrCreateMaterial("Kobold_Scales", new Color(0.47f, 0.5f, 0.3f));
+            var eye = GetOrCreateMaterial("Dragon_Eye", new Color(1f, 0.6f, 0.05f));
+            var glass = GetOrCreateMaterial("Cockpit_Glass", new Color(0.3f, 0.55f, 0.6f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = true;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+            var model = new GameObject("Model");
+            model.transform.SetParent(root.transform, false);
+
+            // The blade: a flat hull narrowing to a point at the front, with a raised spine down the middle.
+            Part(model, "Hull", PrimitiveType.Cube, hull, new Vector3(0f, 1.0f, -0.5f), new Vector3(2.4f, 0.45f, 3.8f));
+            Part(model, "Blade Tip", PrimitiveType.Cube, hull, new Vector3(0f, 1.0f, 1.35f), new Vector3(1.7f, 0.42f, 1.7f), new Vector3(0f, 45f, 0f));
+            Part(model, "Underside", PrimitiveType.Cube, dark, new Vector3(0f, 0.8f, -0.6f), new Vector3(1.8f, 0.1f, 3.2f));
+            Part(model, "Spine", PrimitiveType.Cube, gold, new Vector3(0f, 1.27f, -1.1f), new Vector3(0.14f, 0.1f, 2.6f));
+            // The crossguard: swept side fins near the back.
+            Part(model, "Crossguard", PrimitiveType.Cube, gold, new Vector3(0f, 1.05f, -1.5f), new Vector3(3.6f, 0.25f, 0.45f));
+            foreach (float side in new[] { -1f, 1f })
+                Part(model, "Fin", PrimitiveType.Cube, hull, new Vector3(side * 1.75f, 1.2f, -1.65f), new Vector3(0.18f, 0.55f, 0.8f), new Vector3(0f, side * -15f, 0f));
+            // The pommel: the engine block at the back, its thrusters glowing.
+            Part(model, "Engine", PrimitiveType.Cube, dark, new Vector3(0f, 1.0f, -2.6f), new Vector3(1.4f, 0.5f, 0.6f));
+            foreach (float x in new[] { -0.4f, 0.4f })
+                Part(model, "Thruster", PrimitiveType.Cylinder, flame, new Vector3(x, 1.0f, -2.92f), new Vector3(0.34f, 0.04f, 0.34f), new Vector3(90f, 0f, 0f));
+
+            // Hovering: the hull floats about 0.75 m up on glowing lift pads; nothing touches the ground.
+            foreach (float x in new[] { -0.75f, 0.75f })
+                foreach (float z in new[] { 0.6f, -1.9f })
+                    Part(model, "Lift Pad", PrimitiveType.Cylinder, glow, new Vector3(x, 0.72f, z), new Vector3(0.7f, 0.03f, 0.7f));
+
+            // The turret, set back on top, with the railgun: twin rails and glowing coils, pointing forward over the bow.
+            Part(model, "Turret Ring", PrimitiveType.Cylinder, dark, new Vector3(0f, 1.26f, -1.0f), new Vector3(1.3f, 0.05f, 1.3f));
+            Part(model, "Turret", PrimitiveType.Cube, hull, new Vector3(0f, 1.52f, -1.0f), new Vector3(1.1f, 0.45f, 1.3f));
+            Part(model, "Turret Trim", PrimitiveType.Cube, gold, new Vector3(0f, 1.76f, -1.0f), new Vector3(0.9f, 0.05f, 1.1f));
+            foreach (float x in new[] { -0.13f, 0.13f })
+                Part(model, "Rail", PrimitiveType.Cube, dark, new Vector3(x, 1.58f, 0.0f), new Vector3(0.09f, 0.14f, 2.0f));
+            foreach (float z in new[] { -0.2f, 0.3f, 0.8f })
+                Part(model, "Coil", PrimitiveType.Cube, glow, new Vector3(0f, 1.58f, z), new Vector3(0.42f, 0.2f, 0.06f));
+
+            // The cockpit at the front, on the blade's point: an open tub behind a windscreen, with the Kobold pilot.
+            Part(model, "Cockpit", PrimitiveType.Cube, dark, new Vector3(0f, 1.28f, 1.55f), new Vector3(0.7f, 0.16f, 0.8f));
+            Part(model, "Windscreen", PrimitiveType.Cube, glass, new Vector3(0f, 1.42f, 1.98f), new Vector3(0.62f, 0.28f, 0.04f), new Vector3(-35f, 0f, 0f));
+            Part(model, "Pilot", PrimitiveType.Capsule, scales, new Vector3(0f, 1.38f, 1.5f), new Vector3(0.3f, 0.18f, 0.24f));
+            Part(model, "Pilot Head", PrimitiveType.Sphere, scales, new Vector3(0f, 1.62f, 1.55f), new Vector3(0.24f, 0.22f, 0.26f));
+            Part(model, "Pilot Snout", PrimitiveType.Cube, scales, new Vector3(0f, 1.59f, 1.71f), new Vector3(0.12f, 0.09f, 0.16f));
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(model, "Pilot Eye", PrimitiveType.Sphere, eye, new Vector3(side * 0.07f, 1.66f, 1.66f), Vector3.one * 0.05f);
+                Part(model, "Pilot Horn", PrimitiveType.Cube, gold, new Vector3(side * 0.07f, 1.76f, 1.49f), new Vector3(0.03f, 0.1f, 0.03f), new Vector3(-35f, 0f, 0f));
+            }
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        /// <summary>
         /// A placeholder Dragonborn built from primitives, facing +z: an upright, anthropomorphic dragon about 2.2 m tall with
         /// a snouted head and horns, folded wings and a tail, holding a glaive whose head carries a rifle's receiver and barrel
         /// below the blade. Scales use the primary colour material (the faction's colour when deployed); the Sergeant has a
-        /// gold crest and shoulder plates.
+        /// gold crest and shoulder plates. The Honorguard (the Dragon Hierarch's escort) wear a gold breastplate, helm and
+        /// shoulder plates, and a crimson cape. Skymasters have a jetpack (twin thrusters with glowing nozzles) in place of wings
+        /// and hold a pistol in each hand instead of the glaive.
         /// </summary>
-        private static GameObject BuildDragonbornPrefab(string name, SoldierTemplate template, bool sergeant)
+        private static GameObject BuildDragonbornPrefab(string name, SoldierTemplate template, bool sergeant, bool honorguard = false, bool skymaster = false)
         {
             EnsureFolder(Root, "Prefabs");
             EnsureFolder($"{Root}/Prefabs", "Units");
@@ -807,8 +1043,8 @@ namespace Eldoria.EditorTools
                 Part(root, "Arm", PrimitiveType.Capsule, scales, new Vector3(side * 0.34f, 1.42f, 0.08f), new Vector3(0.14f, 0.3f, 0.14f), new Vector3(-30f, 0f, 0f));
                 Part(root, "Horn", PrimitiveType.Cube, horn, new Vector3(side * 0.09f, 2.12f, -0.08f), new Vector3(0.05f, 0.24f, 0.05f), new Vector3(-35f, 0f, side * 10f));
                 Part(root, "Eye", PrimitiveType.Cube, eye, new Vector3(side * 0.1f, 1.98f, 0.13f), new Vector3(0.05f, 0.04f, 0.04f));
-                // Wings, folded against the back, tips up.
-                Part(root, "Wing", PrimitiveType.Cube, scales, new Vector3(side * 0.22f, 1.65f, -0.24f), new Vector3(0.04f, 0.95f, 0.5f), new Vector3(-10f, side * -25f, 0f));
+                // Wings, folded against the back, tips up (Skymasters wear a jetpack instead).
+                if (!skymaster) Part(root, "Wing", PrimitiveType.Cube, scales, new Vector3(side * 0.22f, 1.65f, -0.24f), new Vector3(0.04f, 0.95f, 0.5f), new Vector3(-10f, side * -25f, 0f));
             }
             Part(root, "Torso", PrimitiveType.Capsule, scales, new Vector3(0f, 1.32f, 0f), new Vector3(0.48f, 0.42f, 0.36f));
             Part(root, "Belly Plates", PrimitiveType.Cube, horn, new Vector3(0f, 1.25f, 0.16f), new Vector3(0.26f, 0.5f, 0.06f));
@@ -824,12 +1060,41 @@ namespace Eldoria.EditorTools
                 foreach (float side in new[] { -1f, 1f })
                     Part(root, "Shoulder Plate", PrimitiveType.Cube, gold, new Vector3(side * 0.3f, 1.62f, 0f), new Vector3(0.2f, 0.08f, 0.26f), new Vector3(0f, 0f, side * -18f));
             }
+            if (honorguard)
+            {
+                var cape = GetOrCreateMaterial("Dragon_Cape", new Color(0.55f, 0.07f, 0.09f));
+                Part(root, "Breastplate", PrimitiveType.Cube, gold, new Vector3(0f, 1.36f, 0.17f), new Vector3(0.42f, 0.5f, 0.08f));
+                Part(root, "Helm", PrimitiveType.Cube, gold, new Vector3(0f, 2.06f, 0.0f), new Vector3(0.27f, 0.08f, 0.3f));
+                Part(root, "Helm Crest", PrimitiveType.Cube, cape, new Vector3(0f, 2.16f, -0.04f), new Vector3(0.05f, 0.12f, 0.34f));
+                foreach (float side in new[] { -1f, 1f })
+                    Part(root, "Shoulder Plate", PrimitiveType.Cube, gold, new Vector3(side * 0.3f, 1.62f, 0f), new Vector3(0.22f, 0.09f, 0.28f), new Vector3(0f, 0f, side * -18f));
+                Part(root, "Cape", PrimitiveType.Cube, cape, new Vector3(0f, 1.12f, -0.27f), new Vector3(0.5f, 1.05f, 0.04f), new Vector3(8f, 0f, 0f));
+            }
 
-            // The glaive, held upright in the right hand: a long shaft, a rifle receiver and barrel below the blade.
-            Part(root, "Glaive Shaft", PrimitiveType.Cylinder, shaft, new Vector3(0.42f, 1.25f, 0.28f), new Vector3(0.05f, 1.05f, 0.05f));
-            Part(root, "Glaive Receiver", PrimitiveType.Cube, metal, new Vector3(0.42f, 2.36f, 0.3f), new Vector3(0.09f, 0.2f, 0.12f));
-            Part(root, "Glaive Barrel", PrimitiveType.Cylinder, metal, new Vector3(0.42f, 2.36f, 0.5f), new Vector3(0.035f, 0.16f, 0.035f), new Vector3(90f, 0f, 0f));
-            Part(root, "Glaive Blade", PrimitiveType.Cube, blade, new Vector3(0.42f, 2.62f, 0.34f), new Vector3(0.02f, 0.38f, 0.14f), new Vector3(-8f, 0f, 0f));
+            if (skymaster)
+            {
+                var flame = GetOrCreateMaterial("Jet_Flame", new Color(1f, 0.55f, 0.12f));
+                // The jetpack: a pack on the back with a thruster on each side, nozzles glowing.
+                Part(root, "Jetpack", PrimitiveType.Cube, metal, new Vector3(0f, 1.48f, -0.3f), new Vector3(0.5f, 0.56f, 0.2f));
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    Part(root, "Thruster", PrimitiveType.Cylinder, metal, new Vector3(side * 0.36f, 1.46f, -0.34f), new Vector3(0.2f, 0.38f, 0.2f));
+                    Part(root, "Thruster Fin", PrimitiveType.Cube, gold, new Vector3(side * 0.48f, 1.7f, -0.34f), new Vector3(0.04f, 0.24f, 0.16f));
+                    Part(root, "Nozzle", PrimitiveType.Cylinder, flame, new Vector3(side * 0.36f, 1.06f, -0.34f), new Vector3(0.15f, 0.04f, 0.15f));
+                    // A pistol in each hand, aimed forward.
+                    Part(root, "Pistol", PrimitiveType.Cube, metal, new Vector3(side * 0.36f, 1.2f, 0.34f), new Vector3(0.07f, 0.1f, 0.24f));
+                    Part(root, "Pistol Grip", PrimitiveType.Cube, metal, new Vector3(side * 0.36f, 1.11f, 0.27f), new Vector3(0.06f, 0.12f, 0.06f), new Vector3(15f, 0f, 0f));
+                    Part(root, "Pistol Muzzle", PrimitiveType.Cylinder, gold, new Vector3(side * 0.36f, 1.22f, 0.48f), new Vector3(0.04f, 0.02f, 0.04f), new Vector3(90f, 0f, 0f));
+                }
+            }
+            else
+            {
+                // The glaive, held upright in the right hand: a long shaft, a rifle receiver and barrel below the blade.
+                Part(root, "Glaive Shaft", PrimitiveType.Cylinder, shaft, new Vector3(0.42f, 1.25f, 0.28f), new Vector3(0.05f, 1.05f, 0.05f));
+                Part(root, "Glaive Receiver", PrimitiveType.Cube, metal, new Vector3(0.42f, 2.36f, 0.3f), new Vector3(0.09f, 0.2f, 0.12f));
+                Part(root, "Glaive Barrel", PrimitiveType.Cylinder, metal, new Vector3(0.42f, 2.36f, 0.5f), new Vector3(0.035f, 0.16f, 0.035f), new Vector3(90f, 0f, 0f));
+                Part(root, "Glaive Blade", PrimitiveType.Cube, blade, new Vector3(0.42f, 2.62f, 0.34f), new Vector3(0.02f, 0.38f, 0.14f), new Vector3(-8f, 0f, 0f));
+            }
 
             Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
@@ -860,7 +1125,7 @@ namespace Eldoria.EditorTools
 
         /// <summary>
         /// Rask Rifle Team (Infantry, Rask): 1 Rask Superior (leader) + 19 Rask Riflemen, with the Kobold Militiaman's stats
-        /// (Health 5, Armor 0, Accuracy 50%, Move 20 m; Biological, Swarm). Each carries an Assault Rifle, which the Rask call
+        /// but Armor 1 (Health 5, Armor 1, Accuracy 50%, Move 20 m; Biological, Swarm). Each carries an Assault Rifle, which the Rask call
         /// the "Solntse Laser Rifle" and which does 6 damage for them (see <see cref="EnsureRaskWeapons"/>). Anthropomorphic
         /// rats, two-thirds of a human's height, in armor. Existing assets keep their Inspector edits.
         /// </summary>
@@ -875,7 +1140,7 @@ namespace Eldoria.EditorTools
                 var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", t =>
                 {
                     t.displayName = name;
-                    t.health = 5; t.armorLevel = 0; t.accuracy = 50; t.movementRange = 20f;
+                    t.health = 5; t.armorLevel = 1; t.accuracy = 50; t.movementRange = 20f;
                     t.keywords = new List<Keyword> { keywords["Biological"], keywords["Swarm"] };
                     t.abilities = new List<Ability>();
                     t.weapons = new List<WeaponTemplate> { rifle };
@@ -911,12 +1176,54 @@ namespace Eldoria.EditorTools
         }
 
         /// <summary>
+        /// Rask Ultima (Commander, Rask): 1 Rask Ultima with the Rask Rifleman's stats but Health 10 and Armor 2 (Accuracy
+        /// 50%, Move 20 m; Biological, Solo, Officer) and a Pistol. The Rask model with the Superior's gold crest and gorget, a
+        /// purple cape and a pistol in place of the rifle. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureRaskUltima(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
+            var ultima = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/RaskUltima.asset", t =>
+            {
+                t.displayName = "Rask Ultima";
+                t.health = 10; t.armorLevel = 2; t.accuracy = 50; t.movementRange = 20f;   // the Rifleman's, but Health 10, Armor 2
+                t.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"], keywords["Officer"] };
+                t.abilities = new List<Ability>();
+                t.weapons = new List<WeaponTemplate> { pistol };
+                t.primaryWeapon = pistol;
+                t.radius = 0.33f;
+                t.height = 1.2f;
+            });
+            if (ultima.prefab == null)
+            {
+                ultima.prefab = BuildRaskPrefab("RaskUltima", ultima, true, ultima: true);
+                EditorUtility.SetDirty(ultima);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/RaskUltima.asset", u =>
+            {
+                u.displayName = "Rask Ultima";
+                u.role = UnitRole.Commander;
+                u.leader = ultima;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 1.2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
         /// A placeholder Rask built from primitives, facing +z: an upright, anthropomorphic rat (1.2 m) with a long pointed
         /// snout, round ears and a long thin tail, in armor (breastplate and helmet in the primary colour, so the faction's
         /// colour when deployed; grey metal pauldrons and greaves), holding a rifle. Fur is grey-brown. The Superior has a gold
         /// helmet crest and gorget.
         /// </summary>
-        private static GameObject BuildRaskPrefab(string name, SoldierTemplate template, bool superior)
+        private static GameObject BuildRaskPrefab(string name, SoldierTemplate template, bool superior, bool ultima = false)
         {
             EnsureFolder(Root, "Prefabs");
             EnsureFolder($"{Root}/Prefabs", "Units");
@@ -969,14 +1276,423 @@ namespace Eldoria.EditorTools
                 Part(model, "Helmet Crest", PrimitiveType.Cube, gold, new Vector3(0f, 1.12f, 0f), new Vector3(0.03f, 0.06f, 0.2f));
                 Part(model, "Gorget", PrimitiveType.Cube, gold, new Vector3(0f, 0.82f, 0.08f), new Vector3(0.16f, 0.05f, 0.04f));
             }
-            // The rifle, held across the body.
-            Part(model, "Rifle", PrimitiveType.Cube, metal, new Vector3(0.08f, 0.58f, 0.24f), new Vector3(0.05f, 0.06f, 0.56f), new Vector3(0f, -12f, 0f));
-            Part(model, "Rifle Emitter", PrimitiveType.Cylinder, gold, new Vector3(0.14f, 0.58f, 0.52f), new Vector3(0.04f, 0.02f, 0.04f), new Vector3(90f, 0f, 0f));
+            if (ultima)
+            {
+                // The Ultima: a purple cape, gold epaulettes and a pistol in the right hand.
+                var cape = GetOrCreateMaterial("Rask_Cape", new Color(0.36f, 0.12f, 0.46f));
+                Part(model, "Cape", PrimitiveType.Cube, cape, new Vector3(0f, 0.55f, -0.15f), new Vector3(0.34f, 0.55f, 0.03f), new Vector3(10f, 0f, 0f));
+                foreach (float side in new[] { -1f, 1f })
+                    Part(model, "Epaulette", PrimitiveType.Cube, gold, new Vector3(side * 0.19f, 0.83f, 0f), new Vector3(0.14f, 0.03f, 0.14f));
+                Part(model, "Pistol", PrimitiveType.Cube, metal, new Vector3(0.2f, 0.52f, 0.22f), new Vector3(0.04f, 0.06f, 0.16f));
+                Part(model, "Pistol Grip", PrimitiveType.Cube, metal, new Vector3(0.2f, 0.47f, 0.17f), new Vector3(0.035f, 0.07f, 0.04f), new Vector3(15f, 0f, 0f));
+            }
+            else
+            {
+                // The rifle, held across the body.
+                Part(model, "Rifle", PrimitiveType.Cube, metal, new Vector3(0.08f, 0.58f, 0.24f), new Vector3(0.05f, 0.06f, 0.56f), new Vector3(0f, -12f, 0f));
+                Part(model, "Rifle Emitter", PrimitiveType.Cylinder, gold, new Vector3(0.14f, 0.58f, 0.52f), new Vector3(0.04f, 0.02f, 0.04f), new Vector3(90f, 0f, 0f));
+            }
 
             Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
             Object.DestroyImmediate(root);
             return prefab;
+        }
+
+        /// <summary>
+        /// Plasma Mortar: the Mortar Launcher's stats (Damage 5, Shots 1, Penetration 3, +0%, Range 50 m; Deployed, Manual
+        /// Load, Explosive) as a weapon of its own. Carried by the Rask's Stinger Heavy Robot.
+        /// </summary>
+        public static WeaponTemplate EnsurePlasmaMortar(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/PlasmaMortar.asset", w =>
+            {
+                w.displayName = "Plasma Mortar";
+                w.baseDamage = 5; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 3;
+                w.accuracyBonus = 0;
+                w.range = 50f;
+                w.keywords = new List<Keyword> { keywords["Deployed"], keywords["Manual Load"], keywords["Explosive"] };
+            });
+        }
+
+        /// <summary>
+        /// Stinger Heavy Robot (Heavy Support, Rask): 1 Stinger Heavy Robot (Health 25, Armor 5, Accuracy 75%, Move 30 m;
+        /// Mechanical, Heavy, Robotic; Stabilizers (passive: nullifies Deployed); Plasma Mortar). A six-legged, beetle-like
+        /// war machine (armored hull, angular legs) with a large cannon on its back angled up at 45 degrees. Footprint radius 1.6 m (smaller than the legs'
+        /// spread). Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureStingerHeavyRobot(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var mortar = EnsurePlasmaMortar(keywords);
+            var stabilizers = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/Stabilizers.asset");
+            var robot = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/StingerHeavyRobot.asset", s =>
+            {
+                s.displayName = "Stinger Heavy Robot";
+                s.health = 25; s.armorLevel = 5; s.accuracy = 75; s.movementRange = 30f;
+                s.keywords = new List<Keyword> { keywords["Mechanical"], keywords["Heavy"], keywords["Robotic"] };
+                s.abilities = new List<Ability> { stabilizers };
+                s.weapons = new List<WeaponTemplate> { mortar };
+                s.primaryWeapon = mortar;
+                s.radius = 1.6f;
+                s.height = 3f;
+            });
+            // Rebuilt if missing, or if it's the first (beetle) version of the model.
+            if (robot.prefab == null || robot.prefab.transform.Find("Model/Hull") == null)
+            {
+                robot.prefab = BuildStingerPrefab("StingerHeavyRobot", robot);
+                EditorUtility.SetDirty(robot);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/StingerHeavyRobot.asset", u =>
+            {
+                u.displayName = "Stinger Heavy Robot";
+                u.role = UnitRole.HeavySupport;
+                u.description = "The Rask's six-legged siege engine: a beetle-shaped war robot with 25 health and Armor Level 5, proof against almost everything but the heaviest guns. The Plasma Mortar on its back (5 damage, penetration 3, 50 m, once a turn) cracks armored targets at long range, and its Stabilizers let it fire even after moving. Mechanical: it strides 30 m but can't sprint. Heavy Support, so you can field more than one.";
+                u.leader = robot;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 5f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A placeholder Stinger built from primitives, facing +z: a hard-edged, six-legged war machine rather than an
+        /// animal. A boxy armored hull with a ridged, sloped front shield; round sensor pods on its flanks (one with a red
+        /// lens); six angular legs (three a side) of broad armor plates on dark joints, ending in hooked tips; and on its
+        /// back a turret carrying a large cannon angled up at 45 degrees, with a glowing plasma muzzle. Armor plates use the
+        /// primary colour (the faction's colour when deployed).
+        /// </summary>
+        private static GameObject BuildStingerPrefab(string name, SoldierTemplate template)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var shell = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var steel = GetOrCreateMaterial("Rask_Steel", new Color(0.52f, 0.53f, 0.56f));
+            var dark = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var eye = GetOrCreateMaterial("Stinger_Eye", new Color(0.95f, 0.12f, 0.08f));
+            var plasma = GetOrCreateMaterial("Plasma_Glow", new Color(0.45f, 0.9f, 1f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = true;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+            // Laid out for a 3 m tall robot; scaled to the soldier's height.
+            var model = new GameObject("Model");
+            model.transform.SetParent(root.transform, false);
+            model.transform.localScale = Vector3.one * (template.height / 3f);
+
+            // Hull: an armored box with a sloped, ridged front shield and a rear plate, on a dark under-frame.
+            Part(model, "Frame", PrimitiveType.Cube, dark, new Vector3(0f, 1.35f, 0f), new Vector3(1.3f, 0.5f, 2.2f));
+            Part(model, "Hull", PrimitiveType.Cube, shell, new Vector3(0f, 1.75f, -0.05f), new Vector3(1.5f, 0.9f, 1.9f));
+            Part(model, "Hull Top", PrimitiveType.Cube, shell, new Vector3(0f, 2.22f, -0.15f), new Vector3(1.2f, 0.12f, 1.5f));
+            Part(model, "Front Shield", PrimitiveType.Cube, shell, new Vector3(0f, 1.6f, 1.05f), new Vector3(1.25f, 1.5f, 0.22f), new Vector3(-18f, 0f, 0f));
+            foreach (float x in new[] { -0.35f, 0f, 0.35f })
+                Part(model, "Shield Ridge", PrimitiveType.Cube, shell, new Vector3(x, 1.62f, 1.2f), new Vector3(0.12f, 1.3f, 0.12f), new Vector3(-18f, 0f, 0f));
+            Part(model, "Shield Trim", PrimitiveType.Cube, dark, new Vector3(0f, 0.92f, 0.85f), new Vector3(1.0f, 0.12f, 0.3f));
+            Part(model, "Rear Plate", PrimitiveType.Cube, shell, new Vector3(0f, 1.65f, -1.05f), new Vector3(1.2f, 1.0f, 0.2f), new Vector3(12f, 0f, 0f));
+
+            // Sensor pods on the flanks; the right one carries the red lens.
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(model, "Pod", PrimitiveType.Sphere, shell, new Vector3(side * 0.95f, 1.85f, 0.35f), Vector3.one * 0.75f);
+                Part(model, "Pod Ring", PrimitiveType.Cylinder, dark, new Vector3(side * 1.08f, 1.85f, 0.62f), new Vector3(0.42f, 0.05f, 0.42f), new Vector3(90f, 0f, 0f));
+            }
+            Part(model, "Lens", PrimitiveType.Sphere, eye, new Vector3(1.08f, 1.85f, 0.68f), new Vector3(0.24f, 0.24f, 0.12f));
+            Part(model, "Lens", PrimitiveType.Sphere, plasma, new Vector3(-1.08f, 1.85f, 0.68f), new Vector3(0.18f, 0.18f, 0.08f));
+
+            // Six angular legs, three a side: a broad armor plate rising out to a dark knee joint, a tapering lower plate
+            // down to the ground, and a hooked tip turned inward.
+            foreach (float side in new[] { -1f, 1f })
+                foreach (float z in new[] { 1.05f, 0f, -1.05f })
+                {
+                    Part(model, "Hip", PrimitiveType.Cylinder, dark, new Vector3(side * 0.8f, 1.4f, z), new Vector3(0.38f, 0.12f, 0.38f), new Vector3(0f, 0f, 90f));
+                    Part(model, "Upper Leg", PrimitiveType.Cube, shell, new Vector3(side * 1.3f, 1.72f, z), new Vector3(0.24f, 1.15f, 0.42f), new Vector3(0f, 0f, side * -56f));
+                    Part(model, "Knee", PrimitiveType.Cylinder, dark, new Vector3(side * 1.78f, 2.02f, z), new Vector3(0.32f, 0.16f, 0.32f), new Vector3(0f, 0f, 90f));
+                    Part(model, "Lower Leg", PrimitiveType.Cube, steel, new Vector3(side * 1.96f, 1.1f, z), new Vector3(0.2f, 1.85f, 0.3f), new Vector3(0f, 0f, side * 12f));
+                    Part(model, "Shin Plate", PrimitiveType.Cube, shell, new Vector3(side * 2.02f, 1.35f, z), new Vector3(0.12f, 0.9f, 0.36f), new Vector3(0f, 0f, side * 12f));
+                    Part(model, "Hook", PrimitiveType.Cube, dark, new Vector3(side * 2.08f, 0.14f, z), new Vector3(0.14f, 0.36f, 0.22f), new Vector3(0f, 0f, side * -45f));
+                }
+
+            // The cannon: a turret on the back and a long barrel pointing forward and up at 45 degrees.
+            Part(model, "Turret", PrimitiveType.Cube, dark, new Vector3(0f, 2.45f, -0.4f), new Vector3(0.9f, 0.35f, 1.0f));
+            Part(model, "Breech", PrimitiveType.Cube, steel, new Vector3(0f, 2.75f, -0.5f), new Vector3(0.6f, 0.5f, 0.7f), new Vector3(-45f, 0f, 0f));
+            Part(model, "Barrel", PrimitiveType.Cylinder, dark, new Vector3(0f, 3.2f, -0.05f), new Vector3(0.34f, 0.85f, 0.34f), new Vector3(45f, 0f, 0f));
+            foreach (float t in new[] { 0.35f, 0.75f })
+                Part(model, "Coil", PrimitiveType.Cylinder, plasma, new Vector3(0f, 2.85f + t * 0.9f, -0.4f + t * 0.9f), new Vector3(0.42f, 0.04f, 0.42f), new Vector3(45f, 0f, 0f));
+            Part(model, "Muzzle", PrimitiveType.Cylinder, plasma, new Vector3(0f, 3.8f, 0.55f), new Vector3(0.4f, 0.06f, 0.4f), new Vector3(45f, 0f, 0f));
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        /// <summary>
+        /// Twin Intimidator Machine Guns: the Machine Gun's stats (Damage 5, Penetration 1, +0%, Range 20 m; Deployed), but
+        /// 10 shots. Copied from the Machine Gun when first created. Carried by the Rask's Intimidator Medium Robot.
+        /// </summary>
+        public static WeaponTemplate EnsureTwinIntimidatorMachineGuns()
+        {
+            EnsureFolder(DataDir, "Weapons");
+            var mg = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/MachineGun.asset");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/TwinIntimidatorMachineGuns.asset", w =>
+            {
+                w.displayName = "Twin Intimidator Machine Guns";
+                w.baseDamage = mg.baseDamage;
+                w.hasPenetration = mg.hasPenetration; w.penetration = mg.penetration;
+                w.accuracyBonus = mg.accuracyBonus;
+                w.range = mg.range;
+                w.keywords = new List<Keyword>(mg.keywords);
+                w.shots = 10;
+            });
+        }
+
+        /// <summary>
+        /// Intimidator Medium Robot (Heavy Support, Rask): 1 Intimidator Medium Robot (Health 10, Armor 3, Accuracy 75%, Move
+        /// 30 m; Mechanical, Robotic; Stabilizers (passive: nullifies Deployed); Twin Intimidator Machine Guns). A gorilla-like,
+        /// four-legged robot that walks on its knuckles, with a machine gun on each shoulder. Radius 1 m. Existing assets keep
+        /// their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureIntimidatorMediumRobot(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var guns = EnsureTwinIntimidatorMachineGuns();
+            var stabilizers = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/Stabilizers.asset");
+            var robot = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IntimidatorMediumRobot.asset", s =>
+            {
+                s.displayName = "Intimidator Medium Robot";
+                s.health = 10; s.armorLevel = 3; s.accuracy = 75; s.movementRange = 30f;
+                s.keywords = new List<Keyword> { keywords["Mechanical"], keywords["Robotic"] };
+                s.abilities = new List<Ability> { stabilizers };
+                s.weapons = new List<WeaponTemplate> { guns };
+                s.primaryWeapon = guns;
+                s.radius = 1.0f;
+                s.height = 2.6f;
+            });
+            if (robot.prefab == null)
+            {
+                robot.prefab = BuildIntimidatorPrefab("IntimidatorMediumRobot", robot);
+                EditorUtility.SetDirty(robot);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/IntimidatorMediumRobot.asset", u =>
+            {
+                u.displayName = "Intimidator Medium Robot";
+                u.role = UnitRole.HeavySupport;
+                u.description = "A gorilla-like Rask war robot that knuckle-walks into battle with a machine gun on each shoulder. Its Twin Intimidator Machine Guns pour out 10 shots a volley (5 damage, penetration 1, 20 m), and its Stabilizers let it fire them even after moving 30 m. With 10 health and Armor Level 3 it shrugs off rifles and pistols, but anti-tank weapons will bring it down. Mechanical: it can't sprint. Heavy Support, so you can field more than one.";
+                u.leader = robot;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 3f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A placeholder Intimidator built from primitives, facing +z: a gorilla-like robot on all fours. A massive armored
+        /// chest and shoulders sloping down to small hips, long thick arms reaching down to the ground on big knuckle-fists,
+        /// short back legs, a small head set low between the shoulders with a red visor, and a machine gun on a mount on each
+        /// shoulder. Armor plates use the primary colour (the faction's colour when deployed).
+        /// </summary>
+        private static GameObject BuildIntimidatorPrefab(string name, SoldierTemplate template)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var armor = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var steel = GetOrCreateMaterial("Rask_Steel", new Color(0.52f, 0.53f, 0.56f));
+            var dark = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var eye = GetOrCreateMaterial("Stinger_Eye", new Color(0.95f, 0.12f, 0.08f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = true;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+            // Laid out for a 2.6 m tall robot; scaled to the soldier's height.
+            var model = new GameObject("Model");
+            model.transform.SetParent(root.transform, false);
+            model.transform.localScale = Vector3.one * (template.height / 2.6f);
+
+            // Body: a huge chest and shoulders, sloping back and down to small hips.
+            Part(model, "Chest", PrimitiveType.Sphere, dark, new Vector3(0f, 1.6f, 0.25f), new Vector3(1.5f, 1.15f, 1.15f));
+            Part(model, "Chest Plate", PrimitiveType.Cube, armor, new Vector3(0f, 1.55f, 0.72f), new Vector3(0.95f, 0.75f, 0.2f), new Vector3(-15f, 0f, 0f));
+            Part(model, "Back Plate", PrimitiveType.Cube, armor, new Vector3(0f, 2.05f, 0.05f), new Vector3(1.2f, 0.25f, 1.0f), new Vector3(-12f, 0f, 0f));
+            Part(model, "Waist", PrimitiveType.Cylinder, steel, new Vector3(0f, 1.3f, -0.35f), new Vector3(0.55f, 0.3f, 0.55f), new Vector3(-60f, 0f, 0f));
+            Part(model, "Hips", PrimitiveType.Sphere, dark, new Vector3(0f, 1.05f, -0.7f), new Vector3(0.9f, 0.6f, 0.65f));
+            Part(model, "Hip Plate", PrimitiveType.Cube, armor, new Vector3(0f, 1.3f, -0.75f), new Vector3(0.75f, 0.12f, 0.55f));
+
+            // Head: small, set low and forward between the shoulders, with a red visor.
+            Part(model, "Head", PrimitiveType.Cube, armor, new Vector3(0f, 1.78f, 0.95f), new Vector3(0.45f, 0.38f, 0.42f));
+            Part(model, "Brow", PrimitiveType.Cube, dark, new Vector3(0f, 1.94f, 1.12f), new Vector3(0.48f, 0.08f, 0.12f));
+            Part(model, "Visor", PrimitiveType.Cube, eye, new Vector3(0f, 1.82f, 1.17f), new Vector3(0.34f, 0.07f, 0.04f));
+            Part(model, "Jaw", PrimitiveType.Cube, steel, new Vector3(0f, 1.62f, 1.08f), new Vector3(0.38f, 0.12f, 0.24f));
+
+            foreach (float side in new[] { -1f, 1f })
+            {
+                // Long, thick arms down to big knuckle-fists on the ground.
+                Part(model, "Shoulder", PrimitiveType.Sphere, armor, new Vector3(side * 0.82f, 1.9f, 0.35f), Vector3.one * 0.62f);
+                Part(model, "Upper Arm", PrimitiveType.Capsule, steel, new Vector3(side * 0.98f, 1.45f, 0.5f), new Vector3(0.36f, 0.45f, 0.36f), new Vector3(-18f, 0f, side * 12f));
+                Part(model, "Elbow", PrimitiveType.Sphere, dark, new Vector3(side * 1.07f, 1.05f, 0.64f), Vector3.one * 0.32f);
+                Part(model, "Forearm", PrimitiveType.Capsule, armor, new Vector3(side * 1.07f, 0.62f, 0.72f), new Vector3(0.44f, 0.42f, 0.44f), new Vector3(-8f, 0f, 0f));
+                Part(model, "Fist", PrimitiveType.Cube, dark, new Vector3(side * 1.07f, 0.17f, 0.8f), new Vector3(0.48f, 0.34f, 0.5f));
+                Part(model, "Knuckles", PrimitiveType.Cube, steel, new Vector3(side * 1.07f, 0.1f, 1.04f), new Vector3(0.44f, 0.14f, 0.1f));
+
+                // Short back legs.
+                Part(model, "Thigh", PrimitiveType.Capsule, steel, new Vector3(side * 0.5f, 0.78f, -0.78f), new Vector3(0.34f, 0.32f, 0.34f), new Vector3(25f, 0f, 0f));
+                Part(model, "Shin", PrimitiveType.Capsule, armor, new Vector3(side * 0.5f, 0.34f, -0.9f), new Vector3(0.28f, 0.28f, 0.28f), new Vector3(-10f, 0f, 0f));
+                Part(model, "Foot", PrimitiveType.Cube, dark, new Vector3(side * 0.5f, 0.06f, -0.78f), new Vector3(0.36f, 0.12f, 0.52f));
+
+                // A machine gun on a mount on each shoulder, aimed forward, with an ammo box behind.
+                Part(model, "Gun Mount", PrimitiveType.Cube, dark, new Vector3(side * 0.82f, 2.28f, 0.3f), new Vector3(0.3f, 0.22f, 0.4f));
+                Part(model, "Machine Gun", PrimitiveType.Cube, dark, new Vector3(side * 0.82f, 2.46f, 0.55f), new Vector3(0.22f, 0.24f, 0.85f));
+                Part(model, "Barrel Shroud", PrimitiveType.Cylinder, steel, new Vector3(side * 0.82f, 2.46f, 1.12f), new Vector3(0.14f, 0.2f, 0.14f), new Vector3(90f, 0f, 0f));
+                Part(model, "Barrel", PrimitiveType.Cylinder, dark, new Vector3(side * 0.82f, 2.46f, 1.42f), new Vector3(0.07f, 0.16f, 0.07f), new Vector3(90f, 0f, 0f));
+                Part(model, "Ammo Box", PrimitiveType.Cube, gold, new Vector3(side * 0.82f, 2.42f, 0.0f), new Vector3(0.3f, 0.28f, 0.3f));
+            }
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        /// <summary>
+        /// ISF Boarding Team (Specialist, ISF): 1 Boarding Sergeant (leader) + 4 Boarding Specialists, with the ISF Rifleman's
+        /// stats (Health 5, Armor 2, Accuracy 75%, Move 10 m; Biological), each carrying a Shotgun and, as standard equipment,
+        /// a Combat Shield (+1 Armor, so Armor 3 in battle). Models: the ISF Trooper and Sergeant with a shotgun in place of
+        /// the rifle and a shield on the left arm. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureIsfBoardingTeam(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var shotgun = EnsureShotgun();
+            EnsureEquipment();
+            var shield = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/CombatShield.asset");
+
+            SoldierTemplate Boarder(string file, string name, bool sergeant)
+            {
+                var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", t =>
+                {
+                    t.displayName = name;
+                    t.health = 5; t.armorLevel = 2; t.accuracy = 75; t.movementRange = 10f;   // the ISF Rifleman's
+                    t.keywords = new List<Keyword> { keywords["Biological"] };
+                    t.abilities = new List<Ability>();
+                    t.weapons = new List<WeaponTemplate> { shotgun };
+                    t.primaryWeapon = shotgun;
+                    t.equipment = new List<Equipment> { shield };
+                });
+                if (s.prefab == null)
+                {
+                    s.prefab = BuildBoarderPrefab(file, s, sergeant);
+                    EditorUtility.SetDirty(s);
+                }
+                return s;
+            }
+
+            var sergeantTemplate = Boarder("BoardingSergeant", "Boarding Sergeant", true);
+            var specialist = Boarder("BoardingSpecialist", "Boarding Specialist", false);
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/IsfBoardingTeam.asset", u =>
+            {
+                u.displayName = "ISF Boarding Team";
+                u.role = UnitRole.Specialist;
+                u.description = "Close-quarters assault troops trained to storm ships and strongpoints. Each carries a Shotgun (10 damage, penetration 1, 10 m) and a Combat Shield that raises their Armor Level to 3, so they can close the distance under fire and clear rooms and trenches at point-blank range. A Specialist: one per army.";
+                u.leader = sergeantTemplate;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = specialist, count = 4 } };
+                u.deploymentSpacing = 1.5f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A Boarding Team model: a copy of the ISF Trooper (or, for the Sergeant, the Sergeant) model with its rifle replaced
+        /// by a short shotgun and a tall shield carried on the left arm.
+        /// </summary>
+        private static GameObject BuildBoarderPrefab(string name, SoldierTemplate template, bool sergeant)
+        {
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/{(sergeant ? "Sergeant" : "Trooper")}.prefab");
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var shieldMat = GetOrCreateMaterial("Shield_Steel", new Color(0.6f, 0.62f, 0.66f));
+            var armor = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+
+            var root = Object.Instantiate(source);
+            root.name = name;
+            var sso = new SerializedObject(root.GetComponent<Soldier>());
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = sergeant;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var rifle = root.transform.Find("Weapon");
+            if (rifle != null) Object.DestroyImmediate(rifle.gameObject);
+
+            // The shotgun, held at the right hip: a short, wide body with a pump and a thick barrel.
+            Part(root, "Shotgun", PrimitiveType.Cube, metal, new Vector3(0.18f, 1.2f, 0.24f), new Vector3(0.08f, 0.11f, 0.5f));
+            Part(root, "Shotgun Barrel", PrimitiveType.Cylinder, metal, new Vector3(0.18f, 1.23f, 0.58f), new Vector3(0.06f, 0.14f, 0.06f), new Vector3(90f, 0f, 0f));
+            Part(root, "Shotgun Pump", PrimitiveType.Cube, shieldMat, new Vector3(0.18f, 1.16f, 0.46f), new Vector3(0.07f, 0.06f, 0.16f));
+            // The shield on the left arm, angled slightly outward, with a stripe in the faction's colour and a view slit.
+            Part(root, "Shield", PrimitiveType.Cube, shieldMat, new Vector3(-0.34f, 1.05f, 0.24f), new Vector3(0.05f, 0.95f, 0.5f), new Vector3(0f, -15f, 0f));
+            Part(root, "Shield Stripe", PrimitiveType.Cube, armor, new Vector3(-0.37f, 1.05f, 0.25f), new Vector3(0.02f, 0.9f, 0.12f), new Vector3(0f, -15f, 0f));
+            Part(root, "Shield Slit", PrimitiveType.Cube, metal, new Vector3(-0.36f, 1.4f, 0.25f), new Vector3(0.03f, 0.04f, 0.3f), new Vector3(0f, -15f, 0f));
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        // ------------------------------------------------------------------ Equipment
+
+        /// <summary>
+        /// The equipment a soldier can be given in the army builder (if their soldier type lists it in Equipment Options):
+        /// <list type="bullet">
+        /// <item>Combat Shield: +1 Armor Level.</item>
+        /// <item>Frag Grenade: gives the active ability Frag Grenade (once per battle; 2.5 m blast).</item>
+        /// </list>
+        /// No soldier type offers them yet. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static void EnsureEquipment()
+        {
+            EnsureFolder(DataDir, "Equipment");
+            GetOrCreate<Equipment>($"{DataDir}/Equipment/CombatShield.asset", e =>
+            {
+                e.displayName = "Combat Shield";
+                e.description = "A shield carried on the arm. Adds 1 to the soldier's Armor Level.";
+                e.armorLevel = 1;
+            });
+            var grenade = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/FragGrenade.asset");
+            GetOrCreate<Equipment>($"{DataDir}/Equipment/FragGrenade.asset", e =>
+            {
+                e.displayName = "Frag Grenade";
+                e.description = "Gives the soldier the active ability Frag Grenade: thrown once per battle, a 2.5 m blast.";
+                e.abilities = new List<Ability> { grenade };
+            });
         }
 
         private static void Part(GameObject parent, string name, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale,
@@ -1000,16 +1716,23 @@ namespace Eldoria.EditorTools
             EnsureFieldCommander(factions[0], keywords);
             EnsureDragonHierarch(factions[1], keywords);
             EnsureDragonbornSquad(factions[1], keywords);
+            EnsureDragonbornSkymasterSquad(factions[1], keywords);
+            EnsureTyrantHoverTank(factions[1], keywords);
             EnsureKoboldMilitia(factions[1], keywords);
             EnsureDraconisWeaponNames(factions[1]);
+            EnsureRaskUltima(factions[2], keywords);
             EnsureRaskRifleTeam(factions[2], keywords);
             EnsureRaskWeapons(factions[2]);
+            EnsureStingerHeavyRobot(factions[2], keywords);
+            EnsureIntimidatorMediumRobot(factions[2], keywords);
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             EnsureIsfRanger(factions[0], keywords);
+            EnsureIsfBoardingTeam(factions[0], keywords);
             EnsureMortarTeam(factions[0], keywords);   // after the ISF Rifle Squad: it uses its ISF Rifleman
             EnsureSagittariusMbt(factions[0], keywords);
             EnsureOlympianMech(factions[0], keywords);
+            EnsureEquipment();
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
             AssetDatabase.SaveAssets();
@@ -1196,6 +1919,11 @@ namespace Eldoria.EditorTools
             Kw("Swarm", "Swarm", KeywordTarget.Soldier,
                 "Expands the unit's cohesion radius to 10 m (normally 5 m): if the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader.");
             Kw("Large", "Large", KeywordTarget.Soldier, "A very large creature. No effect on its own yet; other rules can check for it.");
+            Kw("JumpPack", "Jump Pack", KeywordTarget.Soldier,
+                "Able to climb up objects without movement cost: climbing onto an object costs this soldier 0 m (normally 10 m).");
+            Kw("Hover", "Hover", KeywordTarget.Soldier,
+                "Terrain cannot reduce the movement of this soldier: a move costs only its flat distance (no climbing cost, no wading penalty, slopes cost no extra).");
+            Kw("Heavy", "Heavy", KeywordTarget.Soldier, "A heavy war machine. No effect on its own yet; other rules can check for it.");
             Kw("Natural", "Natural", KeywordTarget.Weapon, "A natural weapon (claws, teeth...): can't be disabled by Disarm.");
             Kw("InCloseRange", "In close range", KeywordTarget.Soldier,
                 "A Biological enemy is less than 2 m away: can only use weapons with the Pistol keyword (spells and other abilities still work).");
@@ -1254,7 +1982,7 @@ namespace Eldoria.EditorTools
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
                 ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait,
                 ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Melee"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait,
-                ["Large"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Large"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,

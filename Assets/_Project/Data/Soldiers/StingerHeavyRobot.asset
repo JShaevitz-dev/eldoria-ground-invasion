@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c831d2daf4333a42b1b9b15f92f56c6, type: 3}
+  m_Name: StingerHeavyRobot
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
+  displayName: Stinger Heavy Robot
+  prefab: {fileID: 1906572648352247543, guid: 7b7567f2a1df0c747897951367bd5c58, type: 3}
+  health: 25
+  armorLevel: 5
+  accuracy: 75
+  movementRange: 30
+  keywords:
+  - {fileID: 11400000, guid: 79be367eee8536e40ad85e8e7cfe97e4, type: 2}
+  - {fileID: 11400000, guid: c6f67880715c9ac4b8a1c76010c625bf, type: 2}
+  - {fileID: 11400000, guid: 3bf0722ee96c0a64e9e1cd1206b83e2a, type: 2}
+  abilities:
+  - {fileID: 11400000, guid: 4654db68643e0e547a50c9fb0152d950, type: 2}
+  weapons:
+  - {fileID: 11400000, guid: 99b5628cd850f4e4381ca9f25157a122, type: 2}
+  primaryWeapon: {fileID: 11400000, guid: 99b5628cd850f4e4381ca9f25157a122, type: 2}
+  radius: 1.6
+  height: 3
+  weaponOptions: []
+  equipmentOptions: []

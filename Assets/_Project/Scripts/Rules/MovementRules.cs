@@ -78,6 +78,37 @@ namespace Eldoria.Rules
         /// <summary>Movement (meters) it costs to climb onto an object of any height.</summary>
         public const float ClimbCost = 10f;
 
+        /// <summary>Soldier keyword: climbing onto an object costs this soldier no movement (instead of <see cref="ClimbCost"/>).</summary>
+        public const string JumpPackKeyword = "Jump Pack";
+
+        /// <summary>
+        /// Soldier keyword: terrain can't reduce this soldier's movement. Its routes cost only their straight-line
+        /// (horizontal) distance: no climbing cost, no wading penalty, and slopes cost no more than flat ground.
+        /// </summary>
+        public const string HoverKeyword = "Hover";
+
+        /// <summary>
+        /// The movement a route costs <paramref name="soldier"/>: its length, less <see cref="ClimbCost"/> for each climb if
+        /// the soldier has a Jump Pack. A Hover soldier pays only the horizontal distance along the route (see
+        /// <see cref="HoverKeyword"/>).
+        /// </summary>
+        public static float CostFor(Soldier soldier, MovePath path)
+        {
+            if (path == null) return 0f;
+            if (soldier != null && soldier.HasKeyword(HoverKeyword)) return HorizontalLength(path);
+            if (soldier == null || path.Climbs == 0 || !soldier.HasKeyword(JumpPackKeyword)) return path.Length;
+            return Mathf.Max(0f, path.Length - path.Climbs * ClimbCost);
+        }
+
+        /// <summary>The route's length measured flat (ignoring height), with no climbing or wading costs.</summary>
+        public static float HorizontalLength(MovePath path)
+        {
+            if (path.Points == null || path.Points.Count < 2) return path.Length;
+            float total = 0f;
+            for (int i = 1; i < path.Points.Count; i++) total += Measure.Horizontal(path.Points[i - 1], path.Points[i]);
+            return Mathf.Min(total, path.Length);
+        }
+
         /// <summary>Wading: every meter moved through water (a riverbed below the water surface) counts this many times.</summary>
         public const float WadingCostMultiplier = 2f;
 
@@ -99,7 +130,7 @@ namespace Eldoria.Rules
 
             var path = measurer.Measure(from, stand, leader.Radius);
             if (!path.Reachable) return MoveCheck.Fail(0f, path.Reason, stand);
-            float d = path.Length;
+            float d = CostFor(leader, path);
 
             MoveKind kind;
             if (d <= leader.Move + Epsilon) kind = MoveKind.Normal;
@@ -126,7 +157,7 @@ namespace Eldoria.Rules
             var path = measurer.Measure(from, stand, follower.Radius);
             if (!path.Reachable) return MoveCheck.Fail(0f, path.Reason, stand);
 
-            return new MoveCheck(true, MoveKind.Normal, path.Length, null, stand, path);
+            return new MoveCheck(true, MoveKind.Normal, CostFor(follower, path), null, stand, path);
         }
 
         public static bool IsWithinCohesion(Vector3 leaderPosition, Vector3 point, float range = CohesionRange)

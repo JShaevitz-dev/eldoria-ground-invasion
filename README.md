@@ -1,8 +1,8 @@
 # Eldoria Ground Invasion
 
 > **A fork of Eldoria with its first three factions. Two are playable:** the International Space Force of Humanity
-> (Field Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger) and the Imperial Army of The Draconis Imperialis (Dragon
-> Hierarch, Dragonborn Squad, Kobold Militia). The Rask have one unit (the Rask Rifle Team) but no Commander yet. Every game system is here (army lists and factions, movement,
+> (Field Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team) and the Imperial Army of The Draconis Imperialis (Dragon
+> Hierarch, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank). The Rask have the Rask Ultima (Commander), the Rask Rifle Team, the Stinger Heavy Robot and the Intimidator Medium Robot. Every game system is here (army lists and factions, movement,
 > terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the three maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
@@ -129,10 +129,16 @@ Inspector.
 | **Mortar Team** | International Space Force of Humanity | Heavy Support | ISF Mortar Specialist (Mortar Launcher, Assault Rifle) + ISF Rifleman; Armor 2 |
 | **Sagittarius MBT** | International Space Force of Humanity | Heavy Support | Sagittarius MBT (the original Eldoria's Medium Tank: Health 20, Armor 4, 100mm Cannon) |
 | **Olympian Mech** | International Space Force of Humanity | Heavy Support | Olympian Mech (the original Eldoria's Stahl Colossus: Health 15, Armor 3, Machine Gun, Iron Claw, Stabilizers) |
+| **ISF Boarding Team** | International Space Force of Humanity | Specialist | Boarding Sergeant + 4 Boarding Specialists (the ISF Rifleman's stats; Shotgun; a Combat Shield carried as standard, so Armor 3) |
 | **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (the original Eldoria's Sniper with Armor 1: Accuracy 100%, Sniper Rifle, Anti-Materiel Rifle or Shotgun, Sniper Precision; Chromashift Textiles: −25% to anyone aiming at it) |
-| **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) |
-| **Rask Rifle Team** | Most Holy Army of The Rask Divine Collective | Infantry | Rask Superior + 19 Rask Riflemen (the Kobold Militiaman's stats; Solntse Laser Rifles: the Rask name for the Assault Rifle, Damage 6) |
+| **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) + 2 Dragonborn Honorguard (the Dragonborn Footman's stats with 95% accuracy) |
+| **Rask Ultima** | Most Holy Army of The Rask Divine Collective | Commander | Rask Ultima (the Rask Rifleman's stats with Health 10 and Armor 2; Biological, Solo, Officer; Pistol) |
+| **Rask Rifle Team** | Most Holy Army of The Rask Divine Collective | Infantry | Rask Superior + 19 Rask Riflemen (the Kobold Militiaman's stats with Armor 1; Solntse Laser Rifles: the Rask name for the Assault Rifle, Damage 6) |
+| **Intimidator Medium Robot** | Most Holy Army of The Rask Divine Collective | Heavy Support | Intimidator Medium Robot (a gorilla-like four-legged robot: Health 10, Armor 3, Accuracy 75%, Move 30; Mechanical, Robotic; Stabilizers; Twin Intimidator Machine Guns: the Machine Gun with 10 shots, one on each shoulder) |
+| **Stinger Heavy Robot** | Most Holy Army of The Rask Divine Collective | Heavy Support | Stinger Heavy Robot (a six-legged beetle robot: Health 25, Armor 5, Accuracy 75%, Move 30; Mechanical, Heavy, Robotic; Stabilizers; Plasma Mortar: the Mortar Launcher's stats) |
 | **Kobold Militia** | Imperial Army of The Draconis Imperialis | Infantry | Kobold Sergeant + 19 Kobold Militiamen (Health 5, Armor 0, Accuracy 50%, Move 20 m, Swarm; Fang Casters, the Draconis name for the Assault Rifle) |
+| **Dragonborn Skymaster Squad** | Imperial Army of The Draconis Imperialis | Specialist | Dragonborn Skylord + 4 Dragonborn Skymasters (the Dragonborn Footman's stats with Move 40 and Jump Pack: climbing costs no movement; Twin Raptor Pistols: Damage 4, 2 shots, Penetration 1, 20 m, Pistol) |
+| **Tyrant Hover-tank** | Imperial Army of The Draconis Imperialis | Heavy Support | Tyrant Hover-tank (a dagger-shaped hover-tank with a Kobold pilot: Health 15, Armor 4, Accuracy 100%, Move 30; Mechanical, Unstable, Hover: terrain can't reduce its movement; Tyrant Railgun: Damage 5, Penetration 7, 50 m, Manual Load) |
 | **Dragonborn Squad** | Imperial Army of The Draconis Imperialis | Infantry | Dragonborn Sergeant + 4 Dragonborn Footmen (Health 10, Armor 2; Dragon Glaive: a 20 m rifle and a 2 m Melee blade) |
 | **ISF Rifle Squad** | International Space Force of Humanity | Infantry | ISF Rifleman Sergeant + 9 ISF Riflemen (Armor 2, Assault Rifles, Frag Grenade) |
 | **Heavy Weapons Team** | International Space Force of Humanity | Heavy Support | ISF Rifleman Sergeant (Pistol) + 3 ISF Riflemen (Assault Rifles) + ISF Heavy Weapons (Machine Gun, Rocket Launcher or Flamethrower); Armor 2 |
@@ -140,13 +146,13 @@ Inspector.
 A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
 them (and add each unit to its faction's unit list). They're created in code
-(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
-`EnsureDragonbornSquad`, `EnsureKoboldMilitia`, `EnsureRaskRifleTeam`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
+(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureIsfBoardingTeam`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
+`EnsureDragonbornSquad`, `EnsureDragonbornSkymasterSquad`, `EnsureTyrantHoverTank`, `EnsureKoboldMilitia`, `EnsureRaskUltima`, `EnsureRaskRifleTeam`, `EnsureStingerHeavyRobot`, `EnsureIntimidatorMediumRobot`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
 Specialist.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,
 Rocket Launcher, Broadsword, Iron Claw, the new Anti-Materiel Rifle: Damage 10, Penetration X, 50 m, Deployed; and the new Mortar Launcher:
-Damage 5, Penetration 3, 50 m, Deployed, Manual Load, Explosive; and the new Shotgun: Damage 10, Penetration 1, 10 m), abilities (Frag Grenade, Lead from the front, Divine Healing, Divine Sanctuary,
+Damage 5, Penetration 3, 50 m, Deployed, Manual Load, Explosive; and the new Shotgun: Damage 10, Penetration 1, 10 m; and the new Plasma Mortar: the Mortar Launcher's stats), equipment (Combat Shield: +1 Armor, carried as standard by the ISF Boarding Team; Frag Grenade: gives the Frag Grenade ability), with soldier types able to carry equipment as standard, abilities (Frag Grenade, Lead from the front, Divine Healing, Divine Sanctuary,
 Fireball, Firestorm, Rocket Launcher, Iron Claw, Stabilizers), every keyword, and the placeholder soldier models in
 Prefabs/Units.
 

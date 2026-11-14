@@ -29,8 +29,7 @@ namespace Eldoria.Tests
             var sniper = Load("SniperRifle");
             Assert.That(sniper.displayName, Is.EqualTo("Sniper Rifle"));
             Assert.That((sniper.baseDamage, sniper.PenetrationValue, sniper.accuracyBonus, sniper.range), Is.EqualTo((10, (int?)1, 50, 50f)), "Damage 10 (raised from the original Eldoria's 5)");
-            Assert.That(sniper.keywords.Count, Is.EqualTo(1));
-            Assert.That(sniper.HasKeyword("Deployed"), Is.True);
+            Assert.That(sniper.keywords, Is.Empty, "no keywords: not Deployed, so it can fire after moving");
         }
 
         [Test]
@@ -49,9 +48,9 @@ namespace Eldoria.Tests
                 Assert.That(acc.Final, Is.EqualTo(125));
                 Assert.That((acc.HitChance, acc.CritChance), Is.EqualTo((100, 25)));
 
-                // Deployed: not after moving.
+                // Not Deployed: it still fires after moving.
                 soldier.GainKeyword(KeywordLibrary.Get(KeywordLibrary.Moved), Rules.Turns.NextTurn);
-                Assert.That(soldier.WeaponFor(null), Is.Null);
+                Assert.That(soldier.WeaponFor(null).Name, Is.EqualTo("Sniper Rifle"));
             }
             finally
             {
@@ -68,7 +67,7 @@ namespace Eldoria.Tests
             Assert.That(weapons.Count, Is.GreaterThanOrEqualTo(8));
             foreach (var w in weapons)
             {
-                int expected = w.displayName == "Machine Gun" ? 5 : w.displayName == "Flamethrower" ? 3 : 1;
+                int expected = w.displayName == "Machine Gun" ? 5 : w.displayName == "Flamethrower" ? 3 : w.displayName == "Twin Raptor Pistols" ? 2 : w.displayName == "Twin Intimidator Machine Guns" ? 10 : 1;
                 Assert.That(w.shots, Is.EqualTo(expected), w.displayName);
             }
             Assert.That(weapons.Select(w => w.displayName), Does.Contain("Machine Gun").And.Contain("Flamethrower"));

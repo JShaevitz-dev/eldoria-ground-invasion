@@ -61,6 +61,9 @@ namespace Eldoria.Units
 
         public bool HasKeyword(string name) => Keyword.Contains(keywords, name);
 
+        [Tooltip("Equipment this soldier type always carries (on top of any chosen in the army builder).")]
+        public List<Equipment> equipment = new List<Equipment>();
+
         [Header("Army builder options")]
         [Tooltip("Weapons this soldier type can swap in the army builder, and what for.")]
         public List<WeaponOption> weaponOptions = new List<WeaponOption>();

@@ -19,5 +19,4 @@ MonoBehaviour:
   penetration: 1
   range: 50
   accuracyBonus: 50
-  keywords:
-  - {fileID: 11400000, guid: 974b0fb37469b794db045219a44c799c, type: 2}
+  keywords: []
