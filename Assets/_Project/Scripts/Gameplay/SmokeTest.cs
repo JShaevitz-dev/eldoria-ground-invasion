@@ -91,9 +91,11 @@ namespace Eldoria.Gameplay
 
             var controller = FindFirstObjectByType<MovementController>();
             Check(controller != null && controller.PlayerUnits.Count == army.Count, "the player's army is deployed");
-            Check(ArmySelection.HasArmies && ArmySelection.AIFaction == isf, "the AI fields the only faction that can (the ISF)");
+            var catalog = Eldoria.Units.UnitCatalog.Load();
+            Check(ArmySelection.HasArmies && ArmyBuilderScreen.FactionCanFieldArmy(catalog, ArmySelection.AIFaction),
+                $"the AI fields a faction that can ({ArmySelection.AIFaction?.displayName})");
             Check(FindObjectsByType<Eldoria.Units.Unit>(FindObjectsSortMode.None).Count(u => u.Side == Eldoria.Units.Side.AI) == ArmySelection.AIArmy.Count
-                  && ArmySelection.AIArmy.Count == 6, $"the AI's army is deployed ({ArmySelection.AIArmy?.Count} units)");
+                  && ArmySelection.AIArmy.Count > 0, $"the AI's army is deployed ({ArmySelection.AIArmy?.Count} units)");
             if (controller != null)
             {
                 var unit = controller.PlayerUnits[0];

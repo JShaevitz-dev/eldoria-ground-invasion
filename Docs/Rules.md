@@ -2,8 +2,8 @@
 
 Living record of the rules decided so far. **Status** shows what the code does today.
 
-> **This fork (Eldoria Ground Invasion) has its first three factions; only the ISF has units so far** (the Field
-> Commander, the ISF Rifle Squad and the Heavy Weapons Team), so for now every battle is ISF against ISF. The game
+> **This fork (Eldoria Ground Invasion) has its first three factions. Two can field armies:** the ISF (Field
+> Commander, ISF Rifle Squad, Heavy Weapons Team) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad). The Rask have no units yet. The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -60,8 +60,8 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 
 | Role | Units |
 |---|---|
-| **Infantry** | ISF Rifle Squad |
-| **Commander** | Field Commander |
+| **Infantry** | ISF Rifle Squad, Dragonborn Squad |
+| **Commander** | Field Commander, Dragon Hierarch |
 | **Heavy Support** | Heavy Weapons Team |
 | **Specialist** | *none yet* |
 
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-Only the ISF has units so far (the Field Commander, the ISF Rifle Squad and the Heavy Weapons Team), so it's the only faction that can field an army; the Draconis Imperialis and the Rask have no units yet.
+So far the ISF has the Field Commander, the ISF Rifle Squad and the Heavy Weapons Team, and the Draconis Imperialis has the Dragon Hierarch and the Dragonborn Squad, so both can field armies (the AI picks one of them); the Rask have no units yet.
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -113,6 +113,36 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
 **Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
+
+### Dragon Hierarch
+
+*Imperial Army of The Draconis Imperialis · Commander.* One soldier: a large quadrupedal dragon with wings and golden armor, of the Dragons, the Empire's ruling caste (see [Lore.md](Lore.md)).
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
+|---|---|---|---|---|---|---|
+| Dragon Hierarch | 15 | 2 | 50% | 30 m (sprint 60 m) | Biological, Large | Dragon Claw |
+
+- **Dragon Claw:** Damage 5, Shots 1, Penetration 1, Accuracy Bonus 0, Range **2 m**; **Melee** (usable in close range) and **Natural** (can't be disabled by Disarm).
+- **Footprint:** the model is about 6 m long and 3.6 m tall, but the dragon stands on a circle of **1 m radius** (it needs room for that along its route, like other wide soldiers). Reach is measured between soldiers' centres, so with a 2 m claw it can hit a soldier standing right next to it (1.35 m apart for a person); a wider footprint couldn't reach anyone.
+- Against its Armor 2, Assault Rifles and the Machine Gun (Penetration 1) do half damage, Pistols and SMGs (Penetration 0) do none, and the Rocket Launcher (Penetration 5) does 150%; the Flamethrower (no penetration value) does full damage.
+- The Draconis Imperialis's Commander, so every Draconis army has one.
+
+### Dragonborn Squad
+
+*Imperial Army of The Draconis Imperialis · Infantry.* 1 **Dragonborn Sergeant** (leader) + 4 **Dragonborn Footmen**: anthropomorphic dragons with wings and a tail, standing slightly taller than a human (2.2 m), each holding a glaive with a rifle's receiver and barrel built into its head (see [Lore.md](Lore.md), the Dragonborn).
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons |
+|---|---|---|---|---|---|---|
+| Dragonborn Sergeant | 10 | 2 | 75% | 10 m | Biological | Dragon Glaive (Range), Dragon Glaive (melee) |
+| Dragonborn Footman (×4) | 10 | 2 | 75% | 10 m | Biological | Dragon Glaive (Range), Dragon Glaive (melee) |
+
+| Weapon | Damage | Shots | Penetration | Accuracy bonus | Range | Keywords |
+|---|---|---|---|---|---|---|
+| Dragon Glaive (Range) | 5 | 1 | 1 | +0% | 20 m | — |
+| Dragon Glaive (melee) | 5 | 1 | 2 | +25% | 2 m | Melee |
+
+- The ranged glaive is their **primary weapon**. In **close range** (a Biological enemy under 2 m away) they can't use it, so they switch to the **melee glaive** (Melee weapons work in close range).
+- Infantry, so an army can take more than one.
 
 ### Field Commander
 
@@ -178,7 +208,10 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 
 #### Keyword categories
 
-Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front).
+- **Large** (soldier, Trait): a very large creature, e.g. the Dragon Hierarch. No effect on its own yet; other rules can check for it.
+- **Natural** (weapon, Trait): a natural weapon such as claws or teeth, which **can't be disabled by Disarm**. *Disarm isn't in the game yet, so for now it has no effect.*
+
+Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Natural) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front).
 
 - Some traits **do nothing on their own**: **Officer** and **Solo** only matter because other weapons and abilities check for them (e.g. something that only affects Officers, or has no effect on Solo soldiers) — done with keyword interactions such as *"if the target has / lacks Officer → …"*.
 

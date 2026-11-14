@@ -208,12 +208,301 @@ namespace Eldoria.EditorTools
             return unit;
         }
 
+        // ------------------------------------------------------------------ Imperial Army of The Draconis Imperialis
+
+        /// <summary>Dragon Claw: Damage 5, Shots 1, Penetration 1, Accuracy Bonus 0, Range 2 m; Melee, Natural.</summary>
+        public static WeaponTemplate EnsureDragonClaw(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/DragonClaw.asset", w =>
+            {
+                w.displayName = "Dragon Claw";
+                w.baseDamage = 5; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 1;
+                w.accuracyBonus = 0;
+                w.range = 2f;   // like the game's other melee weapons
+                w.keywords = new List<Keyword> { keywords["Melee"], keywords["Natural"] };
+            });
+        }
+
+        /// <summary>
+        /// Dragon Hierarch (Commander, Draconis Imperialis): 1 Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m;
+        /// Biological, Large; Dragon Claw). A large quadrupedal dragon with wings and golden armor. Its footprint (radius 1 m)
+        /// is smaller than the model, so its 2 m claw can reach a soldier standing next to it (reach is measured between
+        /// soldiers' centres). Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureDragonHierarch(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var claw = EnsureDragonClaw(keywords);
+            var dragon = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/DragonHierarch.asset", s =>
+            {
+                s.displayName = "Dragon Hierarch";
+                s.health = 15; s.armorLevel = 2; s.accuracy = 50; s.movementRange = 30f;
+                s.keywords = new List<Keyword> { keywords["Biological"], keywords["Large"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate> { claw };
+                s.primaryWeapon = claw;
+                s.radius = 1.0f;
+                s.height = 3.6f;
+            });
+            if (dragon.prefab == null)
+            {
+                dragon.prefab = BuildDragonPrefab("DragonHierarch", dragon);
+                EditorUtility.SetDirty(dragon);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/DragonHierarch.asset", u =>
+            {
+                u.displayName = "Dragon Hierarch";
+                u.role = UnitRole.Commander;
+                u.leader = dragon;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 4f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A placeholder dragon built from primitives, facing +z: a quadrupedal body with a long neck and tail, four legs,
+        /// two raised wings and golden armor plates. Body and wings use the primary colour material (tinted with the
+        /// faction's colour when deployed); the armor is gold.
+        /// </summary>
+        private static GameObject BuildDragonPrefab(string name, SoldierTemplate template)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var hide = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+            var horn = GetOrCreateMaterial("Dragon_Horn", new Color(0.86f, 0.82f, 0.7f));
+            var eye = GetOrCreateMaterial("Dragon_Eye", new Color(1f, 0.6f, 0.05f));
+            float h = template.height;
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = false;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = h;
+            col.center = new Vector3(0f, h / 2f, 0f);
+
+            // Body: a long barrel on four legs, belly about 1.2 m up.
+            Part(root, "Body", PrimitiveType.Capsule, hide, new Vector3(0f, 1.75f, 0f), new Vector3(1.5f, 1.6f, 1.5f), new Vector3(90f, 0f, 0f));
+            Part(root, "Chest Plate", PrimitiveType.Cube, gold, new Vector3(0f, 1.6f, 1.1f), new Vector3(1.2f, 1.0f, 0.5f), new Vector3(-20f, 0f, 0f));
+            Part(root, "Back Plate", PrimitiveType.Cube, gold, new Vector3(0f, 2.45f, -0.1f), new Vector3(1.1f, 0.18f, 2.0f));
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(root, "Flank Plate", PrimitiveType.Cube, gold, new Vector3(side * 0.74f, 1.85f, 0f), new Vector3(0.08f, 0.7f, 1.8f));
+                foreach (float z in new[] { 0.95f, -0.95f })
+                {
+                    Part(root, "Leg", PrimitiveType.Cube, hide, new Vector3(side * 0.55f, 0.75f, z), new Vector3(0.4f, 1.5f, 0.45f));
+                    Part(root, "Greave", PrimitiveType.Cube, gold, new Vector3(side * 0.55f, 0.95f, z + 0.24f), new Vector3(0.44f, 0.6f, 0.06f));
+                    Part(root, "Foot", PrimitiveType.Cube, hide, new Vector3(side * 0.55f, 0.1f, z + 0.15f), new Vector3(0.5f, 0.2f, 0.7f));
+                    foreach (float x in new[] { -0.15f, 0f, 0.15f })
+                        Part(root, "Claw", PrimitiveType.Cube, horn, new Vector3(side * 0.55f + x, 0.06f, z + 0.58f), new Vector3(0.07f, 0.08f, 0.2f));
+                }
+                // Wings: raised and swept back from the shoulders.
+                Part(root, "Wing Arm", PrimitiveType.Cube, hide, new Vector3(side * 1.1f, 2.9f, 0.3f), new Vector3(1.8f, 0.14f, 0.18f), new Vector3(0f, side * 20f, side * 35f));
+                Part(root, "Wing", PrimitiveType.Cube, hide, new Vector3(side * 1.25f, 2.75f, -0.35f), new Vector3(2.0f, 0.04f, 1.5f), new Vector3(0f, side * 20f, side * 35f));
+            }
+            // Neck and head, with a golden crown and horns.
+            Part(root, "Neck", PrimitiveType.Capsule, hide, new Vector3(0f, 2.55f, 1.7f), new Vector3(0.6f, 0.75f, 0.6f), new Vector3(35f, 0f, 0f));
+            Part(root, "Neck Plate", PrimitiveType.Cube, gold, new Vector3(0f, 2.75f, 1.55f), new Vector3(0.5f, 0.1f, 0.8f), new Vector3(-55f, 0f, 0f));
+            Part(root, "Head", PrimitiveType.Cube, hide, new Vector3(0f, 3.15f, 2.2f), new Vector3(0.6f, 0.5f, 0.9f));
+            Part(root, "Snout", PrimitiveType.Cube, hide, new Vector3(0f, 3.02f, 2.75f), new Vector3(0.42f, 0.3f, 0.5f));
+            Part(root, "Crown", PrimitiveType.Cube, gold, new Vector3(0f, 3.43f, 2.1f), new Vector3(0.66f, 0.1f, 0.5f));
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(root, "Horn", PrimitiveType.Cube, horn, new Vector3(side * 0.22f, 3.55f, 1.85f), new Vector3(0.08f, 0.45f, 0.08f), new Vector3(-40f, 0f, side * 12f));
+                Part(root, "Eye", PrimitiveType.Cube, eye, new Vector3(side * 0.31f, 3.2f, 2.45f), new Vector3(0.03f, 0.08f, 0.14f));
+            }
+            // Tail, tapering behind.
+            Part(root, "Tail", PrimitiveType.Capsule, hide, new Vector3(0f, 1.5f, -2.0f), new Vector3(0.45f, 0.9f, 0.45f), new Vector3(-70f, 0f, 0f));
+            Part(root, "Tail Tip", PrimitiveType.Capsule, hide, new Vector3(0f, 1.0f, -3.0f), new Vector3(0.25f, 0.6f, 0.25f), new Vector3(-80f, 0f, 0f));
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        /// <summary>
+        /// The Dragonborn's glaive, as two weapons:
+        ///   Dragon Glaive (Range): the rifle built into its head. Damage 5, Shots 1, Penetration 1, +0, Range 20 m.
+        ///   Dragon Glaive (melee): the blade. Damage 5, Shots 1, Penetration 2, +25% accuracy, Range 2 m; Melee.
+        /// </summary>
+        public static (WeaponTemplate ranged, WeaponTemplate melee) EnsureDragonGlaive(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            var ranged = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/DragonGlaiveRanged.asset", w =>
+            {
+                w.displayName = "Dragon Glaive (Range)";
+                w.baseDamage = 5; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 1;
+                w.accuracyBonus = 0;
+                w.range = 20f;   // like the Assault Rifle
+                w.keywords = new List<Keyword>();
+            });
+            var melee = GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/DragonGlaiveMelee.asset", w =>
+            {
+                w.displayName = "Dragon Glaive (melee)";
+                w.baseDamage = 5; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 2;
+                w.accuracyBonus = 25;
+                w.range = 2f;    // like the game's other melee weapons
+                w.keywords = new List<Keyword> { keywords["Melee"] };
+            });
+            return (ranged, melee);
+        }
+
+        /// <summary>
+        /// Dragonborn Squad (Infantry, Draconis Imperialis): 1 Dragonborn Sergeant (leader) + 4 Dragonborn Footmen. All
+        /// Health 10, Armor 2, Accuracy 75%, Move 10 m; Biological; Dragon Glaive (Range) (primary) and Dragon Glaive (melee),
+        /// which they switch to in close range. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureDragonbornSquad(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var (ranged, melee) = EnsureDragonGlaive(keywords);
+
+            SoldierTemplate Dragonborn(string file, string name, bool sergeant)
+            {
+                var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", t =>
+                {
+                    t.displayName = name;
+                    t.health = 10; t.armorLevel = 2; t.accuracy = 75; t.movementRange = 10f;
+                    t.keywords = new List<Keyword> { keywords["Biological"] };
+                    t.abilities = new List<Ability>();
+                    t.weapons = new List<WeaponTemplate> { ranged, melee };
+                    t.primaryWeapon = ranged;
+                    t.radius = 0.4f;
+                    t.height = 2.2f;   // slightly taller than a human
+                });
+                if (s.prefab == null)
+                {
+                    s.prefab = BuildDragonbornPrefab(file, s, sergeant);
+                    EditorUtility.SetDirty(s);
+                }
+                return s;
+            }
+
+            var sergeantTemplate = Dragonborn("DragonbornSergeant", "Dragonborn Sergeant", true);
+            var footman = Dragonborn("DragonbornFootman", "Dragonborn Footman", false);
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/DragonbornSquad.asset", u =>
+            {
+                u.displayName = "Dragonborn Squad";
+                u.role = UnitRole.Infantry;
+                u.leader = sergeantTemplate;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = footman, count = 4 } };
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A placeholder Dragonborn built from primitives, facing +z: an upright, anthropomorphic dragon about 2.2 m tall with
+        /// a snouted head and horns, folded wings and a tail, holding a glaive whose head carries a rifle's receiver and barrel
+        /// below the blade. Scales use the primary colour material (the faction's colour when deployed); the Sergeant has a
+        /// gold crest and shoulder plates.
+        /// </summary>
+        private static GameObject BuildDragonbornPrefab(string name, SoldierTemplate template, bool sergeant)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var scales = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var horn = GetOrCreateMaterial("Dragon_Horn", new Color(0.86f, 0.82f, 0.7f));
+            var eye = GetOrCreateMaterial("Dragon_Eye", new Color(1f, 0.6f, 0.05f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var blade = GetOrCreateMaterial("Sword_Blade", new Color(0.8f, 0.82f, 0.85f));
+            var shaft = GetOrCreateMaterial("Wood", new Color(0.45f, 0.3f, 0.18f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = sergeant;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+
+            // Legs (digitigrade feet with claws), body, head with a snout, horns and eyes.
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(root, "Thigh", PrimitiveType.Capsule, scales, new Vector3(side * 0.16f, 0.72f, 0f), new Vector3(0.22f, 0.3f, 0.24f));
+                Part(root, "Shin", PrimitiveType.Capsule, scales, new Vector3(side * 0.16f, 0.3f, -0.05f), new Vector3(0.16f, 0.26f, 0.16f), new Vector3(-12f, 0f, 0f));
+                Part(root, "Foot", PrimitiveType.Cube, scales, new Vector3(side * 0.16f, 0.05f, 0.1f), new Vector3(0.18f, 0.1f, 0.34f));
+                Part(root, "Toe Claw", PrimitiveType.Cube, horn, new Vector3(side * 0.16f, 0.04f, 0.3f), new Vector3(0.12f, 0.05f, 0.08f));
+                Part(root, "Arm", PrimitiveType.Capsule, scales, new Vector3(side * 0.34f, 1.42f, 0.08f), new Vector3(0.14f, 0.3f, 0.14f), new Vector3(-30f, 0f, 0f));
+                Part(root, "Horn", PrimitiveType.Cube, horn, new Vector3(side * 0.09f, 2.12f, -0.08f), new Vector3(0.05f, 0.24f, 0.05f), new Vector3(-35f, 0f, side * 10f));
+                Part(root, "Eye", PrimitiveType.Cube, eye, new Vector3(side * 0.1f, 1.98f, 0.13f), new Vector3(0.05f, 0.04f, 0.04f));
+                // Wings, folded against the back, tips up.
+                Part(root, "Wing", PrimitiveType.Cube, scales, new Vector3(side * 0.22f, 1.65f, -0.24f), new Vector3(0.04f, 0.95f, 0.5f), new Vector3(-10f, side * -25f, 0f));
+            }
+            Part(root, "Torso", PrimitiveType.Capsule, scales, new Vector3(0f, 1.32f, 0f), new Vector3(0.48f, 0.42f, 0.36f));
+            Part(root, "Belly Plates", PrimitiveType.Cube, horn, new Vector3(0f, 1.25f, 0.16f), new Vector3(0.26f, 0.5f, 0.06f));
+            Part(root, "Neck", PrimitiveType.Capsule, scales, new Vector3(0f, 1.78f, 0.02f), new Vector3(0.16f, 0.14f, 0.16f));
+            Part(root, "Head", PrimitiveType.Cube, scales, new Vector3(0f, 1.97f, 0.02f), new Vector3(0.24f, 0.22f, 0.26f));
+            Part(root, "Snout", PrimitiveType.Cube, scales, new Vector3(0f, 1.92f, 0.2f), new Vector3(0.16f, 0.12f, 0.22f));
+            // Tail, curving down behind.
+            Part(root, "Tail", PrimitiveType.Capsule, scales, new Vector3(0f, 0.8f, -0.42f), new Vector3(0.16f, 0.36f, 0.16f), new Vector3(-50f, 0f, 0f));
+            Part(root, "Tail Tip", PrimitiveType.Capsule, scales, new Vector3(0f, 0.35f, -0.78f), new Vector3(0.1f, 0.24f, 0.1f), new Vector3(-75f, 0f, 0f));
+            if (sergeant)
+            {
+                Part(root, "Crest", PrimitiveType.Cube, gold, new Vector3(0f, 2.12f, 0f), new Vector3(0.05f, 0.14f, 0.3f));
+                foreach (float side in new[] { -1f, 1f })
+                    Part(root, "Shoulder Plate", PrimitiveType.Cube, gold, new Vector3(side * 0.3f, 1.62f, 0f), new Vector3(0.2f, 0.08f, 0.26f), new Vector3(0f, 0f, side * -18f));
+            }
+
+            // The glaive, held upright in the right hand: a long shaft, a rifle receiver and barrel below the blade.
+            Part(root, "Glaive Shaft", PrimitiveType.Cylinder, shaft, new Vector3(0.42f, 1.25f, 0.28f), new Vector3(0.05f, 1.05f, 0.05f));
+            Part(root, "Glaive Receiver", PrimitiveType.Cube, metal, new Vector3(0.42f, 2.36f, 0.3f), new Vector3(0.09f, 0.2f, 0.12f));
+            Part(root, "Glaive Barrel", PrimitiveType.Cylinder, metal, new Vector3(0.42f, 2.36f, 0.5f), new Vector3(0.035f, 0.16f, 0.035f), new Vector3(90f, 0f, 0f));
+            Part(root, "Glaive Blade", PrimitiveType.Cube, blade, new Vector3(0.42f, 2.62f, 0.34f), new Vector3(0.02f, 0.38f, 0.14f), new Vector3(-8f, 0f, 0f));
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        private static void Part(GameObject parent, string name, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale,
+            Vector3? rotation = null)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            go.name = name;
+            Object.DestroyImmediate(go.GetComponent<Collider>());
+            go.transform.SetParent(parent.transform, false);
+            go.transform.localPosition = pos;
+            if (rotation.HasValue) go.transform.localEulerAngles = rotation.Value;
+            go.transform.localScale = scale;
+            go.GetComponent<Renderer>().sharedMaterial = mat;
+        }
+
         [MenuItem("Eldoria/Rebuild Unit Catalog")]
         public static void RebuildUnitCatalog()
         {
             var keywords = EnsureKeywords();
             var factions = EnsureFactions();
             EnsureFieldCommander(factions[0], keywords);
+            EnsureDragonHierarch(factions[1], keywords);
+            EnsureDragonbornSquad(factions[1], keywords);
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             AssetDatabase.SaveAssets();
@@ -399,6 +688,8 @@ namespace Eldoria.EditorTools
             Kw("SniperPrecision", "Sniper Precision", KeywordTarget.Soldier,
                 "When this soldier shoots, the player picks the specific enemy soldier they target instead of the closest one.");
             Kw("Deployed", "Deployed", KeywordTarget.Weapon, "This weapon can't be used in a volley if the soldier holding it has moved this turn.");
+            Kw("Large", "Large", KeywordTarget.Soldier, "A very large creature. No effect on its own yet; other rules can check for it.");
+            Kw("Natural", "Natural", KeywordTarget.Weapon, "A natural weapon (claws, teeth...): can't be disabled by Disarm.");
             Kw("InCloseRange", "In close range", KeywordTarget.Soldier,
                 "A Biological enemy is less than 2 m away: can only use weapons with the Pistol keyword (spells and other abilities still work).");
             GetOrCreate<Keyword>($"{DataDir}/Keywords/DivineSanctuary.asset", k =>
@@ -441,7 +732,8 @@ namespace Eldoria.EditorTools
                 ["Biological"] = KeywordCategory.Trait, ["Robotic"] = KeywordCategory.Trait,
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
                 ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait,
-                ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Melee"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Melee"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait,
+                ["Large"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,

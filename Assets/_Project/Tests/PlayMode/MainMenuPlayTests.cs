@@ -12,8 +12,8 @@ namespace Eldoria.Tests
 {
     /// <summary>
     /// The main menu: the first scene; Play chooses a map then opens the army builder; a valid army starts a game against
-    /// an AI army; back to the menu. So far only the ISF can field an army (it has the only Commander), so the AI fields
-    /// the ISF too.
+    /// an AI army; back to the menu. So far the ISF and the Draconis Imperialis can field armies (the Rask have no units),
+    /// so the AI fields one of those two.
     /// </summary>
     public class MainMenuPlayTests
     {
@@ -33,12 +33,12 @@ namespace Eldoria.Tests
         private static Faction Isf => UnitCatalog.Load().Factions.First();
 
         [Test]
-        public void OnlyTheIsfCanFieldAnArmySoFar()
+        public void TheIsfAndTheDraconisImperialisCanFieldArmiesSoFar()
         {
             var catalog = UnitCatalog.Load();
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[] { "International Space Force of Humanity", "Imperial Army of The Draconis Imperialis", "Most Holy Army of The Rask Divine Collective" }));
             Assert.That(ArmyBuilderScreen.CatalogCanFieldArmies(catalog), Is.True);
-            Assert.That(catalog.Factions.Select(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(new[] { true, false, false }));
+            Assert.That(catalog.Factions.Select(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(new[] { true, true, false }));
         }
 
         [UnityTest]
@@ -55,7 +55,8 @@ namespace Eldoria.Tests
             Assert.That(menu.Builder.Faction, Is.Null, "a faction is chosen first");
             Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
             Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("3 units available"));
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("no units yet"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("2 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("no units yet"));
 
             menu.Builder.ChooseFaction(Isf);
             yield return null;   // draws the unit list
@@ -105,7 +106,8 @@ namespace Eldoria.Tests
             Assert.That(controller.PlayerUnits.Select(u => u.DisplayName), Is.EqualTo(new[]
                 { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team 1", "Heavy Weapons Team 2" }));
             Assert.That(ArmySelection.PlayerFaction, Is.SameAs(Isf));
-            Assert.That(ArmySelection.AIFaction, Is.SameAs(Isf), "the only faction that can field an army");
+            var catalog = UnitCatalog.Load();
+            Assert.That(ArmyBuilderScreen.FactionCanFieldArmy(catalog, ArmySelection.AIFaction), Is.True, "the AI picks a faction that can field an army");
             Assert.That(ArmyRules.IsValid(ArmySelection.AIArmy, ArmySelection.AIFaction), Is.True, "the AI's army follows the same rules");
             Assert.That(ArmySelection.AIArmy.Count, Is.EqualTo(6), "the AI fills every slot");
             var aiUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).Where(u => u.Side == Side.AI).ToList();

@@ -1,8 +1,8 @@
 # Eldoria Ground Invasion
 
-> **A fork of Eldoria with its first three factions. The International Space Force of Humanity is playable**, with a
-> Field Commander, the ISF Rifle Squad and the Heavy Weapons Team; the Draconis Imperialis and the Rask have no units
-> yet, so for now every battle is ISF against ISF. Every game system is here (army lists and factions, movement,
+> **A fork of Eldoria with its first three factions. Two are playable:** the International Space Force of Humanity
+> (Field Commander, ISF Rifle Squad, Heavy Weapons Team) and the Imperial Army of The Draconis Imperialis (Dragon
+> Hierarch, Dragonborn Squad). The Rask have no units yet. Every game system is here (army lists and factions, movement,
 > terrain and cover, shooting, keywords, abilities, the AI, multiplayer, both maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
@@ -123,13 +123,16 @@ Inspector.
 | Unit | Faction | Role | Made of |
 |---|---|---|---|
 | **Field Commander** | International Space Force of Humanity | Commander | Field Commander (Health 10, Armor 2, Pistol, Lead from the front) |
+| **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) |
+| **Dragonborn Squad** | Imperial Army of The Draconis Imperialis | Infantry | Dragonborn Sergeant + 4 Dragonborn Footmen (Health 10, Armor 2; Dragon Glaive: a 20 m rifle and a 2 m Melee blade) |
 | **ISF Rifle Squad** | International Space Force of Humanity | Infantry | ISF Rifleman Sergeant + 9 ISF Riflemen (Armor 2, Assault Rifles, Frag Grenade) |
 | **Heavy Weapons Team** | International Space Force of Humanity | Heavy Support | ISF Rifleman Sergeant (Pistol) + 3 ISF Riflemen (Assault Rifles) + ISF Heavy Weapons (Machine Gun, Rocket Launcher or Flamethrower); Armor 2 |
 
 A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
 them (and add each unit to its faction's unit list). They're created in code
-(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
+(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureDragonHierarch`,
+`EnsureDragonbornSquad`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
 Specialist.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,

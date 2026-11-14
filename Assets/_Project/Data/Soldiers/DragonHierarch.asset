@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c831d2daf4333a42b1b9b15f92f56c6, type: 3}
+  m_Name: DragonHierarch
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
+  displayName: Dragon Hierarch
+  prefab: {fileID: 3211116163337806651, guid: f694fed14c40b86489462246f667a63d, type: 3}
+  health: 15
+  armorLevel: 2
+  accuracy: 50
+  movementRange: 30
+  keywords:
+  - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+  - {fileID: 11400000, guid: 1de16ca3815795b4e81ea85717adb4cd, type: 2}
+  abilities: []
+  weapons:
+  - {fileID: 11400000, guid: 04ddc7035c430494abb411e60d6e1d7e, type: 2}
+  primaryWeapon: {fileID: 11400000, guid: 04ddc7035c430494abb411e60d6e1d7e, type: 2}
+  radius: 1
+  height: 3.6
+  weaponOptions: []
+  equipmentOptions: []
