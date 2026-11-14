@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SniperRifle
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.WeaponTemplate
   displayName: Sniper Rifle
-  baseDamage: 5
+  baseDamage: 10
   shots: 1
   hasPenetration: 1
   penetration: 1

@@ -28,7 +28,7 @@ namespace Eldoria.Tests
         {
             var sniper = Load("SniperRifle");
             Assert.That(sniper.displayName, Is.EqualTo("Sniper Rifle"));
-            Assert.That((sniper.baseDamage, sniper.PenetrationValue, sniper.accuracyBonus, sniper.range), Is.EqualTo((5, (int?)1, 50, 50f)));
+            Assert.That((sniper.baseDamage, sniper.PenetrationValue, sniper.accuracyBonus, sniper.range), Is.EqualTo((10, (int?)1, 50, 50f)), "Damage 10 (raised from the original Eldoria's 5)");
             Assert.That(sniper.keywords.Count, Is.EqualTo(1));
             Assert.That(sniper.HasKeyword("Deployed"), Is.True);
         }

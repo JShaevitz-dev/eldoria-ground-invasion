@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Eldoria Ground Invasion) has its first three factions. Two can field armies:** the ISF (Field
-> Commander, ISF Rifle Squad, Heavy Weapons Team, ISF Ranger) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad). The Rask have no units yet. The game
+> Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, ISF Ranger) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad). The Rask have no units yet. The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -62,7 +62,7 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 |---|---|
 | **Infantry** | ISF Rifle Squad, Dragonborn Squad |
 | **Commander** | Field Commander, Dragon Hierarch |
-| **Heavy Support** | Heavy Weapons Team |
+| **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT |
 | **Specialist** | ISF Ranger |
 
 ### Factions — *implemented*
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team and the ISF Ranger, and the Draconis Imperialis has the Dragon Hierarch and the Dragonborn Squad, so both can field armies (the AI picks one of them); the Rask have no units yet.
+So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT and the ISF Ranger, and the Draconis Imperialis has the Dragon Hierarch and the Dragonborn Squad, so both can field armies (the AI picks one of them); the Rask have no units yet.
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -108,11 +108,39 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 - **A swapped weapon replaces the original**; if it was the primary weapon, the new one is the primary.
 - **Equipment** can give **keywords**, **abilities**, **extra weapons** (carried as well, not as the primary) and **stat changes** (Health, Armor Level, Accuracy, Movement; added to the soldier's own). The list shows a short summary of a unit's choices.
 - Choices are kept with your last army, and applied when your army deploys. The AI's armies don't customize.
-- *So far only the ISF Heavy Weapons has an option (Machine Gun → Rocket Launcher or Flamethrower); options are set on each soldier's data (Weapon Options, Equipment Options).*
+- *So far only the ISF Heavy Weapons (Machine Gun → Rocket Launcher or Flamethrower) and the ISF Ranger (Sniper Rifle → Anti-Materiel Rifle or Shotgun) have options; options are set on each soldier's data (Weapon Options, Equipment Options).*
 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
 **Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
+
+### Mortar Team
+
+*International Space Force of Humanity · Heavy Support.* 1 **ISF Mortar Specialist** (leader) + 1 **ISF Rifleman**.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
+|---|---|---|---|---|---|---|---|
+| ISF Mortar Specialist | 5 | 2 | 75% | 10 m | Biological | Mortar Launcher (primary), Assault Rifle | — |
+| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade |
+
+- **Mortar Launcher:** Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; **Deployed** (can't fire after moving that turn), **Manual Load** (fires once a turn), **Explosive**. It fires at one soldier, like a rifle (no blast).
+- After the Specialist moves, the mortar can't fire, so they shoot with the **Assault Rifle** instead.
+- The ISF Rifleman is the same soldier as in the ISF Rifle Squad, so the team has that unit's **Frag Grenade** (once per battle).
+- Heavy Support, so an army can take more than one.
+
+### Sagittarius MBT
+
+*International Space Force of Humanity · Heavy Support.* The original Eldoria's Medium Tank, renamed. One vehicle.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Ability |
+|---|---|---|---|---|---|---|---|
+| Sagittarius MBT | 20 | 4 | 75% | 30 m (can't sprint) | Mechanical, Tank, Unstable | 100mm Cannon | Frag Grenade (every turn) |
+
+- **100mm Cannon:** Damage 10, Shots 1, Penetration 4, Range 50 m, **Manual Load** (fires once a turn).
+- **Mechanical:** can't sprint and is never in close range. **Unstable:** when destroyed, a 10% chance to explode (5 damage to every soldier within 5 m).
+- **Frag Grenade:** like the Rifle Squad's, but with no once-per-battle limit (once a turn).
+- **Wide body:** it stands on a circle of 1.8 m radius, so its route needs room for the hull the whole way.
+- Heavy Support, so an army can take more than one.
 
 ### ISF Ranger
 
@@ -120,9 +148,14 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
 |---|---|---|---|---|---|---|
-| ISF Ranger | 5 | 1 | 100% | 15 m | Biological, Sniper Precision, Solo | Sniper Rifle |
+| ISF Ranger | 5 | 1 | 100% | 15 m | Biological, Sniper Precision, Solo | Sniper Rifle, *or* Anti-Materiel Rifle, *or* Shotgun |
 
-- **Sniper Rifle:** Damage 5, Shots 1, Penetration 1, **+50% accuracy**, Range 50 m, **Deployed** (can't fire after moving that turn).
+- **Chromashift Textiles** (passive ability): **attacks against the Ranger take −25% accuracy.** It gives the Ranger the **Chromashift** status (a keyword whose effect, when defending, is −25% to the attacker's accuracy), the same way cover works; it adds to any cover penalty, and Indirect fire ignores it like every accuracy modifier. Only the Ranger itself has it, not soldiers near it.
+
+- **Sniper Rifle:** **Damage 10** (raised from the original Eldoria's 5), Shots 1, Penetration 1, **+50% accuracy**, Range 50 m, **Deployed** (can't fire after moving that turn).
+- **Weapon options:** in the army builder (**Customize**), the ISF Ranger can swap the Sniper Rifle for either:
+  - an **Anti-Materiel Rifle**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed**. It trades the Sniper Rifle's +50% aim for damage that armor can't stop;
+  - a **Shotgun**: Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords (so it can fire after moving, but not in close range).
 - **Sniper Precision:** when the Ranger shoots, the player picks the exact enemy soldier to target (the AI prefers Solo soldiers and sergeants).
 - A Specialist and a Solo unit: one per army.
 
@@ -203,6 +236,9 @@ Before a battle, the player chooses the **map** (Boxed in or Open Season), then 
 Each unit is a Unit template (Data/Units) made of Soldier templates (Data/Soldiers). Kept from the original Eldoria:
 
 - **Weapons** (Data/Weapons): Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon, Rocket Launcher, Broadsword, Iron Claw.
+- **Mortar Launcher** (carried by the ISF Mortar Team): the Frag Grenade weapon's stats with **Penetration 3**, **Range 50 m** and the keywords **Deployed** (can't fire after moving that turn), **Manual Load** (fires once a turn) and **Explosive** (like the grenade): Damage 5, Shots 1, +0% accuracy. It's a weapon fired at a soldier like any other: it doesn't have the Frag Grenade ability's 2.5 m blast.
+- **Shotgun** (an option for the ISF Ranger): Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords.
+- **Anti-Materiel Rifle** (an option for the ISF Ranger): the Sniper Rifle's stats but **Damage 10**, **no penetration value** and **no accuracy bonus**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed**.
 - **Abilities** (Data/Abilities): Frag Grenade (once per battle) and a tank's Frag Grenade (every turn), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
 - **Placeholder models** (Prefabs/Units) for soldiers, officers, powered armor, a tank and a walker.
 
@@ -223,7 +259,7 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 - **Large** (soldier, Trait): a very large creature, e.g. the Dragon Hierarch. No effect on its own yet; other rules can check for it.
 - **Natural** (weapon, Trait): a natural weapon such as claws or teeth, which **can't be disabled by Disarm**. *Disarm isn't in the game yet, so for now it has no effect.*
 
-Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Natural) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front).
+Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Natural) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front, Chromashift).
 
 - Some traits **do nothing on their own**: **Officer** and **Solo** only matter because other weapons and abilities check for them (e.g. something that only affects Officers, or has no effect on Solo soldiers) — done with keyword interactions such as *"if the target has / lacks Officer → …"*.
 

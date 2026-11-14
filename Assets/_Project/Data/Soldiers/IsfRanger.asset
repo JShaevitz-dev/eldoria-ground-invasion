@@ -22,11 +22,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
   - {fileID: 11400000, guid: e1424d6bea58765409abd35e1189ad26, type: 2}
   - {fileID: 11400000, guid: 22da05080ef4f7647937e5e7cc999c21, type: 2}
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: 8d19d781cc0a2194fbb38d670e2f2f04, type: 2}
   weapons:
   - {fileID: 11400000, guid: fefcae6d18698c245b4296dfd851b1f1, type: 2}
   primaryWeapon: {fileID: 11400000, guid: fefcae6d18698c245b4296dfd851b1f1, type: 2}
   radius: 0.35
   height: 1.8
-  weaponOptions: []
+  weaponOptions:
+  - weapon: {fileID: 11400000, guid: fefcae6d18698c245b4296dfd851b1f1, type: 2}
+    alternatives:
+    - {fileID: 11400000, guid: a4d460b7150f8b441943ecafe2ad55c2, type: 2}
+    - {fileID: 11400000, guid: 9215d9feea2bc9b4bb52390e3d4bae87, type: 2}
   equipmentOptions: []

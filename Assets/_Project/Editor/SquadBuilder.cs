@@ -209,36 +209,187 @@ namespace Eldoria.EditorTools
         }
 
         /// <summary>
+        /// Mortar Launcher: the Frag Grenade weapon's stats (Damage 5, Shots 1, +0%, Explosive), but Penetration 3, Range
+        /// 50 m, and Deployed and Manual Load too. A weapon fired at a soldier like any other: the grenade's 2.5 m blast comes
+        /// from the Frag Grenade ability, not its weapon. Carried by the ISF Mortar Team's Mortar Specialist.
+        /// </summary>
+        public static WeaponTemplate EnsureMortarLauncher(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/MortarLauncher.asset", w =>
+            {
+                w.displayName = "Mortar Launcher";
+                w.baseDamage = 5; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 3;
+                w.accuracyBonus = 0;
+                w.range = 50f;
+                w.keywords = new List<Keyword> { keywords["Deployed"], keywords["Manual Load"], keywords["Explosive"] };
+            });
+        }
+
+        /// <summary>
+        /// Mortar Team (Heavy Support, ISF): 1 ISF Mortar Specialist (leader; the ISF Rifleman's stats: Health 5, Armor 2,
+        /// Accuracy 75%, Move 10 m, Biological; Mortar Launcher (primary) and Assault Rifle) + 1 ISF Rifleman (the ISF Rifle
+        /// Squad's: Assault Rifle, Frag Grenade). Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureMortarTeam(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            var mortar = EnsureMortarLauncher(keywords);
+            var rifleman = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/IsfRifleman.asset");
+            var specialist = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfMortarSpecialist.asset", s =>
+            {
+                s.displayName = "ISF Mortar Specialist";
+                s.health = 5; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { keywords["Biological"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate> { mortar, rifle };
+                s.primaryWeapon = mortar;   // the Assault Rifle when the mortar can't fire (after moving, or already fired)
+                s.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/RocketTrooper.prefab");
+            });
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/MortarTeam.asset", u =>
+            {
+                u.displayName = "Mortar Team";
+                u.role = UnitRole.HeavySupport;
+                u.leader = specialist;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 1 } };
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Anti-Materiel Rifle: the Sniper Rifle's stats (Damage 10), but no penetration value ("X": always full damage,
+        /// whatever the armor) and no accuracy bonus. Damage 10, Shots 1, Penetration X, +0%, Range 50 m; Deployed. The ISF
+        /// Ranger can swap its Sniper Rifle for it.
+        /// </summary>
+        /// <summary>Shotgun: Damage 10, Shots 1, Penetration 1, Accuracy Bonus 0, Range 10 m; no keywords. The ISF Ranger can
+        /// swap its Sniper Rifle for it.</summary>
+        public static WeaponTemplate EnsureShotgun()
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/Shotgun.asset", w =>
+            {
+                w.displayName = "Shotgun";
+                w.baseDamage = 10; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 1;
+                w.accuracyBonus = 0;
+                w.range = 10f;
+                w.keywords = new List<Keyword>();
+            });
+        }
+
+        public static WeaponTemplate EnsureAntiMaterielRifle(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/AntiMaterielRifle.asset", w =>
+            {
+                w.displayName = "Anti-Materiel Rifle";
+                w.baseDamage = 10; w.shots = 1;
+                w.hasPenetration = false; w.penetration = 0;
+                w.accuracyBonus = 0;
+                w.range = 50f;
+                w.keywords = new List<Keyword> { keywords["Deployed"] };
+            });
+        }
+
+        /// <summary>
         /// ISF Ranger (Specialist, ISF), the original Eldoria's Sniper renamed, with Armor 1: 1 ISF Ranger (Health 5, Armor 1, Accuracy
-        /// 100%, Move 15 m; Biological, Sniper Precision, Solo; Sniper Rifle: Damage 5, Shots 1, Penetration 1, +50%
-        /// accuracy, 50 m, Deployed). Existing assets keep their Inspector edits.
+        /// 100%, Move 15 m; Biological, Sniper Precision, Solo; Sniper Rifle: Damage 10, Shots 1, Penetration 1, +50%
+        /// accuracy, 50 m, Deployed; can swap it for the Anti-Materiel Rifle or the Shotgun); Chromashift Textiles (passive: attacks against
+        /// it take -25% accuracy). Existing assets keep their Inspector edits.
         /// </summary>
         public static UnitTemplate EnsureIsfRanger(Faction faction, Dictionary<string, Keyword> keywords)
         {
             EnsureFolder(DataDir, "Soldiers");
             EnsureFolder(DataDir, "Units");
             var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/SniperRifle.asset");
+            var amr = EnsureAntiMaterielRifle(keywords);
+            var shotgun = EnsureShotgun();
+            EnsureFolder(DataDir, "Abilities");
+            var chromashift = GetOrCreate<Ability>($"{DataDir}/Abilities/ChromashiftTextiles.asset", a =>
+            {
+                a.displayName = "Chromashift Textiles";
+                a.description = "Passive. Attacks against this soldier take −25% accuracy.";
+                a.kind = AbilityKind.Passive;
+                a.grantsNearby = keywords["Chromashift"];
+                a.radius = 0f;               // the wearer only
+                a.affects = AuraAffects.Allies;
+                a.includeSelf = true;
+            });
             var ranger = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfRanger.asset", s =>
             {
                 s.displayName = "ISF Ranger";
                 s.health = 5; s.armorLevel = 1; s.accuracy = 100; s.movementRange = 15f;
                 s.keywords = new List<Keyword> { keywords["Biological"], keywords["Sniper Precision"], keywords["Solo"] };
-                s.abilities = new List<Ability>();
+                s.abilities = new List<Ability> { chromashift };
                 s.weapons = new List<WeaponTemplate> { rifle };
                 s.primaryWeapon = rifle;
+                s.weaponOptions = new List<WeaponOption> { new WeaponOption { weapon = rifle, alternatives = new List<WeaponTemplate> { amr, shotgun } } };
                 s.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/Sniper.prefab");
+            }, s =>
+            {
+                // Added later: an existing Ranger gets Chromashift Textiles too (once).
+                if (!s.abilities.Contains(chromashift)) s.abilities.Add(chromashift);
+                // Added later: the Shotgun as another choice for the Sniper Rifle (once).
+                var option = s.weaponOptions.FirstOrDefault(o => o != null && o.weapon == rifle);
+                if (option != null && !option.alternatives.Contains(shotgun)) option.alternatives.Add(shotgun);
             });
             var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/IsfRanger.asset", u =>
             {
                 u.displayName = "ISF Ranger";
                 u.role = UnitRole.Specialist;
-                u.description = "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, " +
-                    "with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing " +
-                    "sergeants and officers. The Sniper Rifle can't fire after moving, and with 5 health and only light armor the Ranger " +
-                    "must stay out of sight; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo " +
-                    "unit: one per army.";
+                u.description = "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. Or swap the Sniper Rifle for an Anti-Materiel Rifle (10 damage that ignores armor, but without the +50% aim) or a Shotgun (10 damage up close, out to 10 m, and it can fire after moving). The two rifles can't fire after moving, and with 5 health and only light armor the Ranger must stay out of sight, though its Chromashift Textiles give anyone aiming at it -25% accuracy; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit: one per army.";
                 u.leader = ranger;
                 u.members = new List<UnitTemplate.Member>();
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Sagittarius MBT (Heavy Support, ISF), the original Eldoria's Medium Tank renamed: 1 Sagittarius MBT (Health 20,
+        /// Armor 4, Accuracy 75%, Move 30 m; Mechanical (can't sprint), Tank, Unstable; Frag Grenade usable every turn;
+        /// 100mm Cannon: Damage 10, Shots 1, Penetration 4, 50 m, Manual Load). A wide body (radius 1.8 m). Existing assets
+        /// keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureSagittariusMbt(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var cannon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Cannon100mm.asset");
+            var grenade = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/TankFragGrenade.asset");
+            var tank = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/SagittariusMbt.asset", s =>
+            {
+                s.displayName = "Sagittarius MBT";
+                s.health = 20; s.armorLevel = 4; s.accuracy = 75; s.movementRange = 30f;
+                s.keywords = new List<Keyword> { keywords["Mechanical"], keywords["Tank"], keywords["Unstable"] };
+                s.abilities = new List<Ability> { grenade };
+                s.weapons = new List<WeaponTemplate> { cannon };
+                s.primaryWeapon = cannon;
+                s.radius = 1.8f;
+                s.height = 2.3f;
+                s.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/MediumTank.prefab");
+            });
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/SagittariusMbt.asset", u =>
+            {
+                u.displayName = "Sagittarius MBT";
+                u.role = UnitRole.HeavySupport;
+                u.description = "A lone armored vehicle and the hardest target on the field: 20 health and Armor Level 4 shrug off rifles, machine guns, grenades and flamethrowers alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) is the only weapon that hurts heavy armor, but it's Manual Load: one shot a turn. It moves a long way (30 m) but, being Mechanical, can't sprint. When destroyed it has a 10% chance to explode (Unstable), so keep your own soldiers clear of it. Heavy Support, so you can field more than one.";
+                u.leader = tank;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 2f;
             });
             if (!faction.units.Contains(unit))
             {
@@ -546,6 +697,8 @@ namespace Eldoria.EditorTools
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             EnsureIsfRanger(factions[0], keywords);
+            EnsureMortarTeam(factions[0], keywords);   // after the ISF Rifle Squad: it uses its ISF Rifleman
+            EnsureSagittariusMbt(factions[0], keywords);
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
             AssetDatabase.SaveAssets();
@@ -752,6 +905,20 @@ namespace Eldoria.EditorTools
                 k.sparkles = true;
                 k.sparkleColor = new Color(1f, 0.82f, 0.25f, 1f);
             });
+            GetOrCreate<Keyword>($"{DataDir}/Keywords/Chromashift.asset", k =>
+            {
+                k.displayName = "Chromashift";
+                k.appliesTo = KeywordTarget.Soldier;
+                k.description = "Wearing chromashift textiles (the ISF Ranger's Chromashift Textiles): attacks against this soldier take −25% accuracy.";
+                k.interactions = new List<KeywordInteraction>
+                {
+                    new KeywordInteraction
+                    {
+                        role = KeywordRole.WhenDefending, party = KeywordParty.Target, condition = KeywordCondition.Always,
+                        effect = KeywordEffect.AccuracyPenalty, amount = 25
+                    }
+                };
+            });
             GetOrCreate<Keyword>($"{DataDir}/Keywords/LedFromTheFront.asset", k =>
             {
                 k.displayName = "Led from the front";
@@ -778,6 +945,7 @@ namespace Eldoria.EditorTools
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,
+                ["Chromashift"] = KeywordCategory.Status,
             };
             foreach (var guid in AssetDatabase.FindAssets("t:Keyword", new[] { $"{DataDir}/Keywords" }))
             {
