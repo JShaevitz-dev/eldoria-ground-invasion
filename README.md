@@ -1,8 +1,8 @@
 # Eldoria Ground Invasion
 
-> **A fork of Eldoria with its first three factions. Two are playable:** the International Space Force of Humanity
-> (Field Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team) and the Imperial Army of The Draconis Imperialis (Dragon
-> Hierarch, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank). The Rask have the Rask Ultima (Commander), the Rask Rifle Team, the Stinger Heavy Robot and the Intimidator Medium Robot. Every game system is here (army lists and factions, movement,
+> **A fork of Eldoria with its first three factions, all three playable:** the International Space Force of Humanity
+> (Field Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team), the Imperial Army of The Draconis Imperialis (Dragon
+> Hierarch, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot). Every game system is here (army lists and factions, movement,
 > terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the three maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
@@ -126,6 +126,8 @@ Inspector.
 | Unit | Faction | Role | Made of |
 |---|---|---|---|
 | **Field Commander** | International Space Force of Humanity | Commander | Field Commander (Health 10, Armor 2, Pistol, Lead from the front) |
+| **Marshal Command Tank** | International Space Force of Humanity | Commander | Marshal Command Tank (the Sagittarius MBT's stats plus Officer: Health 20, Armor 4, Move 30; 100mm Cannon; Frag Grenade every turn; the Sagittarius model with antennae and a satellite dish) |
+| **Master Sergeant Jakoby** | International Space Force of Humanity | Commander | Master Sergeant Jakoby (the Field Commander's stats without Lead from the front; Shotgun; two Frag Grenades as standard, so two throws a battle; wears a beret) |
 | **Mortar Team** | International Space Force of Humanity | Heavy Support | ISF Mortar Specialist (Mortar Launcher, Assault Rifle) + ISF Rifleman; Armor 2 |
 | **Sagittarius MBT** | International Space Force of Humanity | Heavy Support | Sagittarius MBT (the original Eldoria's Medium Tank: Health 20, Armor 4, 100mm Cannon) |
 | **Olympian Mech** | International Space Force of Humanity | Heavy Support | Olympian Mech (the original Eldoria's Stahl Colossus: Health 15, Armor 3, Machine Gun, Iron Claw, Stabilizers) |
@@ -146,7 +148,7 @@ Inspector.
 A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
 them (and add each unit to its faction's unit list). They're created in code
-(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureIsfBoardingTeam`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
+(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureIsfBoardingTeam`, `EnsureMasterSergeantJakoby`, `EnsureMarshalCommandTank`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
 `EnsureDragonbornSquad`, `EnsureDragonbornSkymasterSquad`, `EnsureTyrantHoverTank`, `EnsureKoboldMilitia`, `EnsureRaskUltima`, `EnsureRaskRifleTeam`, `EnsureStingerHeavyRobot`, `EnsureIntimidatorMediumRobot`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
 Specialist.
 

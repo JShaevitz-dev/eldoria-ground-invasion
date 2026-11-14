@@ -23,5 +23,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 93d5a17332351344d82a35b9e1b489b4, type: 2}
   - {fileID: 11400000, guid: 702f186c99aeeba41832b9e2bdf90835, type: 2}
   - {fileID: 11400000, guid: 5be3f61c5d4a04d43a8e35489663dfca, type: 2}
+  - {fileID: 11400000, guid: 26030f4b03a151041a4e81d1a3cc55c3, type: 2}
+  - {fileID: 11400000, guid: e6a76dbc4ac60ca4ab2fc0acaddf7737, type: 2}
   weaponAdjustments: []
   weaponNames: []

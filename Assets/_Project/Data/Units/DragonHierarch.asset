@@ -14,7 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Dragon Hierarch
   role: 1
-  description: 
+  description: 'A Dragon of the Empire''s ruling caste, escorted by two Dragonborn
+    Honorguard. The Hierarch is a huge winged dragon (15 health, Armor Level 2) that
+    moves 30 m (60 m sprinting) and fights with its Dragon Claw (5 damage, penetration
+    1, 2 m), so it must get right up to the enemy to strike. Its Honorguard are elite
+    Dragonborn (10 health, Armor Level 2, 95% accuracy) with Dragon Glaives: a rifle
+    out to 20 m, and a blade (5 damage, penetration 2, +25% accuracy) when an enemy
+    is within 2 m. However far the dragon moves, the Honorguard follow it, ending
+    within 5 m. A Commander: every army needs exactly one.'
   leader: {fileID: 11400000, guid: c5061a10a406acf44928a759878631b6, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: c51b10c4e09a0a549870096ba85736c2, type: 2}

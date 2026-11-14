@@ -2,8 +2,8 @@
 
 Living record of the rules decided so far. **Status** shows what the code does today.
 
-> **This fork (Eldoria Ground Invasion) has its first three factions. Two can field armies:** the ISF (Field
-> Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank). The Rask have the Rask Ultima (Commander), the Rask Rifle Team, the Stinger Heavy Robot and the Intimidator Medium Robot. The game
+> **This fork (Eldoria Ground Invasion) has its first three factions, and all three can field armies:** the ISF (Field
+> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team), the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot). The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -61,7 +61,7 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 | Role | Units |
 |---|---|
 | **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia, Rask Rifle Team |
-| **Commander** | Field Commander, Dragon Hierarch, Rask Ultima |
+| **Commander** | Field Commander, Master Sergeant Jakoby, Marshal Command Tank, Dragon Hierarch, Rask Ultima |
 | **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, Stinger Heavy Robot, Tyrant Hover-tank, Intimidator Medium Robot |
 | **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad |
 
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger and the ISF Boarding Team, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad and the Tyrant Hover-tank, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot and the Intimidator Medium Robot, so all three can field armies (the AI picks one of them).
+So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger and the ISF Boarding Team, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad and the Tyrant Hover-tank, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot and the Intimidator Medium Robot, so all three can field armies (the AI picks one of them).
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -113,7 +113,8 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - **Standard equipment:** a soldier type can also carry equipment **as standard** (Equipment, on the soldier's data), always applied, without any army builder choice. Its stat changes are included in the unit's stats in the army builder.
 - **Equipment in the game** (Data/Equipment); no soldier type offers either as an army builder choice yet:
   - **Combat Shield:** adds **1** to the soldier's Armor Level. Carried as standard by the ISF Boarding Team.
-  - **Frag Grenade:** gives the active ability **Frag Grenade** (thrown once per battle; 2.5 m blast).
+  - **Frag Grenade:** gives the active ability **Frag Grenade** (thrown once per battle; 2.5 m blast). Carried twice as standard by Master Sergeant Jakoby.
+- **Duplicate equipment stacks:** each copy a soldier carries counts. For an ability limited per battle, each copy (and the soldier type's own ability, if it has it) adds that many uses: two Frag Grenades give **two throws** a battle.
 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
@@ -323,6 +324,30 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 - **Lead from the front** (passive aura): other friendly soldiers within 15 m gain **Led from the front**, +15% accuracy when attacking. The Field Commander doesn't benefit.
 - The ISF's only Commander so far, and what lets the ISF field an army.
+
+### Master Sergeant Jakoby
+
+*International Space Force of Humanity · Commander.* One soldier: a veteran ISF Master Sergeant in a beret, with a shotgun and two frag grenades on his belt. The Field Commander's stats, but **without Lead from the front**.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment | Abilities |
+|---|---|---|---|---|---|---|---|---|
+| Master Sergeant Jakoby | 10 | 2 | 75% | 10 m (sprint 20 m) | Biological, Officer, Solo | Shotgun | Frag Grenade ×2 | Frag Grenade (**2× per battle**) |
+
+- **Shotgun:** Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m.
+- **Two Frag Grenades:** each gives the Frag Grenade ability's use, so he can throw **two** a battle.
+- One of the ISF's three Commanders: an ISF army takes him, the Field Commander or the Marshal Command Tank.
+
+### Marshal Command Tank
+
+*International Space Force of Humanity · Commander.* One soldier: a Sagittarius MBT refitted as a mobile headquarters, with two antennae and a satellite dish on the turret. The Sagittarius MBT's stats plus the **Officer** keyword.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Abilities |
+|---|---|---|---|---|---|---|---|
+| Marshal Command Tank | 20 | 4 | 75% | 30 m (can't sprint) | Mechanical, Tank, Unstable, Officer | 100mm Cannon | Frag Grenade (every turn) |
+
+- **100mm Cannon:** Damage 10, Shots 1, Penetration 4, Range 50 m; Manual Load.
+- Like the Sagittarius: **Mechanical** (can't sprint, never in close range), **Unstable** (a 10% chance to explode when destroyed), radius 1.8 m.
+- The ISF's third Commander: an ISF army takes one of the Field Commander, Master Sergeant Jakoby or the Marshal Command Tank.
 
 ### ISF Rifle Squad
 

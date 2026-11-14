@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: ISF Rifle Squad
   role: 0
-  description: 
+  description: "The backbone of the ISF: an ISF Rifleman Sergeant and nine ISF Riflemen (5 health, Armor Level 2, 75% accuracy). Every soldier carries an Assault Rifle (4 damage, penetration 1, 20 m), and the Sergeant a Pistol as well. Once a battle the squad can throw a Frag Grenade (a 2.5 m blast, thrown up to 10 m; 5 damage, penetration 0, so it only hurts lightly armored soldiers). Ten soldiers take a lot of killing, but at 10 m a move the squad is best at holding ground and trading fire. Infantry can be taken more than once."
   leader: {fileID: 11400000, guid: 9006d4f533386c043a1beeacbd4ab561, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: 9d323bbbd7983b1469104574e81ce003, type: 2}

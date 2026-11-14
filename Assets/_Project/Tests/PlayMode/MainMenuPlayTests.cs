@@ -54,13 +54,13 @@ namespace Eldoria.Tests
             Assert.That(menu.Builder.CanFieldArmies, Is.True);
             Assert.That(menu.Builder.Faction, Is.Null, "a faction is chosen first");
             Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("8 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("10 units available"));
             Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("5 units available"));
             Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("4 units available"));
 
             menu.Builder.ChooseFaction(Isf);
             yield return null;   // draws the unit list
-            Assert.That(menu.Builder.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Field Commander", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "ISF Boarding Team", "ISF Ranger" }),
+            Assert.That(menu.Builder.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Field Commander", "Marshal Command Tank", "Master Sergeant Jakoby", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "ISF Boarding Team", "ISF Ranger" }),
                 "Commanders first, then Infantry, then Heavy Support, then Specialists");
             Assert.That(menu.Builder.Army, Is.Empty, "no demo army set yet: the list starts empty");
         }

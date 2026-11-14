@@ -85,6 +85,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "ISF Rifle Squad";
                 u.role = UnitRole.Infantry;
+                u.description = "The backbone of the ISF: an ISF Rifleman Sergeant and nine ISF Riflemen (5 health, Armor Level 2, 75% accuracy). Every soldier carries an Assault Rifle (4 damage, penetration 1, 20 m), and the Sergeant a Pistol as well. Once a battle the squad can throw a Frag Grenade (a 2.5 m blast, thrown up to 10 m; 5 damage, penetration 0, so it only hurts lightly armored soldiers). Ten soldiers take a lot of killing, but at 10 m a move the squad is best at holding ground and trading fire. Infantry can be taken more than once.";
                 u.leader = sergeant;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 9 } };
             });
@@ -253,6 +254,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Mortar Team";
                 u.role = UnitRole.HeavySupport;
+                u.description = "Two ISF soldiers with a portable mortar. The Mortar Specialist fires the Mortar Launcher (5 damage, penetration 3, 50 m, once a turn), which can't fire after moving, so set up first and shell targets from long range: penetration 3 cuts through infantry armor and still does half damage to Armor Level 4 tanks. Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can throw a Frag Grenade once a battle. With 5 health and Armor Level 2 each, keep them behind your lines. Heavy Support can be taken more than once.";
                 u.leader = specialist;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 1 } };
                 u.deploymentSpacing = 2f;
@@ -386,7 +388,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Sagittarius MBT";
                 u.role = UnitRole.HeavySupport;
-                u.description = "A lone armored vehicle and the hardest target on the field: 20 health and Armor Level 4 shrug off rifles, machine guns, grenades and flamethrowers alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) is the only weapon that hurts heavy armor, but it's Manual Load: one shot a turn. It moves a long way (30 m) but, being Mechanical, can't sprint. When destroyed it has a 10% chance to explode (Unstable), so keep your own soldiers clear of it. Heavy Support, so you can field more than one.";
+                u.description = "The ISF's main battle tank and one of the hardest targets on the field: 20 health and Armor Level 4 shrug off rifles, machine guns, grenades and flamethrowers alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) can crack other heavy armor, but it's Manual Load: one shot a turn. It can also throw a Frag Grenade every turn. It moves a long way (30 m) but, being Mechanical, can't sprint. When destroyed it has a 10% chance to explode (Unstable), so keep your own soldiers clear of it. Heavy Support, so you can field more than one.";
                 u.leader = tank;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 2f;
@@ -509,6 +511,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Dragon Hierarch";
                 u.role = UnitRole.Commander;
+                u.description = "A Dragon of the Empire's ruling caste, escorted by two Dragonborn Honorguard. The Hierarch is a huge winged dragon (15 health, Armor Level 2) that moves 30 m (60 m sprinting) and fights with its Dragon Claw (5 damage, penetration 1, 2 m), so it must get right up to the enemy to strike. Its Honorguard are elite Dragonborn (10 health, Armor Level 2, 95% accuracy) with Dragon Glaives: a rifle out to 20 m, and a blade (5 damage, penetration 2, +25% accuracy) when an enemy is within 2 m. However far the dragon moves, the Honorguard follow it, ending within 5 m. A Commander: every army needs exactly one.";
                 u.leader = dragon;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 4f;
@@ -632,7 +635,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Kobold Militia";
                 u.role = UnitRole.Infantry;
-                u.description = "Wingless anthropomorphic dragons standing at two-thirds the height of a human with fabric uniform and holding rifles";
+                u.description = "Wingless anthropomorphic dragons standing two-thirds the height of a human, in fabric uniforms and carrying rifles: a Kobold Sergeant and 19 Kobold Militiamen. Each is fragile (5 health, no armor, 50% accuracy), but there are twenty of them, they move 20 m (40 m sprinting), and Swarm lets them spread out up to 10 m from their Sergeant. Their Fang Casters (the Draconis name for the Assault Rifle: 4 damage, penetration 1, 20 m) add up to a lot of shots. Infantry can be taken more than once.";
                 u.leader = sergeantTemplate;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = militiaman, count = 19 } };
                 u.deploymentSpacing = 1.2f;
@@ -779,6 +782,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Dragonborn Squad";
                 u.role = UnitRole.Infantry;
+                u.description = "Five Dragonborn warriors, a Sergeant and four Footmen (10 health, Armor Level 2, 75% accuracy each), armed with Dragon Glaives: polearms with a rifle built into the head. They shoot out to 20 m (5 damage, penetration 1), and when an enemy comes within 2 m they switch to the blade (5 damage, penetration 2, +25% accuracy). Tough for infantry, but slow at 10 m a move. Infantry can be taken more than once.";
                 u.leader = sergeantTemplate;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = footman, count = 4 } };
                 u.deploymentSpacing = 2f;
@@ -848,7 +852,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Dragonborn Skymaster Squad";
                 u.role = UnitRole.Specialist;
-                u.description = "Dragonborn shock troops on jetpacks. They move 40 m (80 m sprinting) and their Jump Packs carry them onto rooftops, walls and crates at no extra cost, so they can strike anywhere on the field. Each fires Twin Raptor Pistols (2 shots, 4 damage, penetration 1, 20 m), pistols they can still use in close range. A Specialist: one per army.";
+                u.description = "Dragonborn shock troops on jetpacks: a Skylord and four Skymasters (10 health, Armor Level 2, 75% accuracy). They move 40 m (80 m sprinting), and their Jump Packs carry them onto walls, crates and anything else they can climb at no extra cost, so they can strike anywhere on the field. Each fires Twin Raptor Pistols (2 shots, 4 damage, penetration 1, 20 m), pistols they can still use in close range. A Specialist: one per army.";
                 u.leader = skylord;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = skymaster, count = 4 } };
                 u.deploymentSpacing = 2f;
@@ -910,7 +914,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Tyrant Hover-tank";
                 u.role = UnitRole.HeavySupport;
-                u.description = "A dagger-shaped Draconis hover-tank flown by a Kobold pilot. Its Tyrant Railgun (5 damage, penetration 7, 50 m, once a turn) punches through any armor in the game, and at 100% accuracy it rarely misses. It glides 30 m over hills, rivers and obstacles alike, as terrain can't slow it (Hover), but being Mechanical it can't sprint. With 15 health and Armor Level 4 it shrugs off small arms, and when destroyed it has a 10% chance to explode (Unstable). Heavy Support, so you can field more than one.";
+                u.description = "A dagger-shaped Draconis hover-tank flown by a Kobold pilot. Its Tyrant Railgun (5 damage, penetration 7, 50 m, once a turn) punches through any armor in the game for 150% damage, and it has 100% accuracy. It glides 30 m a move, and terrain can't slow it (Hover): hills, water and climbing onto obstacles cost it nothing extra, though it still has to go around anything that blocks its way. Being Mechanical it can't sprint. With 15 health and Armor Level 4 it shrugs off small arms, and when destroyed it has a 10% chance to explode (Unstable). Heavy Support, so you can field more than one.";
                 u.leader = tank;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 2f;
@@ -1163,6 +1167,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Rask Rifle Team";
                 u.role = UnitRole.Infantry;
+                u.description = "Twenty Rask riflemen, a Rask Superior and 19 Rask Riflemen: anthropomorphic rats in armor (5 health, Armor Level 1, 50% accuracy). Their Solntse Laser Rifles hit harder than other rifles (6 damage, penetration 1, 20 m). They move 20 m (40 m sprinting), and Swarm lets them spread out up to 10 m from their Superior. Infantry can be taken more than once.";
                 u.leader = superiorTemplate;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 19 } };
                 u.deploymentSpacing = 1.2f;
@@ -1205,6 +1210,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Rask Ultima";
                 u.role = UnitRole.Commander;
+                u.description = "The Rask's commander: a decorated Rask officer with a gold crest and a purple cape. With 10 health and Armor Level 2 the Ultima is sturdier than the Rask it leads, but carries only a Pistol (2 damage, penetration 0, 10 m) and, as a Solo unit, is a prime target. It moves 20 m (40 m sprinting). A Commander: every army needs exactly one.";
                 u.leader = ultima;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 1.2f;
@@ -1350,7 +1356,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Stinger Heavy Robot";
                 u.role = UnitRole.HeavySupport;
-                u.description = "The Rask's six-legged siege engine: a beetle-shaped war robot with 25 health and Armor Level 5, proof against almost everything but the heaviest guns. The Plasma Mortar on its back (5 damage, penetration 3, 50 m, once a turn) cracks armored targets at long range, and its Stabilizers let it fire even after moving. Mechanical: it strides 30 m but can't sprint. Heavy Support, so you can field more than one.";
+                u.description = "The Rask's six-legged siege engine: a heavily armored war robot with 25 health and Armor Level 5, proof against almost everything but the heaviest guns. The Plasma Mortar on its back (5 damage, penetration 3, 50 m, once a turn) shells targets at long range, and its Stabilizers let it fire even after moving. Mechanical: it strides 30 m but can't sprint. Heavy Support, so you can field more than one.";
                 u.leader = robot;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 5f;
@@ -1667,6 +1673,175 @@ namespace Eldoria.EditorTools
             return prefab;
         }
 
+        /// <summary>
+        /// Master Sergeant Jakoby (Commander, ISF): 1 Master Sergeant Jakoby with the Field Commander's stats (Health 10,
+        /// Armor 2, Accuracy 75%, Move 10 m; Biological, Officer, Solo) but without Lead from the front; a Shotgun, and two
+        /// Frag Grenades carried as standard equipment (two throws of the Frag Grenade ability a battle). The Field Commander
+        /// model with a beret in place of the cap, a shotgun and two grenades on the belt. Existing assets keep their
+        /// Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureMasterSergeantJakoby(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var shotgun = EnsureShotgun();
+            EnsureEquipment();
+            var grenade = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/FragGrenade.asset");
+            var jakoby = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/MasterSergeantJakoby.asset", s =>
+            {
+                s.displayName = "Master Sergeant Jakoby";
+                s.health = 10; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;   // the Field Commander's
+                s.keywords = new List<Keyword> { keywords["Biological"], keywords["Officer"], keywords["Solo"] };
+                s.abilities = new List<Ability>();   // no Lead from the front
+                s.weapons = new List<WeaponTemplate> { shotgun };
+                s.primaryWeapon = shotgun;
+                s.equipment = new List<Equipment> { grenade, grenade };
+            });
+            if (jakoby.prefab == null)
+            {
+                jakoby.prefab = BuildJakobyPrefab("MasterSergeantJakoby", jakoby);
+                EditorUtility.SetDirty(jakoby);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/MasterSergeantJakoby.asset", u =>
+            {
+                u.displayName = "Master Sergeant Jakoby";
+                u.role = UnitRole.Commander;
+                u.description = "A veteran ISF Master Sergeant who leads by example rather than from behind. Unlike the Field Commander he gives no accuracy bonus to nearby troops (no Lead from the front); instead he fights: a Shotgun (10 damage, penetration 1, 10 m) and two Frag Grenades, so two grenade throws a battle. With 10 health and Armor Level 2 he can take a hit, but as a Solo unit he's a prime target. A Commander: every army needs exactly one.";
+                u.leader = jakoby;
+                u.members = new List<UnitTemplate.Member>();
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Master Sergeant Jakoby's model: a copy of the Field Commander model with the cap (and its crest) replaced by a beret
+        /// worn tilted to one side with a gold badge, the pistol by a shotgun, and two grenades clipped to the sash.
+        /// </summary>
+        private static GameObject BuildJakobyPrefab(string name, SoldierTemplate template)
+        {
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/FieldCommander.prefab");
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var steel = GetOrCreateMaterial("Shield_Steel", new Color(0.6f, 0.62f, 0.66f));
+            var beret = GetOrCreateMaterial("Beret", new Color(0.45f, 0.08f, 0.12f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+            var olive = GetOrCreateMaterial("Grenade_Olive", new Color(0.33f, 0.38f, 0.2f));
+
+            var root = Object.Instantiate(source);
+            root.name = name;
+            var sso = new SerializedObject(root.GetComponent<Soldier>());
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = true;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            foreach (var part in new[] { "Cap", "Crest", "Weapon" })
+            {
+                var t = root.transform.Find(part);
+                if (t != null) Object.DestroyImmediate(t.gameObject);
+            }
+
+            // The beret: a soft, flat crown pulled down to one side, with a gold badge over the left eye.
+            Part(root, "Beret", PrimitiveType.Sphere, beret, new Vector3(0.04f, 1.77f, -0.01f), new Vector3(0.34f, 0.1f, 0.31f), new Vector3(0f, 0f, -14f));
+            Part(root, "Beret Band", PrimitiveType.Cylinder, beret, new Vector3(0f, 1.74f, 0f), new Vector3(0.27f, 0.015f, 0.27f));
+            Part(root, "Beret Badge", PrimitiveType.Cube, gold, new Vector3(-0.07f, 1.77f, 0.13f), new Vector3(0.05f, 0.06f, 0.02f));
+            // The shotgun, held at the right hip.
+            Part(root, "Shotgun", PrimitiveType.Cube, metal, new Vector3(0.18f, 1.2f, 0.24f), new Vector3(0.08f, 0.11f, 0.5f));
+            Part(root, "Shotgun Barrel", PrimitiveType.Cylinder, metal, new Vector3(0.18f, 1.23f, 0.58f), new Vector3(0.06f, 0.14f, 0.06f), new Vector3(90f, 0f, 0f));
+            Part(root, "Shotgun Pump", PrimitiveType.Cube, steel, new Vector3(0.18f, 1.16f, 0.46f), new Vector3(0.07f, 0.06f, 0.16f));
+            // Two frag grenades clipped to the sash.
+            foreach (float x in new[] { -0.12f, 0.02f })
+                Part(root, "Frag Grenade", PrimitiveType.Sphere, olive, new Vector3(x, 0.9f, 0.22f), Vector3.one * 0.09f);
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        /// <summary>
+        /// Marshal Command Tank (Commander, ISF): 1 Marshal Command Tank with the Sagittarius MBT's stats (Health 20, Armor 4,
+        /// Accuracy 75%, Move 30 m; Mechanical, Tank, Unstable; Frag Grenade usable every turn; 100mm Cannon) plus the Officer
+        /// keyword. The Sagittarius MBT model with two antennae and a satellite dish on the turret. Existing assets keep their
+        /// Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureMarshalCommandTank(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var cannon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Cannon100mm.asset");
+            var grenade = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/TankFragGrenade.asset");
+            var tank = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/MarshalCommandTank.asset", s =>
+            {
+                s.displayName = "Marshal Command Tank";
+                s.health = 20; s.armorLevel = 4; s.accuracy = 75; s.movementRange = 30f;   // the Sagittarius MBT's
+                s.keywords = new List<Keyword> { keywords["Mechanical"], keywords["Tank"], keywords["Unstable"], keywords["Officer"] };
+                s.abilities = new List<Ability> { grenade };
+                s.weapons = new List<WeaponTemplate> { cannon };
+                s.primaryWeapon = cannon;
+                s.radius = 1.8f;
+                s.height = 2.3f;
+            });
+            if (tank.prefab == null)
+            {
+                tank.prefab = BuildMarshalPrefab("MarshalCommandTank", tank);
+                EditorUtility.SetDirty(tank);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/MarshalCommandTank.asset", u =>
+            {
+                u.displayName = "Marshal Command Tank";
+                u.role = UnitRole.Commander;
+                u.description = "A Sagittarius main battle tank refitted as a mobile headquarters, its turret bristling with antennae and a satellite uplink. It fights like any Sagittarius: 20 health and Armor Level 4, a 100mm Cannon (10 damage, penetration 4, 50 m, once a turn) and a Frag Grenade every turn. It moves 30 m but, being Mechanical, can't sprint, and when destroyed it has a 10% chance to explode (Unstable). A Commander: every army needs exactly one.";
+                u.leader = tank;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// The Marshal Command Tank's model: a copy of the Sagittarius MBT (MediumTank) model with two whip antennae at the
+        /// back of the turret and a satellite dish on a short mast, tilted up.
+        /// </summary>
+        private static GameObject BuildMarshalPrefab(string name, SoldierTemplate template)
+        {
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/MediumTank.prefab");
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var steel = GetOrCreateMaterial("Shield_Steel", new Color(0.6f, 0.62f, 0.66f));
+            var dish = GetOrCreateMaterial("Dish_White", new Color(0.88f, 0.89f, 0.9f));
+            var light = GetOrCreateMaterial("Stinger_Eye", new Color(0.95f, 0.12f, 0.08f));
+
+            var root = Object.Instantiate(source);
+            root.name = name;
+            var sso = new SerializedObject(root.GetComponent<Soldier>());
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = true;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+
+            // Two whip antennae at the back of the turret (the turret top is at 2.2 m), each with a small base and tip light.
+            foreach (var (x, height, lean) in new[] { (-0.6f, 1.6f, -8f), (-0.3f, 1.1f, -14f) })
+            {
+                Part(root, "Antenna Base", PrimitiveType.Cylinder, metal, new Vector3(x, 2.25f, -1.2f), new Vector3(0.12f, 0.05f, 0.12f));
+                Part(root, "Antenna", PrimitiveType.Cylinder, steel, new Vector3(x, 2.25f + height / 2f, -1.2f - height / 2f * Mathf.Sin(-lean * Mathf.Deg2Rad)),
+                    new Vector3(0.035f, height / 2f, 0.035f), new Vector3(lean, 0f, 0f));
+                Part(root, "Antenna Tip", PrimitiveType.Sphere, light, new Vector3(x, 2.25f + height * Mathf.Cos(lean * Mathf.Deg2Rad), -1.2f - height * Mathf.Sin(-lean * Mathf.Deg2Rad)), Vector3.one * 0.07f);
+            }
+            // The satellite dish on a short mast on the right of the turret, tilted up and forward, with a feed horn.
+            Part(root, "Dish Mast", PrimitiveType.Cylinder, metal, new Vector3(0.5f, 2.38f, -0.7f), new Vector3(0.09f, 0.18f, 0.09f));
+            Part(root, "Satellite Dish", PrimitiveType.Sphere, dish, new Vector3(0.5f, 2.72f, -0.66f), new Vector3(0.75f, 0.12f, 0.75f), new Vector3(-40f, 0f, 0f));
+            Part(root, "Dish Feed", PrimitiveType.Cylinder, metal, new Vector3(0.5f, 2.9f, -0.45f), new Vector3(0.03f, 0.16f, 0.03f), new Vector3(-40f, 0f, 0f));
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
         // ------------------------------------------------------------------ Equipment
 
         /// <summary>
@@ -1729,6 +1904,8 @@ namespace Eldoria.EditorTools
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             EnsureIsfRanger(factions[0], keywords);
             EnsureIsfBoardingTeam(factions[0], keywords);
+            EnsureMasterSergeantJakoby(factions[0], keywords);
+            EnsureMarshalCommandTank(factions[0], keywords);
             EnsureMortarTeam(factions[0], keywords);   // after the ISF Rifle Squad: it uses its ISF Rifleman
             EnsureSagittariusMbt(factions[0], keywords);
             EnsureOlympianMech(factions[0], keywords);

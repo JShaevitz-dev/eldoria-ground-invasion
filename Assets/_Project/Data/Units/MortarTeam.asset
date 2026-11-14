@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Mortar Team
   role: 2
-  description: 
+  description: "Two ISF soldiers with a portable mortar. The Mortar Specialist fires the Mortar Launcher (5 damage, penetration 3, 50 m, once a turn), which can't fire after moving, so set up first and shell targets from long range: penetration 3 cuts through infantry armor and still does half damage to Armor Level 4 tanks. Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can throw a Frag Grenade once a battle. With 5 health and Armor Level 2 each, keep them behind your lines. Heavy Support can be taken more than once."
   leader: {fileID: 11400000, guid: 505cc634dfb54e1468d719de06910e23, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: 9d323bbbd7983b1469104574e81ce003, type: 2}

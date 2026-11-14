@@ -61,11 +61,17 @@ namespace Eldoria.Rules
         public static List<string> AbilityLines(UnitTemplate unit)
         {
             var lines = new List<string>();
-            foreach (var a in unit.Roster().SelectMany(s => s.abilities).Where(a => a != null).Distinct())
+            // The soldiers' own abilities, then those their standard equipment gives (each copy adds uses per battle).
+            int Sources(SoldierTemplate s, Ability a) =>
+                (s.abilities.Contains(a) ? 1 : 0) + (s.equipment ?? new List<Equipment>()).Count(e => e != null && e.abilities.Contains(a));
+            var abilities = unit.Roster().SelectMany(s => s.abilities.Concat((s.equipment ?? new List<Equipment>()).Where(e => e != null).SelectMany(e => e.abilities)))
+                .Where(a => a != null).Distinct();
+            foreach (var a in abilities)
             {
                 var tags = new List<string> { a.IsActive ? "active" : "passive" };
                 if (a.IsSpell) tags.Add("spell");
-                if (a.usesPerBattle > 0) tags.Add(a.usesPerBattle == 1 ? "once per battle" : $"{a.usesPerBattle}× per battle");
+                int uses = a.usesPerBattle * Mathf.Max(1, unit.Roster().Max(s => Sources(s, a)));
+                if (a.usesPerBattle > 0) tags.Add(uses == 1 ? "once per battle" : $"{uses}× per battle");
                 lines.Add($"{a.displayName} ({string.Join(", ", tags)})");
             }
             return lines;

@@ -39,9 +39,21 @@ namespace Eldoria.Units
         /// <summary>How many times this unit has used the ability this battle (any of its soldiers).</summary>
         public int TimesUsedThisBattle(Ability ability) => ability != null && battleUses.TryGetValue(ability, out int n) ? n : 0;
 
-        /// <summary>Uses left this battle for an ability limited per battle (int.MaxValue if it isn't limited).</summary>
+        /// <summary>
+        /// Uses left this battle for an ability limited per battle (int.MaxValue if it isn't limited). The unit gets the
+        /// ability's uses per battle once for each source of it its best-equipped soldier has (e.g. a soldier with two Frag
+        /// Grenades: two throws); see <see cref="Soldier.AbilitySources"/>.
+        /// </summary>
         public int UsesLeftThisBattle(Ability ability) =>
-            ability == null || ability.usesPerBattle <= 0 ? int.MaxValue : Mathf.Max(0, ability.usesPerBattle - TimesUsedThisBattle(ability));
+            ability == null || ability.usesPerBattle <= 0 ? int.MaxValue : Mathf.Max(0, UsesPerBattle(ability) - TimesUsedThisBattle(ability));
+
+        /// <summary>How many times the unit may use a per-battle ability in all.</summary>
+        public int UsesPerBattle(Ability ability)
+        {
+            if (ability == null || ability.usesPerBattle <= 0) return int.MaxValue;
+            int sources = soldiers.Where(s => s != null).Select(s => s.AbilitySources(ability)).DefaultIfEmpty(0).Max();
+            return ability.usesPerBattle * Mathf.Max(1, sources);
+        }
 
         public void RecordBattleUse(Ability ability)
         {

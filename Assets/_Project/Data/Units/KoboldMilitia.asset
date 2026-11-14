@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Kobold Militia
   role: 0
-  description: Wingless anthropomorphic dragons standing at two-thirds the height of a human with fabric uniform and holding rifles
+  description: "Wingless anthropomorphic dragons standing two-thirds the height of a human, in fabric uniforms and carrying rifles: a Kobold Sergeant and 19 Kobold Militiamen. Each is fragile (5 health, no armor, 50% accuracy), but there are twenty of them, they move 20 m (40 m sprinting), and Swarm lets them spread out up to 10 m from their Sergeant. Their Fang Casters (the Draconis name for the Assault Rifle: 4 damage, penetration 1, 20 m) add up to a lot of shots. Infantry can be taken more than once."
   leader: {fileID: 11400000, guid: bae4794f85b182f43bc31644d7a7e0d3, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: 43e1c26398e3ea4478ee300c0f8df4f0, type: 2}

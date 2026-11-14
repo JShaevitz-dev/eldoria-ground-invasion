@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Rask Rifle Team
   role: 0
-  description: 
+  description: "Twenty Rask riflemen, a Rask Superior and 19 Rask Riflemen: anthropomorphic rats in armor (5 health, Armor Level 1, 50% accuracy). Their Solntse Laser Rifles hit harder than other rifles (6 damage, penetration 1, 20 m). They move 20 m (40 m sprinting), and Swarm lets them spread out up to 10 m from their Superior. Infantry can be taken more than once."
   leader: {fileID: 11400000, guid: 7e0419b84e241624c8bda808972f6a60, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: 80a6eb35d8c5a1f4187241e3894cb4f8, type: 2}

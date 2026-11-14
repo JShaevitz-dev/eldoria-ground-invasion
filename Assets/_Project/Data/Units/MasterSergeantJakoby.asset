@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: MasterSergeantJakoby
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Master Sergeant Jakoby
+  role: 1
+  description: "A veteran ISF Master Sergeant who leads by example rather than from behind. Unlike the Field Commander he gives no accuracy bonus to nearby troops (no Lead from the front); instead he fights: a Shotgun (10 damage, penetration 1, 10 m) and two Frag Grenades, so two grenade throws a battle. With 10 health and Armor Level 2 he can take a hit, but as a Solo unit he's a prime target. A Commander: every army needs exactly one."
+  leader: {fileID: 11400000, guid: ba5b0a86366132f46b4c11f43dd75792, type: 2}
+  members: []
+  deploymentSpacing: 2

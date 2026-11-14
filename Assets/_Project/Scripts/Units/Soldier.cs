@@ -36,11 +36,30 @@ namespace Eldoria.Units
         [System.NonSerialized] private List<Ability> abilitiesWithEquipment;
 
         public SoldierLoadout Loadout => loadout;
-        /// <summary>Equipment the soldier carries: their type's standard equipment, plus any chosen in the army builder.</summary>
-        private IEnumerable<Equipment> Gear =>
-            (template != null && template.equipment != null ? template.equipment : Enumerable.Empty<Equipment>())
-            .Concat(loadout != null ? loadout.Equipment : Enumerable.Empty<Equipment>())
-            .Where(e => e != null).Distinct();
+        /// <summary>
+        /// Equipment the soldier carries: their type's standard equipment (each copy counts, e.g. two Frag Grenades), plus any
+        /// chosen in the army builder that isn't already standard.
+        /// </summary>
+        private IEnumerable<Equipment> Gear
+        {
+            get
+            {
+                var standard = template != null && template.equipment != null
+                    ? template.equipment.Where(e => e != null).ToList() : new List<Equipment>();
+                var chosen = loadout != null ? loadout.Equipment.Where(e => e != null && !standard.Contains(e)).Distinct() : Enumerable.Empty<Equipment>();
+                return standard.Concat(chosen);
+            }
+        }
+
+        /// <summary>
+        /// How many sources give this soldier the ability: 1 if their type has it, plus 1 per piece of equipment that gives
+        /// it. Each source adds the ability's uses per battle (two Frag Grenades: two throws). 0 if they don't have it.
+        /// </summary>
+        public int AbilitySources(Ability ability)
+        {
+            if (ability == null || template == null) return 0;
+            return (template.abilities.Contains(ability) ? 1 : 0) + Gear.Count(e => e.abilities.Contains(ability));
+        }
 
         /// <summary>
         /// Applies the army builder choices: swapped weapons replace the ones they stand for (a swapped primary weapon is the
