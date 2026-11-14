@@ -5,9 +5,14 @@
 > faction, unit or soldier assets, so the army builder is empty and a battle can't be started: the game says so
 > instead. The weapons, abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
-Eldoria is a WWII-inspired fantasy turn-based strategy game focused on company-level warfare across a variety of
-battlefields. The goal of this project is to offer the tactical freedom of tabletop wargames with the convenience and
-tactical minutiae of a computer strategy game.
+Eldoria Ground Invasion is a space opera turn-based strategy game focused on company-level warfare across a variety of
+battlefields. Its tone sits between Star Trek and Warhammer 40k. The Free Nations Alliance (humanity, the Skael, the
+Chrome, the Sphinxians, and associates such as the Rask and the Hive) faces Draconis Imperialis, the empire of the
+Dragons and their bred Kobold and Dragonborn castes, across an uneasy cease-fire. The setting and its races are
+described in [`Docs/Lore.md`](Docs/Lore.md). This fork leaves behind the original Eldoria's WWII-inspired fantasy.
+
+The goal of this project is to offer the tactical freedom of tabletop wargames with the convenience and tactical
+minutiae of a computer strategy game.
 
 Like on a tabletop, there's no grid and no hexes: soldiers move, take cover and shoot across an open 3D battlefield,
 with every distance measured in meters. The game is built in Unity and is an early proof of concept, focused on

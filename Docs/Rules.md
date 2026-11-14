@@ -6,6 +6,10 @@ Living record of the rules decided so far. **Status** shows what the code does t
 > movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are all in place, but there are no unit,
 > soldier or faction assets for them to use, so the army builder is empty and a battle can't be started. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
+>
+> **Setting:** a space opera (see [Lore.md](Lore.md)), replacing the original WWII-inspired fantasy. Some names below
+> still come from the old setting (e.g. **Magic** and **Spell** keywords, the Fireball and Divine Healing abilities);
+> they're kept until the new factions are designed.
 
 ## Scale
 
