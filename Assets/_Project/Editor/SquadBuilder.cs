@@ -837,6 +837,148 @@ namespace Eldoria.EditorTools
             return prefab;
         }
 
+        // ------------------------------------------------------------------ Most Holy Army of The Rask Divine Collective
+
+        /// <summary>
+        /// The Rask's weapons: the Assault Rifle is the "Solntse Laser Rifle" (an alias of the same stat block) with Damage +2
+        /// (4 to 6) for Rask soldiers. Added once; edits made in the Inspector are kept.
+        /// </summary>
+        public static void EnsureRaskWeapons(Faction rask)
+        {
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            if (!rask.weaponNames.Any(n => n != null && n.weapon == rifle))
+            {
+                rask.weaponNames.Add(new WeaponName { weapon = rifle, name = "Solntse Laser Rifle" });
+                EditorUtility.SetDirty(rask);
+            }
+            if (!rask.weaponAdjustments.Any(a => a != null && a.weapon == rifle))
+            {
+                rask.weaponAdjustments.Add(new WeaponAdjustment { weapon = rifle, damage = 2 });
+                EditorUtility.SetDirty(rask);
+            }
+        }
+
+        /// <summary>
+        /// Rask Rifle Team (Infantry, Rask): 1 Rask Superior (leader) + 19 Rask Riflemen, with the Kobold Militiaman's stats
+        /// (Health 5, Armor 0, Accuracy 50%, Move 20 m; Biological, Swarm). Each carries an Assault Rifle, which the Rask call
+        /// the "Solntse Laser Rifle" and which does 6 damage for them (see <see cref="EnsureRaskWeapons"/>). Anthropomorphic
+        /// rats, two-thirds of a human's height, in armor. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureRaskRifleTeam(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+
+            SoldierTemplate Rask(string file, string name, bool superior)
+            {
+                var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", t =>
+                {
+                    t.displayName = name;
+                    t.health = 5; t.armorLevel = 0; t.accuracy = 50; t.movementRange = 20f;
+                    t.keywords = new List<Keyword> { keywords["Biological"], keywords["Swarm"] };
+                    t.abilities = new List<Ability>();
+                    t.weapons = new List<WeaponTemplate> { rifle };
+                    t.primaryWeapon = rifle;
+                    t.radius = 0.33f;
+                    t.height = 1.2f;   // two-thirds of a human's height
+                });
+                var built = s.prefab != null ? s.prefab.GetComponent<CapsuleCollider>() : null;
+                if (s.prefab == null || built == null || !Mathf.Approximately(built.height, s.height))
+                {
+                    s.prefab = BuildRaskPrefab(file, s, superior);
+                    EditorUtility.SetDirty(s);
+                }
+                return s;
+            }
+
+            var superiorTemplate = Rask("RaskSuperior", "Rask Superior", true);
+            var rifleman = Rask("RaskRifleman", "Rask Rifleman", false);
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/RaskRifleTeam.asset", u =>
+            {
+                u.displayName = "Rask Rifle Team";
+                u.role = UnitRole.Infantry;
+                u.leader = superiorTemplate;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 19 } };
+                u.deploymentSpacing = 1.2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A placeholder Rask built from primitives, facing +z: an upright, anthropomorphic rat (1.2 m) with a long pointed
+        /// snout, round ears and a long thin tail, in armor (breastplate and helmet in the primary colour, so the faction's
+        /// colour when deployed; grey metal pauldrons and greaves), holding a rifle. Fur is grey-brown. The Superior has a gold
+        /// helmet crest and gorget.
+        /// </summary>
+        private static GameObject BuildRaskPrefab(string name, SoldierTemplate template, bool superior)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var armor = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var fur = GetOrCreateMaterial("Rask_Fur", new Color(0.45f, 0.4f, 0.36f));
+            var skin = GetOrCreateMaterial("Rask_Skin", new Color(0.86f, 0.62f, 0.6f));
+            var steel = GetOrCreateMaterial("Rask_Steel", new Color(0.52f, 0.53f, 0.56f));
+            var eye = GetOrCreateMaterial("Rask_Eye", new Color(0.08f, 0.06f, 0.06f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = superior;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+            // The parts below are laid out for a 1.2 m rat; the model is scaled to the soldier's height.
+            var model = new GameObject("Model");
+            model.transform.SetParent(root.transform, false);
+            model.transform.localScale = Vector3.one * (template.height / 1.2f);
+
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(model, "Leg", PrimitiveType.Capsule, fur, new Vector3(side * 0.09f, 0.24f, 0f), new Vector3(0.12f, 0.22f, 0.13f));
+                Part(model, "Greave", PrimitiveType.Cube, steel, new Vector3(side * 0.09f, 0.2f, 0.06f), new Vector3(0.12f, 0.2f, 0.03f));
+                Part(model, "Foot", PrimitiveType.Cube, skin, new Vector3(side * 0.09f, 0.03f, 0.06f), new Vector3(0.1f, 0.05f, 0.2f));
+                Part(model, "Arm", PrimitiveType.Capsule, fur, new Vector3(side * 0.2f, 0.62f, 0.07f), new Vector3(0.08f, 0.16f, 0.08f), new Vector3(-50f, 0f, 0f));
+                Part(model, "Pauldron", PrimitiveType.Sphere, steel, new Vector3(side * 0.19f, 0.77f, 0f), new Vector3(0.14f, 0.09f, 0.16f));
+                Part(model, "Ear", PrimitiveType.Cylinder, skin, new Vector3(side * 0.09f, 1.12f, -0.01f), new Vector3(0.09f, 0.01f, 0.09f), new Vector3(90f, 0f, side * 20f));
+                Part(model, "Eye", PrimitiveType.Sphere, eye, new Vector3(side * 0.06f, 1.0f, 0.1f), Vector3.one * 0.035f);
+            }
+            Part(model, "Body", PrimitiveType.Capsule, fur, new Vector3(0f, 0.6f, 0f), new Vector3(0.3f, 0.24f, 0.24f));
+            Part(model, "Breastplate", PrimitiveType.Cube, armor, new Vector3(0f, 0.64f, 0.09f), new Vector3(0.28f, 0.3f, 0.08f));
+            Part(model, "Backplate", PrimitiveType.Cube, armor, new Vector3(0f, 0.64f, -0.09f), new Vector3(0.26f, 0.28f, 0.06f));
+            Part(model, "Belt", PrimitiveType.Cube, metal, new Vector3(0f, 0.47f, 0f), new Vector3(0.28f, 0.04f, 0.22f));
+            Part(model, "Head", PrimitiveType.Sphere, fur, new Vector3(0f, 0.98f, 0.02f), new Vector3(0.18f, 0.17f, 0.2f));
+            Part(model, "Snout", PrimitiveType.Capsule, fur, new Vector3(0f, 0.95f, 0.15f), new Vector3(0.08f, 0.08f, 0.08f), new Vector3(90f, 0f, 0f));
+            Part(model, "Nose", PrimitiveType.Sphere, skin, new Vector3(0f, 0.95f, 0.23f), Vector3.one * 0.03f);
+            Part(model, "Helmet", PrimitiveType.Sphere, armor, new Vector3(0f, 1.05f, -0.01f), new Vector3(0.2f, 0.1f, 0.2f));
+            // A long, thin tail curling behind.
+            Part(model, "Tail", PrimitiveType.Capsule, skin, new Vector3(0f, 0.3f, -0.3f), new Vector3(0.035f, 0.25f, 0.035f), new Vector3(-65f, 0f, 0f));
+            Part(model, "Tail Tip", PrimitiveType.Capsule, skin, new Vector3(0f, 0.1f, -0.58f), new Vector3(0.025f, 0.12f, 0.025f), new Vector3(-85f, 0f, 0f));
+            if (superior)
+            {
+                Part(model, "Helmet Crest", PrimitiveType.Cube, gold, new Vector3(0f, 1.12f, 0f), new Vector3(0.03f, 0.06f, 0.2f));
+                Part(model, "Gorget", PrimitiveType.Cube, gold, new Vector3(0f, 0.82f, 0.08f), new Vector3(0.16f, 0.05f, 0.04f));
+            }
+            // The rifle, held across the body.
+            Part(model, "Rifle", PrimitiveType.Cube, metal, new Vector3(0.08f, 0.58f, 0.24f), new Vector3(0.05f, 0.06f, 0.56f), new Vector3(0f, -12f, 0f));
+            Part(model, "Rifle Emitter", PrimitiveType.Cylinder, gold, new Vector3(0.14f, 0.58f, 0.52f), new Vector3(0.04f, 0.02f, 0.04f), new Vector3(90f, 0f, 0f));
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
         private static void Part(GameObject parent, string name, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale,
             Vector3? rotation = null)
         {
@@ -860,6 +1002,8 @@ namespace Eldoria.EditorTools
             EnsureDragonbornSquad(factions[1], keywords);
             EnsureKoboldMilitia(factions[1], keywords);
             EnsureDraconisWeaponNames(factions[1]);
+            EnsureRaskRifleTeam(factions[2], keywords);
+            EnsureRaskWeapons(factions[2]);
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             EnsureIsfRanger(factions[0], keywords);

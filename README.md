@@ -2,7 +2,7 @@
 
 > **A fork of Eldoria with its first three factions. Two are playable:** the International Space Force of Humanity
 > (Field Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger) and the Imperial Army of The Draconis Imperialis (Dragon
-> Hierarch, Dragonborn Squad, Kobold Militia). The Rask have no units yet. Every game system is here (army lists and factions, movement,
+> Hierarch, Dragonborn Squad, Kobold Militia). The Rask have one unit (the Rask Rifle Team) but no Commander yet. Every game system is here (army lists and factions, movement,
 > terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the three maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
@@ -131,6 +131,7 @@ Inspector.
 | **Olympian Mech** | International Space Force of Humanity | Heavy Support | Olympian Mech (the original Eldoria's Stahl Colossus: Health 15, Armor 3, Machine Gun, Iron Claw, Stabilizers) |
 | **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (the original Eldoria's Sniper with Armor 1: Accuracy 100%, Sniper Rifle, Anti-Materiel Rifle or Shotgun, Sniper Precision; Chromashift Textiles: −25% to anyone aiming at it) |
 | **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) |
+| **Rask Rifle Team** | Most Holy Army of The Rask Divine Collective | Infantry | Rask Superior + 19 Rask Riflemen (the Kobold Militiaman's stats; Solntse Laser Rifles: the Rask name for the Assault Rifle, Damage 6) |
 | **Kobold Militia** | Imperial Army of The Draconis Imperialis | Infantry | Kobold Sergeant + 19 Kobold Militiamen (Health 5, Armor 0, Accuracy 50%, Move 20 m, Swarm; Fang Casters, the Draconis name for the Assault Rifle) |
 | **Dragonborn Squad** | Imperial Army of The Draconis Imperialis | Infantry | Dragonborn Sergeant + 4 Dragonborn Footmen (Health 10, Armor 2; Dragon Glaive: a 20 m rifle and a 2 m Melee blade) |
 | **ISF Rifle Squad** | International Space Force of Humanity | Infantry | ISF Rifleman Sergeant + 9 ISF Riflemen (Armor 2, Assault Rifles, Frag Grenade) |
@@ -140,7 +141,7 @@ A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier*
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
 them (and add each unit to its faction's unit list). They're created in code
 (`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
-`EnsureDragonbornSquad`, `EnsureKoboldMilitia`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
+`EnsureDragonbornSquad`, `EnsureKoboldMilitia`, `EnsureRaskRifleTeam`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
 Specialist.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,

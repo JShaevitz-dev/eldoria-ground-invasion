@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Eldoria Ground Invasion) has its first three factions. Two can field armies:** the ISF (Field
-> Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad, Kobold Militia). The Rask have no units yet. The game
+> Commander, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger) and the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad, Kobold Militia). The Rask have only the Rask Rifle Team so far (no Commander), so they can't field an army yet. The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -60,7 +60,7 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 
 | Role | Units |
 |---|---|
-| **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia |
+| **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia, Rask Rifle Team |
 | **Commander** | Field Commander, Dragon Hierarch |
 | **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech |
 | **Specialist** | ISF Ranger |
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech and the ISF Ranger, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Squad and the Kobold Militia, so both can field armies (the AI picks one of them); the Rask have no units yet.
+So far the ISF has the Field Commander, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech and the ISF Ranger, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Squad and the Kobold Militia, so both can field armies (the AI picks one of them); the Rask have the Rask Rifle Team but no Commander yet, so they can't.
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -89,7 +89,7 @@ it can take, and any weapon changes and names (below). The army builder lists th
 - The changes apply to whichever soldier holds the weapon, by **their unit's faction**, including a thrown grenade or an explosion (the faction of the soldier who used it). Armies placed directly in a scene have no faction, so their weapons are unchanged.
 - **Limits:** Damage never goes below 0, Shots below 1, Penetration below 0 or Range below 1 m. A weapon with **no penetration value** keeps none, and **unlimited range** stays unlimited.
 - The army builder shows each unit's weapons **as the chosen faction has them**.
-- **So far:** the Draconis Imperialis calls the Assault Rifle the **Fang Caster**.
+- **So far:** the Draconis Imperialis calls the Assault Rifle the **Fang Caster**; the Rask call it the **Solntse Laser Rifle** and add **+2 Damage** to it (6).
 
 ### Army lists — *implemented*
 
@@ -203,6 +203,20 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - The ranged glaive is their **primary weapon**. In **close range** (a Biological enemy under 2 m away) they can't use it, so they switch to the **melee glaive** (Melee weapons work in close range).
 - Infantry, so an army can take more than one.
 
+### Rask Rifle Team
+
+*Most Holy Army of The Rask Divine Collective · Infantry.* 1 **Rask Superior** (leader) + 19 **Rask Riflemen**: anthropomorphic rats standing at two-thirds the height of a human (1.2 m), holding rifles and wearing armor (see [Lore.md](Lore.md), the Rask). Same stats as the Kobold Militiaman.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
+|---|---|---|---|---|---|---|
+| Rask Superior | 5 | 0 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
+| Rask Rifleman (×19) | 5 | 0 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
+
+- **Solntse Laser Rifle:** the Rask's name for the **Assault Rifle**, with **Damage +2** for Rask soldiers: Damage 6, Shots 1, Penetration 1, Range 20 m.
+- **Swarm:** the unit keeps cohesion out to **10 m** from its leader.
+- The armor is the models' look only: their Armor Level is 0, as given.
+- The Rask's only unit so far, and not a Commander, so the Rask can't field an army yet.
+
 ### Kobold Militia
 
 *Imperial Army of The Draconis Imperialis · Infantry.* 1 **Kobold Sergeant** (leader) + 19 **Kobold Militiamen**: wingless anthropomorphic dragons standing at two-thirds the height of a human (1.2 m), in fabric uniforms and holding rifles (see [Lore.md](Lore.md), the Kobolds).
@@ -283,7 +297,7 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 
 #### Keyword categories
 
-- **Swarm** (soldier, Trait): **expands the unit's cohesion radius to 10 m** (normally 5 m). If the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader; the green cohesion ring and the gather order use 10 m. The Kobold Militia has it.
+- **Swarm** (soldier, Trait): **expands the unit's cohesion radius to 10 m** (normally 5 m). If the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader; the green cohesion ring and the gather order use 10 m. The Kobold Militia and the Rask Rifle Team have it.
 - **Large** (soldier, Trait): a very large creature, e.g. the Dragon Hierarch. No effect on its own yet; other rules can check for it.
 - **Natural** (weapon, Trait): a natural weapon such as claws or teeth, which **can't be disabled by Disarm**. *Disarm isn't in the game yet, so for now it has no effect.*
 

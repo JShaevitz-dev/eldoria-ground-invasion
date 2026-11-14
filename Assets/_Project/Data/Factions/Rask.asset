@@ -14,6 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Faction
   displayName: Most Holy Army of The Rask Divine Collective
   color: {r: 0.66, g: 0.48, b: 0.18, a: 1}
-  units: []
-  weaponAdjustments: []
-  weaponNames: []
+  units:
+  - {fileID: 11400000, guid: 928e10b9fba48b64ca961134089f1082, type: 2}
+  weaponAdjustments:
+  - weapon: {fileID: 11400000, guid: 888ab10d5cd37a14897c7ebfc9ce8cef, type: 2}
+    damage: 2
+    shots: 0
+    penetration: 0
+    accuracyBonus: 0
+    range: 0
+  weaponNames:
+  - weapon: {fileID: 11400000, guid: 888ab10d5cd37a14897c7ebfc9ce8cef, type: 2}
+    name: Solntse Laser Rifle
