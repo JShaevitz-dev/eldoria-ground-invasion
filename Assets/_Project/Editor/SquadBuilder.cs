@@ -2567,7 +2567,7 @@ namespace Eldoria.EditorTools
             });
         }
 
-        private static void Part(GameObject parent, string name, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale,
+        internal static void Part(GameObject parent, string name, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale,
             Vector3? rotation = null)
         {
             var go = GameObject.CreatePrimitive(type);
@@ -2615,6 +2615,7 @@ namespace Eldoria.EditorTools
             EnsureEquipment();
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
+            AllianceModels.EnsureBuilt();   // models for races with no units yet (Skael, Sphinxians)
             EnsureSupplyCosts(catalog);
             AssetDatabase.SaveAssets();
             Debug.Log($"[Eldoria] Unit catalog: {catalog.units.Count} unit(s), {catalog.factions.Count} faction(s).");
@@ -2971,7 +2972,7 @@ namespace Eldoria.EditorTools
             return asset;
         }
 
-        private static Material GetOrCreateMaterial(string name, Color color)
+        internal static Material GetOrCreateMaterial(string name, Color color)
         {
             string path = $"{MaterialDir}/{name}.mat";
             var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -2984,7 +2985,7 @@ namespace Eldoria.EditorTools
             return mat;
         }
 
-        private static void EnsureFolder(string parent, string child)
+        internal static void EnsureFolder(string parent, string child)
         {
             if (!AssetDatabase.IsValidFolder($"{parent}/{child}"))
                 AssetDatabase.CreateFolder(parent, child);

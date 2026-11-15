@@ -194,7 +194,7 @@ Assets/_Project/
 Docs/Rules.md     the rules
 ```
 
-**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
+**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Alliance Models (the Skael and Sphinxian soldier models, not used by any unit yet), Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
 `SquadBuilder` keeps the keyword library and the unit catalog (Resources/UnitCatalog) in step with the assets in Data.
 
 **Tests** build their units from test-made ScriptableObjects (`Tests/PlayMode/TestArmies.cs`: stand-ins for an infantry

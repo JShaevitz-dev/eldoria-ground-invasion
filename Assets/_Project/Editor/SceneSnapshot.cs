@@ -68,6 +68,9 @@ namespace Eldoria.EditorTools
             float fitHeight = tallest * 0.65f / Mathf.Tan(halfFov);
             float fitWidth = rowWidth * 0.55f / (Mathf.Tan(halfFov) * 1280f / 720f);
             float dist = Mathf.Max(4.6f, fitHeight, fitWidth);
+            // Optional: -snapshotDistance d for a closer (or further) look.
+            for (int i = 0; i < args.Length - 1; i++)
+                if (args[i] == "-snapshotDistance") float.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out dist);
             cam.transform.position = new Vector3(0f, tallest * 0.75f, -dist);
             cam.transform.LookAt(new Vector3(0f, tallest * 0.45f, 0f));
             cam.farClipPlane = dist * 4f;
