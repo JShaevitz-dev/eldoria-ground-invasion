@@ -791,6 +791,18 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
   - **Full-cover:** **ice boulders** (2.6 m) and the station's two **fuel tanks** (2.5 m, 3 m across); both block movement.
   - The Relay Hut's two **radio masts** are thin poles: no cover.
 
+### Leisure Cruise — *built (Scenes/Ship, Eldoria > Build Leisure Cruise)*
+
+- **50 m × 150 m**: the cluttered inside of a ship, laid out with **180° symmetry** (everything at (x, z) is also at (−x, −z), turned round). The shape is in `Terrain.ShipLayout`.
+- **Deployment zones:** a **hangar bay** at each end; the player sets up in the southern **10 m**, the AI in the northern 10 m.
+- **Corridors:** a **6 m spine corridor** down the middle (wide enough for vehicles), a **4 m corridor** along each side of the hull, and a **cross corridor** in each half joining them. Long and straight: they're firing lanes, broken up by clutter.
+- **Compartments** (18 × 12 m, between the corridors, with doorways and a few viewing windows): in each half an Armory, Med Bay, Machine Shop, Galley, Comms Room, Reactor Control and two Crew Quarters. Doorways are 2 m: infantry only.
+- **The cargo hold** in the middle (42 × 20 m): open, with cargo containers; one sits in the very middle, so no one can see down the spine from end to end.
+- **Bulkheads** are 3 m high and the hull 4 m; both are structure terrain (they block line of sight and movement).
+- **Clutter:**
+  - **Half-cover:** **supply crates**, **coolant drums**, **bunks**, **med beds**, **tables**, **counters** and **workbenches** (step over or climb on top); **debris** and **consoles** (step over).
+  - **Full-cover:** **cargo containers** (2.6 m), **lockers** (2.2 m) and **reactor housings** (2.6 m); all block movement.
+
 ## Shooting — *partly implemented*
 
 ### Penetration vs armor — *implemented*

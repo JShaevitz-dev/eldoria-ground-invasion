@@ -17,6 +17,7 @@ namespace Eldoria.Tests
                 "Assets/_Project/Scenes/Countryside.unity",
                 "Assets/_Project/Scenes/FortSolstice.unity",
                 "Assets/_Project/Scenes/Polar.unity",
+                "Assets/_Project/Scenes/Ship.unity",
                 "Assets/_Project/Scenes/CubeRoom.unity",
             }));
         }

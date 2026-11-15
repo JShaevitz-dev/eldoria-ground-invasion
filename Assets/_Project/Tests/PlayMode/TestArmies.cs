@@ -223,7 +223,8 @@ namespace Eldoria.Tests
                 if (ArmySelection.HasArmies) return;
                 if (loaded.name == "CubeRoom") PlaceCubeRoomArmies();
                 else if (loaded.name == "UrbanDemo") PlaceUrbanArmies();
-                else if (loaded.name == Battlefields.EnglishCountryside.Scene || loaded.name == Battlefields.PolarNonsense.Scene) PlaceDemoArmyInZones();
+                else if (loaded.name == Battlefields.EnglishCountryside.Scene || loaded.name == Battlefields.PolarNonsense.Scene
+                         || loaded.name == Battlefields.LeisureCruise.Scene) PlaceDemoArmyInZones();
             }
             SceneManager.sceneLoaded += Place;
             SceneManager.LoadScene(scene);
@@ -267,15 +268,20 @@ namespace Eldoria.Tests
             }
         }
 
-        /// <summary>Any map with deployment zones: the demo army in each side's zone, one unit per slot.</summary>
+        /// <summary>Any map with deployment zones: the demo army in each side's zone, one unit per slot (moved to clear ground).</summary>
         public static void PlaceDemoArmyInZones()
         {
             var army = DemoArmy;
             foreach (var zone in Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None))
             {
                 var names = ArmyDeployment.UnitNames(army, zone.Side);
+                var facing = Quaternion.Euler(0f, zone.Side == Side.Player ? 0f : 180f, 0f);
                 for (int i = 0; i < army.Count; i++)
-                    Spawn(army[i], zone.Side, ArmyDeployment.Slot(zone.transform.position, zone.Size, zone.Side, i), names[i]);
+                {
+                    // Moved off walls and clutter if the slot isn't clear, as the real deployment does.
+                    var slot = ArmyDeployment.Slot(zone.transform.position, zone.Size, zone.Side, i);
+                    Spawn(army[i], zone.Side, ArmyDeployment.ClearSpotFor(army[i], slot, facing, zone), names[i]);
+                }
             }
         }
     }

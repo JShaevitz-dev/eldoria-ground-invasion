@@ -212,7 +212,7 @@ namespace Eldoria.EditorTools
         /// A straight wall from a to b (local to the parent) with doorways and windows cut into it.
         /// <paramref name="extend"/> lengthens the wall by half its thickness at both ends to close the corners.
         /// </summary>
-        private static void WallLine(Transform parent, Vector3 a, Vector3 b, float height, Material mat, Opening[] openings, bool extend)
+        internal static void WallLine(Transform parent, Vector3 a, Vector3 b, float height, Material mat, Opening[] openings, bool extend)
         {
             Vector3 dir = (b - a).normalized;
             float length = Vector3.Distance(a, b);

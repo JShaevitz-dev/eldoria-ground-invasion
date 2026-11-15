@@ -48,6 +48,15 @@ namespace Eldoria.Gameplay
                           "half-cover, ice boulders and fuel tanks for full cover.",
         };
 
-        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice, PolarNonsense };
+        public static readonly Battlefield LeisureCruise = new Battlefield
+        {
+            Name = "Leisure Cruise",
+            Scene = "Ship",
+            Description = "The cluttered inside of a ship, 50 \u00d7 150 m: deploy in the hangar bays at either end and fight " +
+                          "down a wide spine corridor, narrow side corridors and the compartments between, through a cargo " +
+                          "hold in the middle. Crates, drums, debris and containers everywhere.",
+        };
+
+        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice, PolarNonsense, LeisureCruise };
     }
 }
