@@ -28,7 +28,7 @@ namespace Eldoria.Gameplay
         private float deployTimeLeft;
         private Unit deployUnit;
         private DeploymentZone deployZone;
-        private RangeRing zoneOutline;
+        private readonly List<RangeRing> zoneOutlines = new List<RangeRing>();
         private readonly List<RangeRing> deployRings = new List<RangeRing>();
 
         /// <summary>The battle hasn't begun yet: the players are placing their units.</summary>
@@ -258,7 +258,7 @@ namespace Eldoria.Gameplay
             remoteDeployment = null;
             deployUnit = null;
             HideDeployPreview();
-            if (zoneOutline != null) zoneOutline.Hide();
+            foreach (var r in zoneOutlines) if (r != null) r.Hide();
             foreach (var u in remoteUnits) if (u != null) u.SetHidden(false);
         }
 
@@ -267,28 +267,45 @@ namespace Eldoria.Gameplay
         private void ShowZoneOutline()
         {
             if (deployZone == null) return;
-            if (zoneOutline == null) zoneOutline = RangeRing.Create("Ring_DeploymentZone", transform, 0.15f);
-            Vector3 c = deployZone.transform.position;
-            Vector2 half = deployZone.Size / 2f;
-            var corners = new[]
+            // The outline of the whole zone: the edges of its rectangles, except where another of them carries on.
+            var areas = deployZone.Areas.ToList();
+            int used = 0;
+            void Flush(List<Vector3> run)
             {
-                new Vector3(c.x - half.x, 0f, c.z - half.y), new Vector3(c.x + half.x, 0f, c.z - half.y),
-                new Vector3(c.x + half.x, 0f, c.z + half.y), new Vector3(c.x - half.x, 0f, c.z + half.y),
-            };
-            var points = new List<Vector3>();
-            for (int k = 0; k < 4; k++)
-            {
-                Vector3 a = corners[k], b = corners[(k + 1) % 4];
-                int steps = Mathf.Max(1, Mathf.CeilToInt(Vector3.Distance(a, b) / 2f));
-                for (int j = 0; j < steps; j++)
+                if (run.Count >= 2)
                 {
-                    var p = Vector3.Lerp(a, b, j / (float)steps);
-                    p.y = TerrainMeasurer.SurfaceHeight(p);
-                    points.Add(p);
+                    while (zoneOutlines.Count <= used) zoneOutlines.Add(RangeRing.Create("Ring_DeploymentZone", transform, 0.15f));
+                    zoneOutlines[used++].ShowPath(run.ToList(), ZoneColor);
+                }
+                run.Clear();
+            }
+            foreach (var r in areas)
+            {
+                var corners = new[]
+                {
+                    new Vector3(r.xMin, 0f, r.yMin), new Vector3(r.xMax, 0f, r.yMin),
+                    new Vector3(r.xMax, 0f, r.yMax), new Vector3(r.xMin, 0f, r.yMax),
+                };
+                var centre = new Vector3(r.center.x, 0f, r.center.y);
+                for (int k = 0; k < 4; k++)
+                {
+                    Vector3 a = corners[k], b = corners[(k + 1) % 4];
+                    Vector3 outward = ((a + b) / 2f - centre);
+                    outward = Mathf.Abs(outward.x) > Mathf.Abs(outward.z) ? new Vector3(Mathf.Sign(outward.x), 0f, 0f) : new Vector3(0f, 0f, Mathf.Sign(outward.z));
+                    var run = new List<Vector3>();
+                    int steps = Mathf.Max(1, Mathf.CeilToInt(Vector3.Distance(a, b)));
+                    for (int j = 0; j <= steps; j++)
+                    {
+                        var p = Vector3.Lerp(a, b, j / (float)steps);
+                        var beyond = p + outward * 0.1f;
+                        if (areas.Any(o => DeploymentZone.Inside(o, beyond))) { Flush(run); continue; }
+                        p.y = TerrainMeasurer.SurfaceHeight(p);
+                        run.Add(p);
+                    }
+                    Flush(run);
                 }
             }
-            points.Add(points[0]);
-            zoneOutline.ShowPath(points, ZoneColor);
+            for (int i = used; i < zoneOutlines.Count; i++) zoneOutlines[i].Hide();
         }
 
         private void UpdateDeployPreview()

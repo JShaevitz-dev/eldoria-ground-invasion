@@ -10,7 +10,7 @@ namespace Eldoria.Tests
 {
     /// <summary>
     /// The ISF Mortar Team (Heavy Support): 1 ISF Mortar Specialist (the ISF Rifleman's stats; Mortar Launcher and Assault
-    /// Rifle) + 1 ISF Rifleman (the ISF Rifle Squad's: Assault Rifle, Frag Grenade, which can be swapped for a Medkit or Repair Kit).
+    /// Rifle) + 1 ISF Rifleman (the ISF Rifle Squad's, but its Frag Grenade can be thrown 50 m; it can be swapped for a Medkit or Repair Kit).
     /// </summary>
     public class MortarTeamTests
     {
@@ -56,7 +56,10 @@ namespace Eldoria.Tests
             Assert.That(specialist.PrimaryWeapon.displayName, Is.EqualTo("Mortar Launcher"));
             Assert.That(specialist.prefab, Is.Not.Null);
 
-            Assert.That(rifleman, Is.SameAs(squadRifleman), "the ISF Rifle Squad's ISF Rifleman");
+            Assert.That(rifleman, Is.Not.SameAs(squadRifleman), "a soldier type of its own");
+            Assert.That((rifleman.health, rifleman.armorLevel, rifleman.accuracy, rifleman.movementRange, rifleman.prefab),
+                Is.EqualTo((squadRifleman.health, squadRifleman.armorLevel, squadRifleman.accuracy, squadRifleman.movementRange, squadRifleman.prefab)),
+                "with the ISF Rifle Squad's ISF Rifleman's stats");
             Assert.That(rifleman.displayName, Is.EqualTo("ISF Rifleman"));
             Assert.That(rifleman.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle" }));
             Assert.That(UnitInfo.SoldierLines(Team), Is.EqualTo(new[]
@@ -64,6 +67,36 @@ namespace Eldoria.Tests
                 "ISF Mortar Specialist \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Mortar Launcher, Assault Rifle",
                 "ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Frag Grenade",
             }));
+        }
+
+        [Test]
+        public void TheTeamsFragGrenadeCanBeThrown50m()
+        {
+            var rifleman = Team.members.Single().soldier;
+            var grenade = rifleman.AllAbilities().Single(a => a.displayName == "Frag Grenade");
+            Assert.That(grenade.range, Is.EqualTo(50f));
+            var squadGrenade = Catalog.Available.Single(u => u.displayName == "ISF Rifle Squad").members.Single().soldier
+                .AllAbilities().Single(a => a.displayName == "Frag Grenade");
+            Assert.That(squadGrenade.range, Is.EqualTo(10f), "the Rifle Squad's still 10 m");
+            Assert.That((grenade.areaRadius, grenade.areaWeapon, grenade.kind, grenade.targets),
+                Is.EqualTo((squadGrenade.areaRadius, squadGrenade.areaWeapon, squadGrenade.kind, squadGrenade.targets)), "otherwise the same grenade");
+            Assert.That(rifleman.equipmentSwaps.Single().alternatives.Select(e => e.displayName), Is.EqualTo(new[] { "Medkit", "Repair Kit" }),
+                "still swappable for a Medkit or a Repair Kit");
+
+            // Thrown from the team: a spot 45 m away is in range, 55 m isn't.
+            Eldoria.Core.BattlefieldScale.SetBoard(200f, 200f);
+            var unit = UnitFactory.Spawn(Team, Side.Player, Vector3.zero, Quaternion.identity);
+            try
+            {
+                var user = unit.Soldiers.Single(s => s.Template == rifleman);
+                Assert.That(ActiveAbilities.WhyCannotUse(user, grenade, null, null, user.Position + new Vector3(0f, 0f, 45f)), Is.Null);
+                Assert.That(ActiveAbilities.WhyCannotUse(user, grenade, null, null, user.Position + new Vector3(0f, 0f, 55f)), Does.Contain("Out of range"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(unit.gameObject);
+                Eldoria.Core.BattlefieldScale.ResetBoard();
+            }
         }
 
         [Test]

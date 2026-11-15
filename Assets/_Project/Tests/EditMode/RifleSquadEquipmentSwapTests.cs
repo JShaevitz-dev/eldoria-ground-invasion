@@ -89,7 +89,7 @@ namespace Eldoria.Tests
             var builder = BuilderWithSquad();
             var team = Catalog.Available.Single(u => u.displayName == "Mortar Team");
             Assert.That(builder.Add(team), Is.Null);
-            var rifleman = Squad.members.Single().soldier;
+            var rifleman = team.members.Single().soldier;   // its own ISF Rifleman (with the 50 m grenade)
             Assert.That(team.equipmentSwapsForWholeUnit, Is.False);
             Assert.That(builder.CustomizableSoldiers(2), Is.EqualTo(new[] { rifleman }));
             Assert.That(builder.UnitEquipmentSwaps(2), Is.Empty);

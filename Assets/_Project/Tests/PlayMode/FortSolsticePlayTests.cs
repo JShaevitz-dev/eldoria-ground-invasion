@@ -76,6 +76,95 @@ namespace Eldoria.Tests
         }
 
         [Test]
+        public void TheDefendersMayDeployAnywhereInTheFortress()
+        {
+            var defenders = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None).Single(z => z.Side == Side.AI);
+            foreach (var p in new[] { new Vector3(0f, 0f, 33f), new Vector3(-28f, 0f, 0f), new Vector3(0f, 0f, -14f), new Vector3(40f, 0f, -10f),
+                                      new Vector3(-25f, 0f, 50f), new Vector3(20f, 0f, 15f) })
+                Assert.That(defenders.Contains(p), Is.True, $"inside the fortress: {p}");
+            foreach (var p in new[] { new Vector3(0f, 0f, -20f), new Vector3(36f, 0f, 20f), new Vector3(-36f, 0f, 40f), new Vector3(0f, 0f, 58f) })
+                Assert.That(defenders.Contains(p), Is.False, $"outside the fortress: {p}");
+        }
+
+        private static Vector3 Stand(float x, float z)
+        {
+            Assert.That(Measurer.TryGetStandPoint(new Vector3(x, 0f, z), 0.35f, 1.8f, out var stand, out var why), Is.True, $"({x}, {z}): {why}");
+            return stand;
+        }
+
+        [Test]
+        public void SoldiersCanManTheWallsFromTheWallWalks()
+        {
+            // Behind the outer wall (5 m) the walk is 4.2 m up; behind the middle wall (4 m), 3.2 m.
+            Assert.That(Stand(-20f, -13.2f).y, Is.EqualTo(4.2f).Within(0.05f), "outer south");
+            Assert.That(Stand(-40.15f, -8f).y, Is.EqualTo(4.2f).Within(0.05f), "outer west");
+            Assert.That(Stand(-36f, 7.15f).y, Is.EqualTo(4.2f).Within(0.05f), "outer north-west");
+            Assert.That(Stand(15f, 10.75f).y, Is.EqualTo(3.2f).Within(0.05f), "middle south");
+            Assert.That(Stand(-28.25f, 20f).y, Is.EqualTo(3.2f).Within(0.05f), "middle west");
+            Assert.That(Stand(28.25f, 40f).y, Is.EqualTo(3.2f).Within(0.05f), "middle east");
+            Assert.That(Measurer.TryGetStandPoint(new Vector3(-20f, 0f, -15f), 0.35f, 1.8f, out _, out _), Is.False, "not on the wall itself");
+
+            // Ramps lead up from the ground.
+            foreach (var (from, to) in new[]
+            {
+                (new Vector3(-20f, 0f, -3f), Stand(-20f, -13.2f)),
+                (new Vector3(-28f, 0f, -8f), Stand(-40.15f, -8f)),
+                (new Vector3(-28f, 0f, -8f), Stand(-36f, 7.15f)),
+                (new Vector3(0f, 0f, 15f), Stand(15f, 10.75f)),
+                (new Vector3(-20f, 0f, 30f), Stand(-28.25f, 20f)),
+                (new Vector3(20f, 0f, 30f), Stand(28.25f, 40f)),
+            })
+            {
+                var path = Measurer.Measure(Stand(from.x, from.z), to);
+                Assert.That(path.Reachable, Is.True, $"{from} to {to}: {path.Reason}");
+            }
+        }
+
+        [Test]
+        public void FromTheWallWalkADefenderSeesOverTheWallAndTheBattlementsCoverThem()
+        {
+            var defender = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).First(u => u.Side == Side.AI && u.Soldiers.Count > 1).Soldiers[1];
+            var attacker = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).First(u => u.Side == Side.Player && u.Soldiers.Count > 1).Soldiers[1];
+            defender.transform.position = Stand(-20f, -13.2f);
+            attacker.transform.position = new Vector3(-20f, 0f, -35f);
+            Assert.That(ShotGeometry.CanSee(defender, attacker), Is.True, "the defender sees over the wall");
+            Assert.That(ShotGeometry.CanSee(attacker, defender), Is.True, "and can be shot at");
+
+            NearbyKeywords.RefreshAll();
+            Assert.That(defender.HasKeyword("In half-cover"), Is.True, "behind the battlements");
+            var outcome = KeywordRules.Evaluate(attacker, attacker.WeaponFor(defender), defender);
+            Assert.That(outcome.AccuracyModifiers.Any(m => m.Type == AccuracyModifierType.Penalty && m.Value == 25), Is.True, "−25% to hit them");
+
+            // On the ground behind the wall, nobody sees anyone.
+            defender.transform.position = new Vector3(-20f, 0f, -11f);
+            Assert.That(ShotGeometry.CanSee(defender, attacker), Is.False);
+            Assert.That(ShotGeometry.CanSee(attacker, defender), Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator ABigDefendingArmyDeploysInsideTheFortressNotOnTheWalls()
+        {
+            // 13 units: two rows of six and one more. The rows behind the courtyard would land on or beyond the north wall;
+            // those units take the nearest clear spots inside the fortress instead.
+            var big = new[] { TestArmies.FieldCommander }.Concat(Enumerable.Repeat(TestArmies.InfantrySquad, 12)).ToArray();
+            ArmySelection.Set(new[] { TestArmies.FieldCommander, TestArmies.InfantrySquad }, big);
+            SceneManager.LoadScene(Battlefields.FortSolstice.Scene);
+            yield return null;
+            yield return null;
+            var defenders = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None).Single(z => z.Side == Side.AI);
+            var soldiers = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).Where(u => u.Side == Side.AI).SelectMany(u => u.Soldiers).ToList();
+            Assert.That(soldiers.Count, Is.EqualTo(1 + 12 * TestArmies.InfantrySquad.Size));
+            foreach (var s in soldiers)
+            {
+                Assert.That(defenders.Contains(s.Position), Is.True, $"{s.Unit.DisplayName}: {s.name} at {s.Position}");
+                Assert.That(s.Position.y, Is.LessThan(0.1f), $"{s.Unit.DisplayName}: {s.name} on the ground at {s.Position}");
+                Assert.That(Measurer.TryGetStandPoint(s.Position, s.Radius, s.Height, out _, out var why), Is.True, $"{s.Unit.DisplayName}: {s.name}: {why}");
+                foreach (var o in soldiers)
+                    if (o != s) Assert.That(Measure.Horizontal(o.Position, s.Position), Is.GreaterThanOrEqualTo(o.Radius + s.Radius - 0.01f), $"{s.name} and {o.name}");
+            }
+        }
+
+        [Test]
         public void ThereIsAnObjectiveInTheCentreOfTheKeepForTheAttackers()
         {
             var marker = Object.FindObjectsByType<ObjectiveMarker>(FindObjectsSortMode.None).Single();

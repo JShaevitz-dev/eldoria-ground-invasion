@@ -73,7 +73,7 @@ namespace Eldoria.Tests
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null, "still there for deploying units");
             Assert.That(catalog.leaderMarker, Is.Not.Null);
             Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(25));
-            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(34));
+            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(35));
             Assert.That(AssetDatabase.FindAssets("t:Faction", new[] { "Assets/_Project/Data/Factions" }).Length, Is.EqualTo(3));
         }
 
@@ -81,7 +81,7 @@ namespace Eldoria.Tests
         public void EachFactionHasItsOwnColour()
         {
             var factions = UnitCatalog.Load().Factions.ToList();
-            Assert.That(factions[0].color, Is.EqualTo(new Color(0.20f, 0.29f, 0.42f)), "Humanity: slate navy blue");
+            Assert.That(ColorUtility.ToHtmlStringRGB(factions[0].color), Is.EqualTo("AAAAAA"), "Humanity: grey (#aaaaaa)");
             Assert.That(factions[1].color, Is.EqualTo(new Color(0.55f, 0.09f, 0.11f)), "Draconis Imperialis: imperial crimson");
             Assert.That(factions[2].color, Is.EqualTo(new Color(0.66f, 0.48f, 0.18f)), "Rask: ochre/bronze");
             Assert.That(factions.Select(f => f.color).Distinct().Count(), Is.EqualTo(3));

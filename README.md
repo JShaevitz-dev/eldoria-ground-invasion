@@ -41,7 +41,8 @@ The three maps:
   wading it costs double movement, unless you take the stone bridge or the ford. A farmhouse, a barn, a stone shed,
   and hay bales, carts and fences give cover.
 - **Siege of Ft Solstice:** 100 × 130 m of desert, asymmetrical. You attack across 42 m of open sand from the south; the AI
-  defends a massive fortress: three lanes through an outer wall, a middle wall, and a keep. **Get a unit leader onto
+  defends a massive fortress: three lanes through an outer wall, a middle wall, and a keep, with wall walks and battlements
+  for manning the walls. **Get a unit leader onto
   the objective in the centre of the keep to win** (or wipe out the defenders).
 
 The AI picks a random faction and builds its own random army under the same rules. You go first. Wipe out the enemy to
@@ -118,7 +119,7 @@ At a glance:
 
 | Faction | Race | Colour |
 |---|---|---|
-| **International Space Force of Humanity** | Humanity (Free Nations Alliance) | slate navy blue |
+| **International Space Force of Humanity** | Humanity (Free Nations Alliance) | grey (#aaaaaa) |
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
@@ -143,7 +144,7 @@ Inspector.
 | **Rask Ultima** | Most Holy Army of The Rask Divine Collective | Commander | Rask Ultima (the Rask Rifleman's stats with Health 10 and Armor 2; Biological, Solo, Officer; Pistol) |
 | **Rask Blackhand** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Blackhand (the Rask Ultima's stats with Armor 1 and no Officer; Solntse Laser Rifle; a Repair Kit as standard) |
 | **Rask Redhand** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Redhand (the Rask Ultima's stats with Armor 1 and no Officer; Solntse Laser Rifle; a Medkit as standard) |
-| **Rask Reliquary** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Reliquary (a shrine on tracks: Health 10, Armor 2, Move 20; Mechanical; no weapon; Sanctifying Presence: other friendly Biological soldiers within 20 m get +2 damage and +20% accuracy; Supply Cost 118, the formula + 100) |
+| **Rask Reliquary** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Reliquary (a shrine on tracks: Health 10, Armor 2, Move 20; Mechanical; no weapon; Sanctifying Presence: other friendly Biological soldiers within 20 m get +2 damage and +20% accuracy; Supply Cost 120, the formula + 100) |
 | **Rask Rifle Team** | Most Holy Army of The Rask Divine Collective | Infantry | Rask Superior + 19 Rask Riflemen (the Kobold Militiaman's stats with Armor 1 and 75% accuracy; Solntse Laser Rifles: the Rask name for the Assault Rifle, Damage 6) |
 | **Intimidator Medium Robot** | Most Holy Army of The Rask Divine Collective | Heavy Support | Intimidator Medium Robot (a gorilla-like four-legged robot: Health 10, Armor 3, Accuracy 75%, Move 30; Mechanical, Robotic; Stabilizers; Twin Intimidator Machine Guns: the Machine Gun with 10 shots, one on each shoulder) |
 | **Stinger Heavy Robot** | Most Holy Army of The Rask Divine Collective | Heavy Support | Stinger Heavy Robot (a six-legged beetle robot: Health 25, Armor 5, Accuracy 75%, Move 30; Mechanical, Heavy, Robotic; Stabilizers; Plasma Mortar: the Mortar Launcher's stats) |

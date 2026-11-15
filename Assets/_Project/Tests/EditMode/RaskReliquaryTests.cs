@@ -99,10 +99,10 @@ namespace Eldoria.Tests
         public void ItsSupplyCostIsTheFormulaPlus100()
         {
             // No weapon: no firepower. 10 health × 1.5 (Armor 2) = 15, at half weight; Sanctifying Presence (passive) 10.
-            // The formula gives 18; the Reliquary adds 100 for its aura, which the formula doesn't count.
+            // 17.5, rounded to 20; the Reliquary adds 100 for its aura, which the formula doesn't count.
             var p = SupplyCost.Breakdown(Reliquary, Rask);
-            Assert.That((p.Firepower, p.Durability, p.PassiveAbilities, p.ArmorTax, p.Total), Is.EqualTo((0.0, 15.0, 1, 0, 18)));
-            Assert.That((Reliquary.supplyCostAdjustment, Reliquary.supplyCost), Is.EqualTo((100, 118)));
+            Assert.That((p.Firepower, p.Durability, p.PassiveAbilities, p.ArmorTax, p.Total), Is.EqualTo((0.0, 15.0, 1, 0, 20)));
+            Assert.That((Reliquary.supplyCostAdjustment, Reliquary.supplyCost), Is.EqualTo((100, 120)));
         }
     }
 }

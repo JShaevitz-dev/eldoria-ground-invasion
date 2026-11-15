@@ -72,7 +72,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 
 | Faction | Race | Colour |
 |---|---|---|
-| **International Space Force of Humanity** | Humanity (Free Nations Alliance) | slate navy blue |
+| **International Space Force of Humanity** | Humanity (Free Nations Alliance) | grey (#aaaaaa) |
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
@@ -105,7 +105,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 **Supply Cost:** every unit has a **Supply Cost**, shown in the army builder next to its role and size, with the army list's total by "Your army". It's worked out from the unit's stats:
 
-> **Supply Cost = 3 × Firepower + ½ × Durability + 20 × active abilities + 10 × passive abilities + armor tax** (rounded to the nearest whole number)
+> **Supply Cost = 3 × Firepower + ½ × Durability + 20 × active abilities + 10 × passive abilities + armor tax**, **rounded to the nearest multiple of 5** (halves up: 112.5 → 115)
 
 - **Firepower:** the damage the unit can expect to do in a turn. Its action is either a **volley** or an **ability**, so it's the higher of:
   - a volley: every soldier's best weapon (counting weapons the army builder can give them), each worth **Damage × Shots × hit chance × penetration factor**, added up;
@@ -142,7 +142,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
-**Deployment:** each army starts in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). Units go in **rows of 6** across the zone; an army of more than 6 units fills further rows **7 m behind** each other (never off the battlefield, back ranks included). The players can then move their units during the deployment phase. A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
+**Deployment:** each army starts in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). Units go in **rows of 6** across the zone; an army of more than 6 units fills further rows **7 m behind** each other (never off the battlefield, back ranks included). A unit whose slot is blocked (its formation would stand on a building, wall, ramp, water or object, or on soldiers already deployed) takes the **nearest clear spot in its zone** instead. The players can then move their units during the deployment phase. A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
 
 ### Mortar Team
 
@@ -151,11 +151,11 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
 |---|---|---|---|---|---|---|---|
 | ISF Mortar Specialist | 5 | 2 | 75% | 10 m | Biological | Mortar Launcher (primary), Assault Rifle | — |
-| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade (equipment; *or* Medkit, *or* Repair Kit) |
+| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade, **50 m** (equipment; *or* Medkit, *or* Repair Kit) |
 
 - **Mortar Launcher:** Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; **Deployed** (can't fire after moving that turn), **Manual Load** (fires once a turn), **Explosive**. It fires at one soldier, like a rifle (no blast).
 - After the Specialist moves, the mortar can't fire, so they shoot with the **Assault Rifle** instead.
-- The ISF Rifleman is the same soldier as in the ISF Rifle Squad, so the team has that unit's **Frag Grenade**, which it can swap for a Medkit or a Repair Kit in the same way.
+- The ISF Rifleman has the ISF Rifle Squad's Rifleman's stats, but the team's **Frag Grenade** can be lobbed **up to 50 m** (the Rifle Squad's: 10 m); otherwise the same grenade (2.5 m blast, 5 damage, penetration 0). It can be swapped for a Medkit or a Repair Kit in the same way.
 - Heavy Support, so an army can take more than one.
 
 ### Sagittarius MBT
@@ -308,7 +308,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 - **No weapon:** it can't shoot; its action is to move.
 - **Sanctifying Presence** (passive aura): **other friendly Biological soldiers within 20 m** gain the status **Sanctified**: **+2 damage** and **+20% accuracy** with their weapons. Mechanical soldiers (vehicles and robots) and the Reliquary itself don't get it, and each soldier is checked on its own.
-- **Supply Cost 118:** the formula gives 18 (it doesn't count what an aura is worth), plus a **+100 surcharge** set on this unit.
+- **Supply Cost 120:** the formula gives 20 (it doesn't count what an aura is worth), plus a **+100 surcharge** set on this unit.
 - **Mechanical:** can't sprint and is never in close range. Radius 1.4 m.
 - A Specialist (an army can take more than one).
 
@@ -495,7 +495,7 @@ Each unit is a Unit template (Data/Units) made of Soldier templates (Data/Soldie
 - **Twin Raptor Pistols** (carried by the Dragonborn Skymaster Squad): Damage 4, Shots 2, Penetration 1, +0% accuracy, Range 20 m; Pistol.
 - **Shotgun** (an option for the ISF Ranger): Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords.
 - **Anti-Materiel Rifle** (an option for the ISF Ranger): the Sniper Rifle's stats but **Damage 10**, **no penetration value** and **no accuracy bonus**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed**.
-- **Abilities** (Data/Abilities): Sanctifying Presence (aura: +2 damage and +20% accuracy to Biological soldiers within 20 m), Empowering Presence (aura: +2 damage), Medkit (heals a friendly Biological soldier within 5 m for 5), Repair Kit (repairs a friendly Mechanical soldier within 5 m for 10), Frag Grenade (no limit per battle) and a tank's Frag Grenade (the same, kept as its own ability), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
+- **Abilities** (Data/Abilities): Sanctifying Presence (aura: +2 damage and +20% accuracy to Biological soldiers within 20 m), Empowering Presence (aura: +2 damage), Medkit (heals a friendly Biological soldier within 5 m for 5), Repair Kit (repairs a friendly Mechanical soldier within 5 m for 10), Frag Grenade (no limit per battle), a tank's Frag Grenade (the same, kept as its own ability) and the Mortar Team's Frag Grenade (the same, but 50 m), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
 - **Placeholder models** (Prefabs/Units) for soldiers, officers, powered armor, a tank and a walker.
 
 ### Keywords — *implemented*
@@ -764,13 +764,14 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
 
 - **100 m wide × 130 m deep** of flat **desert**, **asymmetrical**: one side attacks, the other defends a massive fortress in the north.
 - **The attackers** are the **south** side (in single player, you): they deploy on the open sand along the south edge (90 × 8 m), **42 m** from the fortress's outer wall. Two bands of sandstone rocks (Half-cover) and five boulders (Full-cover) dot the approach.
-- **The defenders** are the **north** side (in single player, the AI): they deploy **inside** the fortress, in the courtyard between the keep and the middle wall's north face (56 × 8 m).
+- **The defenders** are the **north** side (in single player, the AI): they start in the courtyard between the keep and the middle wall's north face (56 × 8 m), but their **deployment zone is the whole fortress**: anywhere inside the outer wall (the lanes) or the middle wall (including the keep and the wall walks). In the deployment phase they can move their units anywhere in it; the AI keeps its units where they start. An army too big for one row in the courtyard (more than 6 units) doesn't put its back rows on or beyond the north wall: those units take the nearest clear spots inside the fortress.
 - **The fortress** (stone walls are structure terrain: they block movement and line of sight; gates are 6 m wide, room for a tank):
   - **Outer wall** (5 m high) across the south at z −15, with **three gates**, one per lane.
   - **Three lanes** running north from the outer wall to the middle wall, split by two walls, each with sandbag barricades and a crate (Half-cover).
   - **Middle wall** (4 m) enclosing the inner fortress (x ±30, z 9 to 55), with a **gate at the end of each lane** in its south face.
   - **The keep** (3.5 m; x ±12, z 21 to 45) with a **gate in each face**, low walls inside, and the **objective** in its centre (0, 33).
   - Sandbags and crates cover the ground between the middle wall and the keep.
+  - **Wall walks** (manning the walls): platforms **2.5 m deep** behind the outer wall (its south, west and east faces and the short north stretches) and the middle wall (its south, west and east faces), **0.8 m below the wall top** (4.2 m up behind the outer wall, 3.2 m behind the middle wall), so a soldier on them sees, and shoots, over the wall. **Battlements** (0.5 m) along those wall tops are **Half-cover**: −25% to hit a soldier within 5 m of them when they're between shooter and target. **Ramps** lead up from the ground: two in each lane behind the outer wall (the lane walls are taller than the walk and split it) and one from each side of the outer wall; two from behind the middle wall's south face and one from each of its sides. Each stretch of wall between gates has its own walk (no bridges over the gates); walks meet at the corners. Vehicles and other large soldiers don't fit. On the ground right behind a wall, nobody sees over it.
 - **Objective:** a gold marker (2.5 m radius) in the centre of the keep. **The attackers win by getting a unit leader onto it** (see Winning). The defenders win by wiping out the attackers.
 
 ## Shooting — *partly implemented*

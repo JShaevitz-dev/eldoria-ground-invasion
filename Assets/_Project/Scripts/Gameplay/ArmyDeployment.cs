@@ -80,6 +80,7 @@ namespace Eldoria.Gameplay
 
             var root = new GameObject("Armies").transform;
             var deployed = new List<Unit>();
+            occupied.Clear();
             deployed.AddRange(DeployArmy(player, Side.Player, root, playerFaction, playerLoadouts));
             deployed.AddRange(DeployArmy(ai, Side.AI, root, aiFaction, aiLoadouts));
             return deployed;   // nearby keywords (cover, auras) are worked out when the first turn starts
@@ -100,13 +101,81 @@ namespace Eldoria.Gameplay
             var units = army.Where(u => u != null).ToList();
             var names = UnitNames(units, side);
             var facing = Quaternion.Euler(0f, side == Side.Player ? 0f : 180f, 0f);
+            var zone = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None).FirstOrDefault(z => z.Side == side);
             for (int i = 0; i < units.Count; i++)
             {
-                var unit = Spawn(units[i], side, SlotFor(side, i, FormationDepth(units[i])), facing, names[i], root, faction,
+                var slot = ClearSpotFor(units[i], SlotFor(side, i, FormationDepth(units[i])), facing, zone);
+                var unit = Spawn(units[i], side, slot, facing, names[i], root, faction,
                     loadouts != null && i < loadouts.Count ? loadouts[i] : null);
                 unit.NetId = NetIdOf(side, i);
+                foreach (var s in unit.Soldiers) occupied.Add((s.transform.position, s.Radius));
                 yield return unit;
             }
+        }
+
+        /// <summary>Where the soldiers deployed so far stand (and how big they are), so later units don't overlap them.</summary>
+        private static readonly List<(Vector3 at, float radius)> occupied = new List<(Vector3, float)>();
+
+        /// <summary>
+        /// The unit's slot if its whole formation fits there (see <see cref="FormationFits"/>; inside the zone too, for a zone
+        /// that keeps its army inside); otherwise the nearest spot in the side's deployment zone where it does (on a 2 m
+        /// grid), e.g. when a big army's back row would land on a fortress wall. If nowhere fits, the slot anyway.
+        /// </summary>
+        public static Vector3 ClearSpotFor(UnitTemplate unit, Vector3 slot, Quaternion facing, DeploymentZone zone)
+        {
+            if (unit == null || FormationFits(unit, slot, facing, zone != null && zone.KeepsArmyInside ? zone : null)) return slot;
+            if (zone == null) return slot;
+            const float step = 2f;
+            var candidates = new List<Vector3>();
+            foreach (var r in zone.Areas)
+                for (float x = r.xMin + step / 2f; x < r.xMax; x += step)
+                    for (float z = r.yMin + step / 2f; z < r.yMax; z += step)
+                        candidates.Add(new Vector3(x, 0f, z));
+            foreach (var c in candidates.Distinct().OrderBy(c => (c - slot).sqrMagnitude).ThenBy(c => c.x).ThenBy(c => c.z))
+            {
+                if (!zone.Contains(c)) continue;
+                if (FormationFits(unit, c, facing, zone)) return c;
+            }
+            return slot;
+        }
+
+        /// <summary>
+        /// Would every soldier of the unit, in formation with its leader at <paramref name="slot"/>, stand on open ground
+        /// (not on or in a building, wall, ramp, water or object), on the battlefield, clear of the soldiers deployed so
+        /// far (and inside <paramref name="within"/>, if given)?
+        /// </summary>
+        public static bool FormationFits(UnitTemplate unit, Vector3 slot, Quaternion facing, DeploymentZone within = null)
+        {
+            var roster = unit.Roster().ToList();
+            var slots = UnitFactory.FormationSlots(roster.Count, unit.deploymentSpacing);
+            var placed = new List<(Vector3, float)>();
+            for (int i = 0; i < roster.Count; i++)
+            {
+                float radius = roster[i] != null ? roster[i].radius : 0.35f;
+                float height = roster[i] != null ? roster[i].height : 1.8f;
+                var p = slot + facing * slots[i];
+                if (!MovementRules.IsInsideBattlefield(p, radius)) return false;
+                if (within != null && !within.Contains(p)) return false;
+                if (!Physics.Raycast(new Vector3(p.x, 50f, p.z), Vector3.down, out var hit, 100f, TerrainLayers.TerrainMask, QueryTriggerInteraction.Ignore))
+                    return false;
+                if (hit.collider.gameObject.layer != TerrainLayers.Structure) return false;   // on an object
+                var st = hit.collider.GetComponentInParent<StructureTerrain>();
+                if (st != null && st.Kind != StructureKind.Ground && st.Kind != StructureKind.Hill) return false;
+                var ground = hit.point;
+                var bottom = ground + Vector3.up * (radius + 0.05f);
+                var top = ground + Vector3.up * Mathf.Max(radius + 0.06f, height - radius);
+                foreach (var c in Physics.OverlapCapsule(bottom, top, radius * 0.9f, TerrainLayers.TerrainMask, QueryTriggerInteraction.Ignore))
+                {
+                    if (c == hit.collider) continue;
+                    if (c.gameObject.layer == TerrainLayers.Object) return false;
+                    var other = c.GetComponentInParent<StructureTerrain>();
+                    if (other == null || (other.Kind != StructureKind.Ground && other.Kind != StructureKind.Hill)) return false;
+                }
+                foreach (var (at, r) in occupied.Concat(placed))
+                    if (Measure.Horizontal(at, p) < r + radius) return false;
+                placed.Add((p, radius));
+            }
+            return true;
         }
 
         /// <summary>A unit's id in a battle, the same in both games of a multiplayer battle: the side, and its slot in the list.</summary>

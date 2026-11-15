@@ -27,5 +27,6 @@ MonoBehaviour:
   leader: {fileID: 11400000, guid: 50a0166a66c96524e927414f24bc263d, type: 2}
   members: []
   equipmentSwapsForWholeUnit: 0
-  supplyCost: 43
+  supplyCost: 45
+  supplyCostAdjustment: 0
   deploymentSpacing: 2

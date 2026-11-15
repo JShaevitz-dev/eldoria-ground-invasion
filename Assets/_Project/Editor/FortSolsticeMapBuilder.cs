@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Eldoria.CameraControl;
 using Eldoria.Gameplay;
 using Eldoria.Rules;
@@ -21,7 +22,10 @@ namespace Eldoria.EditorTools
     ///   The three lanes (z -15..9): split by two walls running north; sandbag barricades and crates in each
     ///   Middle wall (x ±30, z 9..55): three gates in its south face, one at the end of each lane
     ///   The keep (x ±12, z 21..45): a gate in each face; the objective marker in its centre (0, 33)
-    ///   North courtyard (z 46..54, inside the middle wall): defender deployment zone (Side.AI, north)
+    ///   North courtyard (z 46..54, inside the middle wall): the defenders' default slots (Side.AI, north); they may
+    ///   deploy anywhere in the fortress (inside the outer wall, and inside the middle wall)
+    ///   Wall walks: platforms behind the outer and middle walls (not the north face, or the lane walls), 0.8 m below
+    ///   the wall top, with battlements (Half-cover) along the top and ramps up from the ground
     ///
     /// Win condition: an attacker's unit leader ending a move on the objective marker (see <see cref="ObjectiveMarker"/>),
     /// besides wiping out the enemy. Walls are structure terrain (they block movement and sight); gates are wide enough
@@ -52,6 +56,11 @@ namespace Eldoria.EditorTools
         private const float OuterHeight = 5f, OuterThickness = 1.2f;
         private const float MiddleHeight = 4f, MiddleThickness = 1f;
         private const float KeepHeight = 3.5f, KeepThickness = 1f;
+
+        /// <summary>Wall walks: platform depth behind the wall, how far below the wall top they are, the battlements on top.</summary>
+        public const float WalkDepth = 2.5f, WalkBelowTop = 0.8f, BattlementHeight = 0.5f;
+        public const float OuterWalkHeight = OuterHeight - WalkBelowTop, MiddleWalkHeight = MiddleHeight - WalkBelowTop;
+        private const float RampAngle = 30f, RampWidth = 2.4f;
 
         private static Material sand, wallStone, keepStone, rock, sandbagMat, crateMat, marker;
 
@@ -192,6 +201,97 @@ namespace Eldoria.EditorTools
             foreach (float x in new[] { -KeepHalfWidth, KeepHalfWidth })
             foreach (float z in new[] { KeepSouthZ, KeepNorthZ })
                 Tower(keep, new Vector3(x, 0f, z), 2.4f, KeepHeight + 2f);
+
+            BuildWallWalks(t);
+        }
+
+        // ------------------------------------------------------------------ Manning the walls
+
+        /// <summary>
+        /// Platforms behind the outer and middle walls, so soldiers can man the walls: 2.5 m deep, 0.8 m below the wall
+        /// top (so a soldier's eyes are above it), with battlements along the wall top (Half-cover for the soldiers behind
+        /// them) and ramps up from the ground. Each stretch of wall between gates has its own walk; the walks meet at the
+        /// corners. The north face (the board edge behind it) and the lane walls have none.
+        /// </summary>
+        private static void BuildWallWalks(Transform fort)
+        {
+            var walks = Group(fort, "Wall Walks");
+            // Outer wall: the south face, the west and east faces, and the short north stretches. The lane walls are taller
+            // than the walk and split it, so each piece of the south walk has its own ramp (two in each lane).
+            WalkX(walks, "Outer South Walk", OuterSouthZ, -OuterHalfWidth, OuterHalfWidth, OuterGateX, OuterHeight, OuterThickness, +1f,
+                new[] { -36.5f, -18f, -10f, 10f, 18f, 36.5f });
+            WalkZ(walks, "Outer West Walk", -OuterHalfWidth, OuterSouthZ, MiddleSouthZ, OuterHeight, OuterThickness, +1f, new[] { -1f });
+            WalkZ(walks, "Outer East Walk", OuterHalfWidth, OuterSouthZ, MiddleSouthZ, OuterHeight, OuterThickness, -1f, new[] { -1f });
+            WalkX(walks, "Outer North-West Walk", MiddleSouthZ, -OuterHalfWidth, -MiddleHalfWidth, null, OuterHeight, OuterThickness, -1f, null);
+            WalkX(walks, "Outer North-East Walk", MiddleSouthZ, MiddleHalfWidth, OuterHalfWidth, null, OuterHeight, OuterThickness, -1f, null);
+            // Middle wall: the south face (over the lanes' gates) and the west and east faces.
+            WalkX(walks, "Middle South Walk", MiddleSouthZ, -MiddleHalfWidth, MiddleHalfWidth, MiddleGateX, MiddleHeight, MiddleThickness, +1f,
+                new[] { -11f, 11f });
+            WalkZ(walks, "Middle West Walk", -MiddleHalfWidth, MiddleSouthZ, MiddleNorthZ, MiddleHeight, MiddleThickness, +1f, new[] { 32f });
+            WalkZ(walks, "Middle East Walk", MiddleHalfWidth, MiddleSouthZ, MiddleNorthZ, MiddleHeight, MiddleThickness, -1f, new[] { 32f });
+        }
+
+        /// <summary>The stretches of a wall from a to b between its gates.</summary>
+        private static IEnumerable<(float from, float to)> Stretches(float a, float b, float[] gates)
+        {
+            float cursor = a;
+            foreach (float g in gates ?? new float[0])
+            {
+                yield return (cursor, g - GateWidth / 2f);
+                cursor = g + GateWidth / 2f;
+            }
+            yield return (cursor, b);
+        }
+
+        /// <summary>A walk behind an east-west wall at <paramref name="z"/>, on its <paramref name="inward"/> side (+1 north, -1 south).</summary>
+        private static void WalkX(Transform parent, string name, float z, float x0, float x1, float[] gates, float wallHeight, float thickness,
+            float inward, float[] rampsAtX)
+        {
+            float h = wallHeight - WalkBelowTop;
+            float zc = z + inward * (thickness / 2f + WalkDepth / 2f);
+            foreach (var (a, b) in Stretches(x0, x1, gates))
+            {
+                Block(parent, name, new Vector3((a + b) / 2f, h / 2f, zc), new Vector3(b - a, h, WalkDepth), wallStone);
+                Battlements(parent, new Vector3((a + b) / 2f, wallHeight + BattlementHeight / 2f, z), new Vector3(b - a, BattlementHeight, thickness));
+            }
+            float edge = z + inward * (thickness / 2f + WalkDepth);
+            foreach (float x in rampsAtX ?? new float[0]) Ramp(parent, new Vector3(x, h, edge), new Vector3(0f, 0f, inward));
+        }
+
+        /// <summary>A walk behind a north-south wall at <paramref name="x"/>, on its <paramref name="inward"/> side (+1 east, -1 west).</summary>
+        private static void WalkZ(Transform parent, string name, float x, float z0, float z1, float wallHeight, float thickness,
+            float inward, float[] rampsAtZ)
+        {
+            float h = wallHeight - WalkBelowTop;
+            float xc = x + inward * (thickness / 2f + WalkDepth / 2f);
+            Block(parent, name, new Vector3(xc, h / 2f, (z0 + z1) / 2f), new Vector3(WalkDepth, h, z1 - z0), wallStone);
+            Battlements(parent, new Vector3(x, wallHeight + BattlementHeight / 2f, (z0 + z1) / 2f), new Vector3(thickness, BattlementHeight, z1 - z0));
+            float edge = x + inward * (thickness / 2f + WalkDepth);
+            foreach (float z in rampsAtZ ?? new float[0]) Ramp(parent, new Vector3(edge, h, z), new Vector3(inward, 0f, 0f));
+        }
+
+        /// <summary>Battlements along a wall top: an object (it doesn't block sight) giving Half-cover to the soldiers behind it.</summary>
+        private static void Battlements(Transform parent, Vector3 centre, Vector3 size) =>
+            UrbanMapBuilder.Prop(parent, "Battlements", PrimitiveType.Cube, wallStone, centre, size, 0f,
+                cover: true, mantle: false, climb: false, "Half-cover");
+
+        /// <summary>A ramp (structure slope) from a walk's inner edge at <paramref name="top"/> down to the ground, heading <paramref name="dir"/>.</summary>
+        private static void Ramp(Transform parent, Vector3 top, Vector3 dir)
+        {
+            float run = top.y / Mathf.Tan(RampAngle * Mathf.Deg2Rad);
+            Vector3 bottom = new Vector3(top.x, 0f, top.z) + dir * run;
+            Vector3 along = top - bottom;
+            const float thickness = 0.3f;
+            var ramp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            ramp.name = "Ramp";
+            ramp.transform.SetParent(parent, false);
+            var rot = Quaternion.LookRotation(along.normalized, Vector3.up);
+            ramp.transform.localRotation = rot;
+            ramp.transform.localPosition = (top + bottom) / 2f - rot * Vector3.up * (thickness / 2f);
+            ramp.transform.localScale = new Vector3(RampWidth, thickness, along.magnitude + 0.1f);
+            ramp.GetComponent<Renderer>().sharedMaterial = wallStone;
+            ramp.layer = TerrainLayers.Structure;
+            ramp.AddComponent<StructureTerrain>().Configure(StructureKind.Slope);
         }
 
         private static Transform Group(Transform parent, string name)
@@ -327,20 +427,36 @@ namespace Eldoria.EditorTools
             // Attackers (south): the open sand along the south edge.
             Zone(parent, "Deployment (Player, attackers)", Side.Player, new Vector3(0f, 0f, -HalfDepth + 4f), new Vector2(90f, 8f),
                 UrbanMapBuilder.Mat("Deploy_Player", new Color(0.33f, 0.38f, 0.47f)));
-            // Defenders (north): the courtyard between the keep and the middle wall's north face.
+            // Defenders (north): their army's default slots are in the courtyard between the keep and the middle wall's north
+            // face, but they may deploy anywhere in the fortress: inside the outer wall (the lanes) and inside the middle wall.
             float z0 = KeepNorthZ + KeepThickness / 2f + 0.5f, z1 = MiddleNorthZ - MiddleThickness / 2f - 0.5f;
-            Zone(parent, "Deployment (AI, defenders)", Side.AI, new Vector3(0f, 0f, (z0 + z1) / 2f),
-                new Vector2((MiddleHalfWidth - MiddleThickness) * 2f - 2f, z1 - z0),
-                UrbanMapBuilder.Mat("Deploy_AI", new Color(0.47f, 0.35f, 0.34f)));
+            var defenders = Zone(parent, "Deployment (AI, defenders)", Side.AI, new Vector3(0f, 0f, (z0 + z1) / 2f),
+                new Vector2((MiddleHalfWidth - MiddleThickness) * 2f - 2f, z1 - z0), null);
+            defenders.SetKeepArmyInside(true);   // a big army's back rows would be beyond the north wall
+            var mat = UrbanMapBuilder.Mat("Deploy_Fort", new Color(0.76f, 0.6f, 0.46f));   // a light tint: it covers the whole fortress
+            foreach (var (centre, size) in DefenderAreas)
+            {
+                defenders.AddArea(centre, size);
+                UrbanMapBuilder.Decor(defenders.transform, "Marking", centre - defenders.transform.position + new Vector3(0f, 0.01f, 0f), size, mat);
+            }
         }
 
-        private static void Zone(Transform parent, string name, Side side, Vector3 centre, Vector2 size, Material mat)
+        /// <summary>The fortress, where the defenders may deploy: inside the outer wall, and inside the middle wall.</summary>
+        public static readonly (Vector3 centre, Vector2 size)[] DefenderAreas =
+        {
+            (new Vector3(0f, 0f, (OuterSouthZ + MiddleSouthZ) / 2f), new Vector2(OuterHalfWidth * 2f, MiddleSouthZ - OuterSouthZ)),
+            (new Vector3(0f, 0f, (MiddleSouthZ + MiddleNorthZ) / 2f), new Vector2(MiddleHalfWidth * 2f, MiddleNorthZ - MiddleSouthZ)),
+        };
+
+        private static DeploymentZone Zone(Transform parent, string name, Side side, Vector3 centre, Vector2 size, Material mat)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             go.transform.localPosition = centre;
-            go.AddComponent<DeploymentZone>().Configure(side, size);
-            UrbanMapBuilder.Decor(go.transform, "Marking", new Vector3(0f, 0.01f, 0f), size, mat);
+            var zone = go.AddComponent<DeploymentZone>();
+            zone.Configure(side, size);
+            if (mat != null) UrbanMapBuilder.Decor(go.transform, "Marking", new Vector3(0f, 0.01f, 0f), size, mat);
+            return zone;
         }
 
         private static Camera BuildLightingAndCamera()

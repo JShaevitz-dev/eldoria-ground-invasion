@@ -11,7 +11,7 @@ namespace Eldoria.Rules
     ///
     ///   Supply Cost = 3 × Firepower + ½ × Durability + 20 × active abilities + 10 × passive abilities + armor tax
     ///
-    /// (rounded to the nearest whole number, halves up). The weights are the constants below.
+    /// (rounded to the nearest multiple of 5, halves up). The weights are the constants below.
     /// <list type="bullet">
     /// <item><b>Firepower</b>: the damage the unit can expect to do in a turn. Its action is either a volley or an ability,
     /// so it's the higher of:
@@ -47,6 +47,11 @@ namespace Eldoria.Rules
         public const int MediumArmorTax = 50;
         /// <summary>The Armor Levels a weapon's penetration factor is averaged over (0 to this).</summary>
         public const int ReferenceArmorMax = 4;
+        /// <summary>Supply Costs are rounded to the nearest multiple of this.</summary>
+        public const int RoundTo = 5;
+
+        /// <summary>Rounds a cost to the nearest multiple of <see cref="RoundTo"/> (halves up).</summary>
+        public static int Round(double cost) => (int)Math.Floor(cost / RoundTo + 0.5 + 1e-9) * RoundTo;
 
         /// <summary>The parts of a unit's Supply Cost.</summary>
         public struct Parts
@@ -61,8 +66,8 @@ namespace Eldoria.Rules
             public double Exact => FirepowerWeight * Firepower + DurabilityWeight * Durability
                                    + ActiveAbilities * ActiveAbilityCost + PassiveAbilities * PassiveAbilityCost + ArmorTax;
 
-            /// <summary>The Supply Cost: <see cref="Exact"/> rounded to the nearest whole number (halves up).</summary>
-            public int Total => (int)Math.Floor(Exact + 0.5 + 1e-9);
+            /// <summary>The Supply Cost: <see cref="Exact"/> rounded to the nearest multiple of 5 (halves up).</summary>
+            public int Total => Round(Exact);
 
             public override string ToString() =>
                 $"{Total} = 3 × {Firepower:0.##} firepower + ½ × {Durability:0.##} durability + {ActiveAbilities}×{ActiveAbilityCost} + {PassiveAbilities}×{PassiveAbilityCost} + {ArmorTax} armor tax (Armor {BestArmor})";

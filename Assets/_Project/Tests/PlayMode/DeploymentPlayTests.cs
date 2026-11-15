@@ -203,6 +203,29 @@ namespace Eldoria.Tests
         }
 
         [UnityTest]
+        public IEnumerator OnTheFortTheDefendersDeployAnywhereInsideIncludingOnTheWalls()
+        {
+            MultiplayerSession.Leave();
+            Victory.Reset();
+            var army = new[] { TestArmies.FieldCommander, TestArmies.InfantrySquad };
+            ArmySelection.Set(army, army);
+            ArmySelection.LocalSide = Side.AI;   // the defenders
+            ArmySelection.DeploymentPhase = true;
+            MultiplayerSession.Offline(Side.AI);
+            SceneManager.LoadScene(Battlefields.FortSolstice.Scene);
+            yield return null;
+            yield return null;
+            var c = Controller;
+            Assert.That(c.IsDeploying, Is.True);
+            var commander = c.PlayerUnits.First(u => u.Soldiers.Count == 1);
+            Assert.That(c.DeployUnitAt(commander, new Vector3(-20f, 0f, -13.2f), out string why), Is.True, "on the outer wall walk: " + why);
+            Assert.That(commander.Leader.Position.y, Is.EqualTo(4.2f).Within(0.05f));
+            Assert.That(c.DeployUnitAt(commander, new Vector3(-28f, 0f, 0f), out why), Is.True, "in a lane: " + why);
+            Assert.That(c.DeployUnitAt(commander, new Vector3(0f, 0f, 38f), out why), Is.True, "in the keep: " + why);
+            Assert.That(c.DeployUnitAt(commander, new Vector3(0f, 0f, -25f), out why), Is.False, "not outside the walls");
+        }
+
+        [UnityTest]
         public IEnumerator ConcedingDuringDeploymentEndsTheBattleAndRevealsEveryone()
         {
             yield return StartSinglePlayer();

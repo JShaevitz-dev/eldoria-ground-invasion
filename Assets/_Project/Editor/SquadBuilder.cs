@@ -24,7 +24,7 @@ namespace Eldoria.EditorTools
         /// <summary>The factions (Data/Factions), in the order the army builder shows them: file name, display name, colour.</summary>
         public static readonly (string file, string name, Color color)[] FactionNames =
         {
-            ("Humanity", "International Space Force of Humanity", new Color(0.20f, 0.29f, 0.42f)),                // slate navy blue
+            ("Humanity", "International Space Force of Humanity", new Color(0.667f, 0.667f, 0.667f)),             // grey (#aaaaaa)
             ("DraconisImperialis", "Imperial Army of The Draconis Imperialis", new Color(0.55f, 0.09f, 0.11f)),   // imperial crimson
             ("Rask", "Most Holy Army of The Rask Divine Collective", new Color(0.66f, 0.48f, 0.18f)),             // liturgical ochre/bronze
         };
@@ -246,7 +246,8 @@ namespace Eldoria.EditorTools
         /// <summary>
         /// Mortar Team (Heavy Support, ISF): 1 ISF Mortar Specialist (leader; the ISF Rifleman's stats: Health 5, Armor 2,
         /// Accuracy 75%, Move 10 m, Biological; Mortar Launcher (primary) and Assault Rifle) + 1 ISF Rifleman (the ISF Rifle
-        /// Squad's: Assault Rifle, Frag Grenade). Existing assets keep their Inspector edits.
+        /// Squad's, but a soldier type of its own, IsfMortarRifleman: its Frag Grenade can be thrown 50 m, not 10 m, and can
+        /// still be swapped for a Medkit or Repair Kit). Existing assets keep their Inspector edits.
         /// </summary>
         public static UnitTemplate EnsureMortarTeam(Faction faction, Dictionary<string, Keyword> keywords)
         {
@@ -254,7 +255,46 @@ namespace Eldoria.EditorTools
             EnsureFolder(DataDir, "Units");
             var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
             var mortar = EnsureMortarLauncher(keywords);
-            var rifleman = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/IsfRifleman.asset");
+            var squadRifleman = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/IsfRifleman.asset");
+            EnsureEquipment();
+            EnsureFolder(DataDir, "Abilities");
+            // The Mortar Team's Frag Grenade: the Frag Grenade ability, but thrown up to 50 m (the team lobs it like a mortar
+            // round). Given by its own piece of equipment, carried by the team's ISF Rifleman.
+            var grenade = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/FragGrenade.asset");
+            var longGrenade = GetOrCreate<Ability>($"{DataDir}/Abilities/MortarFragGrenade.asset", a =>
+            {
+                EditorUtility.CopySerialized(grenade, a);
+                a.name = "MortarFragGrenade";
+                a.keywords = new List<Keyword>(grenade.keywords);
+                a.range = 50f;
+                a.description = "Active, no limit per battle. Lob at a spot within 50 m of the unit leader: everyone within 2.5 m takes 5 damage (penetration 0), unless terrain shields them from the blast. Throwing it is the unit's action.";
+            });
+            var longGrenadeItem = GetOrCreate<Equipment>($"{DataDir}/Equipment/MortarFragGrenade.asset", e =>
+            {
+                e.displayName = "Frag Grenade";
+                e.description = "The Mortar Team's Frag Grenade: gives the active ability Frag Grenade, lobbed up to 50 m (a 2.5 m blast, thrown as the unit's action, with no limit per battle).";
+                e.abilities = new List<Ability> { longGrenade };
+            });
+            var medkit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/Medkit.asset");
+            var repairKit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/RepairKit.asset");
+            var rifleman = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfMortarRifleman.asset", s =>
+            {
+                s.displayName = "ISF Rifleman";
+                s.health = squadRifleman.health; s.armorLevel = squadRifleman.armorLevel; s.accuracy = squadRifleman.accuracy;
+                s.movementRange = squadRifleman.movementRange;
+                s.keywords = new List<Keyword>(squadRifleman.keywords);
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate>(squadRifleman.weapons);
+                s.primaryWeapon = squadRifleman.primaryWeapon;
+                s.prefab = squadRifleman.prefab;
+                s.radius = squadRifleman.radius;
+                s.height = squadRifleman.height;
+                s.equipment = new List<Equipment> { longGrenadeItem };
+                s.equipmentSwaps = new List<EquipmentOption>
+                {
+                    new EquipmentOption { equipment = longGrenadeItem, alternatives = new List<Equipment> { medkit, repairKit } },
+                };
+            });
             var specialist = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfMortarSpecialist.asset", s =>
             {
                 s.displayName = "ISF Mortar Specialist";
@@ -269,10 +309,15 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Mortar Team";
                 u.role = UnitRole.HeavySupport;
-                u.description = "Two ISF soldiers with a portable mortar. The Mortar Specialist fires the Mortar Launcher (5 damage, penetration 3, 50 m, once a turn), which can't fire after moving, so set up first and shell targets from long range: penetration 3 cuts through infantry armor and still does half damage to Armor Level 4 tanks. Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can throw a Frag Grenade as the team's action. With 5 health and Armor Level 2 each, keep them behind your lines. Heavy Support can be taken more than once.";
+                u.description = "Two ISF soldiers with a portable mortar. The Mortar Specialist fires the Mortar Launcher (5 damage, penetration 3, 50 m, once a turn), which can't fire after moving, so set up first and shell targets from long range: penetration 3 cuts through infantry armor and still does half damage to Armor Level 4 tanks. Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can lob a Frag Grenade up to 50 m (a 2.5 m blast, 5 damage, penetration 0) as the team's action. With 5 health and Armor Level 2 each, keep them behind your lines. Heavy Support can be taken more than once.";
                 u.leader = specialist;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 1 } };
                 u.deploymentSpacing = 2f;
+            }, u =>
+            {
+                // Older assets: the team's rifleman was the Rifle Squad's (with the 10 m grenade).
+                foreach (var m in u.members) if (m.soldier == squadRifleman) m.soldier = rifleman;
+                u.description = u.description.Replace("Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can throw a Frag Grenade as the team's action.", "Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can lob a Frag Grenade up to 50 m (a 2.5 m blast, 5 damage, penetration 0) as the team's action.");
             });
             if (!faction.units.Contains(unit))
             {
@@ -2586,7 +2631,7 @@ namespace Eldoria.EditorTools
             {
                 var faction = catalog.Factions.FirstOrDefault(f => f.Has(unit));
                 var parts = Eldoria.Rules.SupplyCost.Breakdown(unit, faction);
-                int cost = Mathf.Max(0, parts.Total + unit.supplyCostAdjustment);   // the formula, plus any surcharge
+                int cost = Mathf.Max(0, Eldoria.Rules.SupplyCost.Round(parts.Total + unit.supplyCostAdjustment));   // the formula, plus any surcharge, to a multiple of 5
                 if (unit.supplyCost != cost)
                 {
                     unit.supplyCost = cost;
