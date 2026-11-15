@@ -21,7 +21,10 @@ getting the rules right.
 
 ## Play it
 
-Build the game (see **Windows build** below) and run `Builds/Eldoria/Eldoria.exe`. The main menu has **Play**,
+1. Download [`Eldoria-Ground-Invasion-Windows.zip`](Eldoria-Ground-Invasion-Windows.zip) from this repo.
+2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
+
+Or build the game yourself (see **Windows build** below) and run `Builds/Eldoria/Eldoria.exe`. The main menu has **Play**,
 **Multiplayer**, **Quit** and the turn timer option (off by default, 10 minutes per turn).
 
 After **Play**, you'll:
