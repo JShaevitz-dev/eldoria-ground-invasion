@@ -223,7 +223,7 @@ namespace Eldoria.Tests
                 if (ArmySelection.HasArmies) return;
                 if (loaded.name == "CubeRoom") PlaceCubeRoomArmies();
                 else if (loaded.name == "UrbanDemo") PlaceUrbanArmies();
-                else if (loaded.name == Battlefields.EnglishCountryside.Scene) PlaceDemoArmyInZones();
+                else if (loaded.name == Battlefields.EnglishCountryside.Scene || loaded.name == Battlefields.PolarNonsense.Scene) PlaceDemoArmyInZones();
             }
             SceneManager.sceneLoaded += Place;
             SceneManager.LoadScene(scene);

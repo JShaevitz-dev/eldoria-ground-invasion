@@ -352,21 +352,25 @@ namespace Eldoria.Gameplay
             GUI.enabled = true;
         }
 
-        /// <summary>The map choice: one button per map, with its description.</summary>
+        private Vector2 mapScroll;
+
+        /// <summary>The map choice: one button per map, with its description (scrolling if the window is too short for them all).</summary>
         private void DrawMapChoice()
         {
-            float w = Mathf.Min(760f, Screen.width - 40f), h = Mathf.Min(560f, Screen.height - 40f);
+            float w = Mathf.Min(760f, Screen.width - 40f), h = Mathf.Min(720f, Screen.height - 40f);
             GUILayout.BeginArea(new Rect((Screen.width - w) / 2f, (Screen.height - h) / 2f, w, h));
             var heading = new GUIStyle(titleStyle) { fontSize = 36 };
             GUILayout.Label("CHOOSE A BATTLEFIELD", heading);
             GUILayout.Space(16f);
+            mapScroll = GUILayout.BeginScrollView(mapScroll);
             foreach (var map in Battlefields.All)
             {
                 if (GUILayout.Button($"<size=24><b>{map.Name}</b></size>\n{map.Description}", mapButtonStyle, GUILayout.MinHeight(110f)))
                     ChooseMap(map);
                 GUILayout.Space(10f);
             }
-            GUILayout.FlexibleSpace();
+            GUILayout.EndScrollView();
+            GUILayout.Space(10f);
             if (GUILayout.Button(Page != MultiplayerPage.None ? "Leave" : "Back", buttonStyle, GUILayout.Height(50f)))
             {
                 if (Page != MultiplayerPage.None) OpenMultiplayer();   // the host leaves the game with the other player

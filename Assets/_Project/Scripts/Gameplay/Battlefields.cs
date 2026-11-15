@@ -39,6 +39,15 @@ namespace Eldoria.Gameplay
                           "attackers win by getting a unit leader onto the objective in the centre of the keep.",
         };
 
-        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice };
+        public static readonly Battlefield PolarNonsense = new Battlefield
+        {
+            Name = "Polar Nonsense",
+            Scene = "Polar",
+            Description = "100 × 100 m of snow, laid out with 180° symmetry. Snowy knolls, ridges and rises block line of " +
+                          "sight; a small polar station in the centre and on each side; snowbanks, fuel drums and crates for " +
+                          "half-cover, ice boulders and fuel tanks for full cover.",
+        };
+
+        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice, PolarNonsense };
     }
 }

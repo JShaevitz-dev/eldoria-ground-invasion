@@ -774,6 +774,17 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
   - **Wall walks** (manning the walls): platforms **2.5 m deep** behind the outer wall (its south, west and east faces and the short north stretches) and the middle wall (its south, west and east faces), **0.8 m below the wall top** (4.2 m up behind the outer wall, 3.2 m behind the middle wall), so a soldier on them sees, and shoots, over the wall. **Battlements** (0.5 m) along those wall tops are **Half-cover**: −25% to hit a soldier within 5 m of them when they're between shooter and target. **Ramps** lead up from the ground: two in each lane behind the outer wall (the lane walls are taller than the walk and split it) and one from each side of the outer wall; two from behind the middle wall's south face and one from each of its sides. Each stretch of wall between gates has its own walk (no bridges over the gates); walks meet at the corners. Vehicles and other large soldiers don't fit. On the ground right behind a wall, nobody sees over it.
 - **Objective:** a gold marker (2.5 m radius) in the centre of the keep. **The attackers win by getting a unit leader onto it** (see Winning). The defenders win by wiping out the attackers.
 
+### Polar Nonsense — *built (Scenes/Polar, Eldoria > Build Polar Nonsense)*
+
+- **100 m × 100 m** of snow, **symmetrical**: laid out with **180° symmetry** (everything at (x, z) is also at (−x, −z), turned round), so neither side has the better half. The shape is in `Terrain.PolarLayout`.
+- **Deployment zones:** the player sets up in the southern **10 m** of the map, the AI in the northern 10 m. Both strips are flat.
+- **Hills** (structure terrain: their crests block line of sight): two **knolls** (4.5 m high, 13 m radius; south-west and north-east of the centre), two **ridges** (3 m high, along the west and east edges) and two **low rises** (2 m). Gentle snow drifts roll across the rest.
+- **The station** (roofless buildings with doors and windows, on flat pads): the **Relay Hut** in the centre (6 × 6 m, doors north and south), and on each side a **Weather Station** (7 × 5 m) and a **Supply Shed** (5 × 4 m), their doors facing the centre.
+- **Cover:**
+  - **Half-cover:** **snowbanks** (1 m high; step over them), **fuel drums** and **supply crates** (step over or climb on top).
+  - **Full-cover:** **ice boulders** (2.6 m) and the station's two **fuel tanks** (2.5 m, 3 m across); both block movement.
+  - The Relay Hut's two **radio masts** are thin poles: no cover.
+
 ## Shooting — *partly implemented*
 
 ### Penetration vs armor — *implemented*

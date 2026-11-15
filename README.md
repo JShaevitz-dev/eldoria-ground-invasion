@@ -29,12 +29,12 @@ Or build the game yourself (see **Windows build** below) and run `Builds/Eldoria
 
 After **Play**, you'll:
 
-1. **Choose a battlefield:** the Boxed in, the Open Season or the Siege of Ft Solstice.
+1. **Choose a battlefield:** the Boxed in, the Open Season, the Siege of Ft Solstice or Polar Nonsense.
 2. **Choose your faction**, which decides which units and commanders you can take.
 3. **Build your army:** units whose Supply Costs add up to no more than 750, with exactly 1 Commander (any other unit can be taken more than once). Units whose soldiers
    have weapon or equipment options can be customized. Then press **Confirm army**.
 
-The three maps:
+The four maps:
 
 - **Boxed in:** an 80 × 60 m city block with a central plaza, laid out with 180° symmetry so both sides start out even.
 - **Open Season:** 100 × 100 m of open, rolling farmland. Hills block line of sight. A river crosses the map:
@@ -44,6 +44,9 @@ The three maps:
   defends a massive fortress: three lanes through an outer wall, a middle wall, and a keep, with wall walks and battlements
   for manning the walls. **Get a unit leader onto
   the objective in the centre of the keep to win** (or wipe out the defenders).
+- **Polar Nonsense:** 100 × 100 m of snow, laid out with 180° symmetry. Snowy knolls, ridges and rises block line of
+  sight; a small polar station (a relay hut in the centre, a weather station and a supply shed on each side) and
+  snowbanks, fuel drums, crates, ice boulders and fuel tanks give cover.
 
 The AI picks a random faction and builds its own random army under the same rules. You go first. Wipe out the enemy to
 win (or, on Ft Solstice, take the objective).
@@ -189,12 +192,12 @@ Assets/_Project/
     Core/         battlefield scale and the shared random number generator
   Data/           ScriptableObject assets: Weapons, Keywords, Abilities, Factions, Units, Soldiers
   Editor/         builders for data, maps, scenes and the Windows build
-  Scenes/         MainMenu, UrbanDemo, Countryside, FortSolstice, CubeRoom (test room)
+  Scenes/         MainMenu, UrbanDemo, Countryside, FortSolstice, Polar, CubeRoom (test room)
   Tests/          EditMode and PlayMode tests
 Docs/Rules.md     the rules
 ```
 
-**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Alliance Models (the Skael and Sphinxian soldier models, not used by any unit yet), Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
+**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Polar Nonsense, Build Alliance Models (the Skael and Sphinxian soldier models, not used by any unit yet), Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
 `SquadBuilder` keeps the keyword library and the unit catalog (Resources/UnitCatalog) in step with the assets in Data.
 
 **Tests** build their units from test-made ScriptableObjects (`Tests/PlayMode/TestArmies.cs`: stand-ins for an infantry
