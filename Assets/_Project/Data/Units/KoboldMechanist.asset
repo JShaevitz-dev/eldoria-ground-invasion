@@ -20,7 +20,9 @@ MonoBehaviour:
     (the Draconis Assault Rifle: 4 damage, penetration 1, 20 m). Its Repair Kit restores
     10 health to a friendly Mechanical soldier within 5 m, such as a damaged Tyrant
     Hover-tank, as its action; it can''t be used on one at full health. Keep it close
-    behind your machines and out of the line of fire. A Specialist: one per army.'
+    behind your machines and out of the line of fire. A Specialist, so you can field more than one.'
   leader: {fileID: 11400000, guid: ca0797d5612632f47b4939c4f22dffc8, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 30
   deploymentSpacing: 1.2

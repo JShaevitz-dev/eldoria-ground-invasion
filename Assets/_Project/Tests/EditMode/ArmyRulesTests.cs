@@ -103,7 +103,8 @@ namespace Eldoria.Tests
             {
                 var army = ArmyRules.RandomArmy(catalog.UnitsFor(isf), new System.Random(seed));
                 Assert.That(ArmyRules.Problems(army, isf), Is.Empty, $"seed {seed}");
-                Assert.That(army.Count, Is.EqualTo(6));
+                Assert.That(ArmyRules.SupplyOf(army), Is.LessThanOrEqualTo(ArmyRules.SupplyCap));
+                Assert.That(catalog.UnitsFor(isf).Where(u => u.role != UnitRole.Commander).All(u => ArmyRules.WhyCannotAdd(army, u, isf) != null), Is.True, "nothing more fits");
                 Assert.That(new[] { "Field Commander", "Master Sergeant Jakoby", "Marshal Command Tank" }, Does.Contain(army.First().displayName));
                 Assert.That(army.Count(u => u.role == UnitRole.Commander), Is.EqualTo(1));
             }
@@ -112,19 +113,20 @@ namespace Eldoria.Tests
             {
                 var army = ArmyRules.RandomArmy(catalog.UnitsFor(draconis), new System.Random(seed));
                 Assert.That(ArmyRules.Problems(army, draconis), Is.Empty, $"Draconis seed {seed}");
-                Assert.That(army.Count, Is.EqualTo(6));
+                Assert.That(ArmyRules.SupplyOf(army), Is.LessThanOrEqualTo(ArmyRules.SupplyCap));
+                Assert.That(catalog.UnitsFor(draconis).Where(u => u.role != UnitRole.Commander).All(u => ArmyRules.WhyCannotAdd(army, u, draconis) != null), Is.True, "nothing more fits");
                 Assert.That(new[] { "Dragon Hierarch", "Dragonborn Exemplar" }, Does.Contain(army.First().displayName));
                 Assert.That(army.Count(u => u.role == UnitRole.Commander), Is.EqualTo(1));
                 Assert.That(army.Skip(1).All(u => u.displayName == "Dragonborn Squad" || u.displayName == "Kobold Militia" || u.displayName == "Dragonborn Skymaster Squad" || u.displayName == "Tyrant Hover-tank" || u.displayName == "Kobold Mechanist"), Is.True,
                     "then Infantry (Dragonborn Squads and Kobold Militia), the Specialist Skymaster Squad and Heavy Support");
-                Assert.That(army.Count(u => u.displayName == "Dragonborn Skymaster Squad"), Is.LessThanOrEqualTo(1), "a Specialist: at most one");
             }
             var rask = catalog.Factions.Last();
             for (int seed = 0; seed < 20; seed++)
             {
                 var army = ArmyRules.RandomArmy(catalog.UnitsFor(rask), new System.Random(seed));
                 Assert.That(ArmyRules.Problems(army, rask), Is.Empty, $"Rask seed {seed}");
-                Assert.That(army.Count, Is.EqualTo(6));
+                Assert.That(ArmyRules.SupplyOf(army), Is.LessThanOrEqualTo(ArmyRules.SupplyCap));
+                Assert.That(catalog.UnitsFor(rask).Where(u => u.role != UnitRole.Commander).All(u => ArmyRules.WhyCannotAdd(army, u, rask) != null), Is.True, "nothing more fits");
                 Assert.That(army.First().displayName, Is.EqualTo("Rask Ultima"));
                 Assert.That(army.Count(u => u.role == UnitRole.Commander), Is.EqualTo(1));
             }
@@ -328,21 +330,44 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void AnArmyHasSixSlots()
+        public void AnArmysSupplyCostsCantAddUpToMoreThanTheSupplyCap()
         {
-            Assert.That(ArmyRules.IsValid(List(Commander, Infantry, Infantry, Infantry, Infantry, Infantry)), Is.True);
-            Assert.That(ArmyRules.Problems(List(Commander, Infantry, Infantry, Infantry, Infantry, Infantry, Infantry)).Single(),
-                Does.Contain("Too many units"));
+            var catalog = UnitCatalog.Load();
+            UnitTemplate Real(string name) => catalog.Available.Single(u => u.displayName == name);
+            var ultima = Real("Rask Ultima");          // 14
+            var rifles = Real("Rask Rifle Team");      // 240
+            Assert.That(ArmyRules.SupplyCap, Is.EqualTo(750));
+            var army = new List<UnitTemplate> { ultima, rifles, rifles, rifles };   // 734
+            Assert.That(ArmyRules.SupplyOf(army), Is.EqualTo(14 + 3 * 240));
+            Assert.That(ArmyRules.IsValid(army), Is.True, "under the cap");
+            Assert.That(ArmyRules.WhyCannotAdd(army, rifles), Does.Contain("Over the Supply Cap"));
+            Assert.That(ArmyRules.WhyCannotAdd(army, ultima), Does.Contain("Commander"), "and still one Commander");
+            army.Add(rifles);
+            Assert.That(ArmyRules.Problems(army).Single(), Does.Contain("Over the Supply Cap: 974 of 750"));
         }
 
         [Test]
-        public void CommandersAndSpecialistsCantBeDuplicated()
+        public void ThereIsNoLimitOnHowManyUnits()
+        {
+            var catalog = UnitCatalog.Load();
+            var commander = catalog.Available.Single(u => u.displayName == "Field Commander");   // 24
+            var ranger = catalog.Available.Single(u => u.displayName == "ISF Ranger");            // 26
+            var army = new List<UnitTemplate> { commander };
+            while (ArmyRules.WhyCannotAdd(army, ranger) == null) army.Add(ranger);
+            Assert.That(army.Count, Is.EqualTo(1 + (750 - 24) / 26), "as many as the Supply Cap allows");
+            Assert.That(army.Count, Is.GreaterThan(6));
+            Assert.That(ArmyRules.IsValid(army), Is.True);
+        }
+
+        [Test]
+        public void OnlyCommandersAreUnique()
         {
             Assert.That(ArmyRules.Problems(List(Commander, Commander)), Has.Some.Contains("Only one Field Commander"));
-            Assert.That(ArmyRules.Problems(List(Commander, Sniper, Sniper)).Single(), Does.Contain("Only one Sniper"));
-            Assert.That(ArmyRules.Problems(List(Commander, PA, PA)).Single(), Does.Contain("Only one Powered Armor Squad"));
-            Assert.That(ArmyRules.IsValid(List(Commander, Priest, Sniper, PA)), Is.True, "different ones are fine");
-            Assert.That(ArmyRules.Problems(List(Commander, Priest, Priest)).Single(), Does.Contain("Only one Battle Priest"));
+            Assert.That(ArmyRules.IsValid(List(Commander, Sniper, Sniper)), Is.True, "Specialists can be taken more than once");
+            Assert.That(ArmyRules.IsValid(List(Commander, PA, PA)), Is.True);
+            Assert.That(ArmyRules.IsValid(List(Commander, Priest, Priest)), Is.True);
+            Assert.That(ArmyRules.IsUnique(UnitRole.Specialist), Is.False);
+            Assert.That(ArmyRules.IsUnique(UnitRole.Commander), Is.True);
         }
 
         [Test]
@@ -366,9 +391,9 @@ namespace Eldoria.Tests
         {
             Assert.That(ArmyRules.WhyCannotAdd(List(Commander), Infantry), Is.Null);
             Assert.That(ArmyRules.WhyCannotAdd(List(Commander), Commander), Does.Contain("Already in the army"));
-            Assert.That(ArmyRules.WhyCannotAdd(List(Sniper), Sniper), Does.Contain("Already in the army"));
+            Assert.That(ArmyRules.WhyCannotAdd(List(Sniper), Sniper), Is.Null, "Specialists can be duplicated");
             Assert.That(ArmyRules.WhyCannotAdd(List(Commander, Infantry), Infantry), Is.Null);
-            Assert.That(ArmyRules.WhyCannotAdd(List(Commander, Infantry, Infantry, Infantry, Infantry, Infantry), MG), Does.Contain("slots are full"));
+            Assert.That(ArmyRules.WhyCannotAdd(List(Commander, Sniper, Sniper, Sniper, Sniper, Sniper, Sniper), Sniper), Is.Null, "no slot limit");
         }
 
         [Test]
@@ -380,7 +405,8 @@ namespace Eldoria.Tests
             {
                 var army = ArmyRules.RandomArmy(available, new System.Random(seed));
                 Assert.That(ArmyRules.Problems(army), Is.Empty, $"seed {seed}");
-                Assert.That(army.Count, Is.EqualTo(6), "every slot filled");
+                Assert.That(ArmyRules.SupplyOf(army), Is.LessThanOrEqualTo(ArmyRules.SupplyCap));
+                Assert.That(available.Where(u => u.role != UnitRole.Commander).All(u => ArmyRules.WhyCannotAdd(army, u) != null), Is.True, "nothing more fits");
                 Assert.That(army.Count(u => u.role == UnitRole.Commander), Is.EqualTo(1), "exactly one Commander");
                 used.UnionWith(army);
             }
@@ -458,11 +484,15 @@ namespace Eldoria.Tests
             Assert.That(builder.Army, Is.Empty);
             Assert.That(builder.Confirm(), Is.False, "an empty army has no Commander");
             Assert.That(builder.Add(Commander), Is.Null);
-            for (int i = 0; i < 5; i++) Assert.That(builder.Add(Infantry), Is.Null);
-            Assert.That(builder.Add(Infantry), Does.Contain("slots are full"));
+            int added = 0;
+            string why;
+            while ((why = builder.Add(Infantry)) == null && added < 100) added++;
+            Assert.That(why, Does.Contain("Over the Supply Cap"), "squads can be added until the Supply Cap");
+            Assert.That(added, Is.EqualTo((ArmyRules.SupplyCap - Commander.supplyCost) / Infantry.supplyCost));
+            Assert.That(builder.SupplyTotal, Is.LessThanOrEqualTo(ArmyRules.SupplyCap));
             Assert.That(builder.Confirm(), Is.True);
             builder.RemoveAt(0);
-            Assert.That(builder.Army.Count, Is.EqualTo(5));
+            Assert.That(builder.Army.Count, Is.EqualTo(added));
             Assert.That(builder.Confirm(), Is.False);
             Assert.That(builder.Problems.Single(), Does.Contain("Commander"));
         }
@@ -556,13 +586,37 @@ namespace Eldoria.Tests
         public void SixSlotsAreSpreadAcrossEachDeploymentZone()
         {
             // The Boxed in's zones: 80 × 8 m at z = ∓26.
-            var player = Enumerable.Range(0, ArmyRules.MaxUnits).Select(i => ArmyDeployment.Slot(new Vector3(0f, 0f, -26f), new Vector2(80f, 8f), Side.Player, i)).ToList();
-            var ai = Enumerable.Range(0, ArmyRules.MaxUnits).Select(i => ArmyDeployment.Slot(new Vector3(0f, 0f, 26f), new Vector2(80f, 8f), Side.AI, i)).ToList();
+            var player = Enumerable.Range(0, ArmyDeployment.UnitsPerRow).Select(i => ArmyDeployment.Slot(new Vector3(0f, 0f, -26f), new Vector2(80f, 8f), Side.Player, i)).ToList();
+            var ai = Enumerable.Range(0, ArmyDeployment.UnitsPerRow).Select(i => ArmyDeployment.Slot(new Vector3(0f, 0f, 26f), new Vector2(80f, 8f), Side.AI, i)).ToList();
             Assert.That(player.Select(p => p.x), Is.Ordered, "west to east for the player");
             Assert.That(player.All(p => Mathf.Abs(p.x) < 40f && Mathf.Approximately(p.z, -25f)), Is.True, "inside the zone, a little forward");
-            for (int i = 0; i < ArmyRules.MaxUnits; i++)
+            for (int i = 0; i < ArmyDeployment.UnitsPerRow; i++)
                 Assert.That(Vector3.Distance(ai[i], -player[i]), Is.LessThan(0.001f), "the AI's slots are the player's turned 180°");
             Assert.That(player[1].x - player[0].x, Is.EqualTo(80f / 6f).Within(0.001f), "evenly spaced");
+        }
+
+        [Test]
+        public void MoreThanSixUnitsDeployInFurtherRowsBehind()
+        {
+            Eldoria.Core.BattlefieldScale.SetBoard(100f, 100f);
+            try { RowsBehind(); }
+            finally { Eldoria.Core.BattlefieldScale.ResetBoard(); }
+        }
+
+        private static void RowsBehind()
+        {
+            var zone = new Vector3(0f, 0f, -26f);
+            var size = new Vector2(80f, 8f);
+            var first = ArmyDeployment.Slot(zone, size, Side.Player, 0);
+            var seventh = ArmyDeployment.Slot(zone, size, Side.Player, 6);
+            var thirteenth = ArmyDeployment.Slot(zone, size, Side.Player, 12);
+            Assert.That(seventh.x, Is.EqualTo(first.x).Within(0.001f), "the next row starts on the left again");
+            Assert.That(first.z - seventh.z, Is.EqualTo(ArmyDeployment.RowSpacing).Within(0.001f), "a row behind");
+            Assert.That(thirteenth.z, Is.LessThan(seventh.z));
+            var ai = ArmyDeployment.Slot(-zone, size, Side.AI, 6);
+            Assert.That(ai.z, Is.GreaterThan(ArmyDeployment.Slot(-zone, size, Side.AI, 0).z), "the AI's rows go back north");
+            var far = ArmyDeployment.Slot(zone, size, Side.Player, 59);
+            Assert.That(Mathf.Abs(far.z), Is.LessThanOrEqualTo(Eldoria.Core.BattlefieldScale.BoardDepth / 2f), "never off the battlefield");
         }
     }
 }

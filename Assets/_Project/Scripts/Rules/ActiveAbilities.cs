@@ -107,6 +107,7 @@ namespace Eldoria.Rules
         {
             string cannotCast = WhyCannotCast(user, ability);
             if (cannotCast != null) return cannotCast;
+            if (ability.transport != TransportAction.None) return WhyCannotTransport(user, ability, targetUnit ?? targetSoldier?.Unit);
 
             if (ability.targets == AbilityTarget.Point)
             {
@@ -150,6 +151,34 @@ namespace Eldoria.Rules
             return null;
         }
 
+        /// <summary>Soldier keywords that keep a unit out of a transport (too big, or a vehicle itself).</summary>
+        public static readonly string[] CannotEmbark = { "Mechanical", "Large" };
+
+        /// <summary>
+        /// Embark: a friendly unit (not this one, not aboard another transport, not carrying one, with no Mechanical or Large
+        /// soldiers) whose closest soldier is within the ability's range of the transport's hull (edge to edge); the
+        /// transport carries one unit at a time. Disembark: there's a unit aboard.
+        /// </summary>
+        private static string WhyCannotTransport(Soldier user, Ability ability, Unit target)
+        {
+            var transport = user.Unit;
+            if (transport == null) return "No transport";
+            if (ability.transport == TransportAction.Disembark)
+                return transport.Passenger == null || transport.Passenger.IsDestroyed ? $"Nobody is aboard {transport.DisplayName}" : null;
+
+            if (transport.Passenger != null) return $"{transport.DisplayName} is already carrying {transport.Passenger.DisplayName}";
+            if (target == null || target.IsDestroyed) return "Choose a unit";
+            if (target == transport) return $"{transport.DisplayName} can't board itself";
+            if (target.Side != transport.Side) return $"{target.DisplayName} isn't a friendly unit";
+            if (target.IsEmbarked) return $"{target.DisplayName} is already aboard a transport";
+            if (target.Passenger != null) return $"{target.DisplayName} is carrying a unit";
+            var big = target.LivingSoldiers.FirstOrDefault(s => CannotEmbark.Any(k => s.HasKeyword(k)));
+            if (big != null) return $"{big.name} can't board a transport ({CannotEmbark.First(k => big.HasKeyword(k))})";
+            float gap = target.LivingSoldiers.Min(s => Measure.Between(user, s) - user.Radius - s.Radius);
+            if (gap > ability.range + Epsilon) return $"Out of range: {target.DisplayName} must be within {ability.range:0.#} m of {transport.DisplayName}";
+            return null;
+        }
+
         /// <summary>The ability's only effect is restoring health.</summary>
         public static bool IsHealOnly(Ability ability) => ability != null && ability.heal > 0 && ability.grantsKeyword == null;
 
@@ -169,7 +198,22 @@ namespace Eldoria.Rules
             var result = new AbilityResult { Reason = WhyCannotUse(user, ability, targetSoldier, targetUnit, targetPoint) };
             if (result.Reason != null) return result;
 
-            if (ability.targets == AbilityTarget.Point)
+            if (ability.transport == TransportAction.Embark)
+            {
+                var unit = targetUnit ?? targetSoldier.Unit;
+                user.Unit.Embark(unit);
+                result.TargetUnit = unit;
+                result.Log.Add($"{unit.DisplayName} boards {user.Unit.DisplayName}.");
+                Terrain.NearbyKeywords.RefreshAll();
+            }
+            else if (ability.transport == TransportAction.Disembark)
+            {
+                var unit = user.Unit.Disembark();
+                result.TargetUnit = unit;
+                result.Log.Add($"{unit.DisplayName} gets out of {user.Unit.DisplayName}.");
+                Terrain.NearbyKeywords.RefreshAll();
+            }
+            else if (ability.targets == AbilityTarget.Point)
             {
                 result.Point = targetPoint;
                 if (ability.IsAreaAttack) AreaAttack(user, ability, targetPoint.Value, result);

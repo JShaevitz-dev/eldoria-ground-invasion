@@ -64,9 +64,10 @@ namespace Eldoria.Rules
             var units = AllUnits();
 
             // An objective taken: a unit leader of the capturing side stands on the marker.
+            var onField = units.Where(u => !u.IsEmbarked).ToArray();   // a unit aboard a transport can't stand on a marker
             foreach (var marker in UnityEngine.Object.FindObjectsByType<ObjectiveMarker>(FindObjectsSortMode.None))
             {
-                var leader = marker.CapturingLeader(units);
+                var leader = marker.CapturingLeader(onField);
                 if (leader == null) continue;
                 ObjectiveTaken = true;
                 Outcome = marker.CapturingSide == Side.Player ? BattleOutcome.PlayerWins : BattleOutcome.AIWins;
@@ -115,7 +116,9 @@ namespace Eldoria.Rules
             Conceded = false;
         }
 
+        /// <summary>Units on the battlefield, and units aboard transports (still in the battle, though hidden).</summary>
         private static Unit[] AllUnits() =>
-            UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Where(u => u.gameObject.activeInHierarchy || u.IsEmbarked).ToArray();
     }
 }

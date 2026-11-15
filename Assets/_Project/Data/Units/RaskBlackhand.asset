@@ -14,7 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Rask Blackhand
   role: 3
-  description: "A Rask combat engineer, named for the soot-black gauntlets of their trade. The Blackhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Stinger or Intimidator, as its action; it can't be used on one at full health. A Specialist: one per army."
+  description: 'A Rask combat engineer, named for the soot-black gauntlets of their
+    trade. The Blackhand has the Rask Ultima''s health, accuracy and move but lighter
+    armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone
+    (Solo), with a Solntse Laser Rifle (the Rask''s Assault Rifle: 6 damage, penetration
+    1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier
+    within 5 m, such as a damaged Stinger or Intimidator, as its action; it can''t
+    be used on one at full health. A Specialist, so you can field more than one.'
   leader: {fileID: 11400000, guid: 11bbb3592d72fbb41be374f1a57bac13, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 37
   deploymentSpacing: 1.2

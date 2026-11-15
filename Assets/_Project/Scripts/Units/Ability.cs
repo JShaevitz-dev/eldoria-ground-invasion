@@ -27,7 +27,19 @@ namespace Eldoria.Units
         /// <summary>A whole unit: every soldier in it is affected.</summary>
         Unit,
         /// <summary>A spot on the ground (e.g. Frag Grenade): an area attack centred there.</summary>
-        Point
+        Point,
+        /// <summary>No target: the user's own unit (e.g. Disembark).</summary>
+        Self
+    }
+
+    /// <summary>What a transport ability does (see <see cref="Ability.transport"/>).</summary>
+    public enum TransportAction
+    {
+        None,
+        /// <summary>A friendly unit within the ability's range (measured from the transport's hull) boards the transport.</summary>
+        Embark,
+        /// <summary>The unit aboard gets out inside the transport and starts its move at once, leader first.</summary>
+        Disembark
     }
 
     /// <summary>
@@ -105,6 +117,11 @@ namespace Eldoria.Units
 
         /// <summary>An attack on every soldier of a unit with a weapon (e.g. the Battle Mage's Firestorm).</summary>
         public bool IsUnitAttack => kind == AbilityKind.Active && targets == AbilityTarget.Unit && attackWeapon != null;
+
+        [Header("Transport")]
+        [Tooltip("Embark: a friendly unit within range boards this transport (target: Unit). Disembark: the unit aboard gets " +
+                 "out and moves at once (target: Self).")]
+        public TransportAction transport = TransportAction.None;
 
         public bool HasKeyword(string name) => Keyword.Contains(keywords, name);
 

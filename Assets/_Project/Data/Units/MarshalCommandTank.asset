@@ -22,4 +22,6 @@ MonoBehaviour:
     (Unstable). A Commander: every army needs exactly one.'
   leader: {fileID: 11400000, guid: fb96ab39cfcaaae49ba0d11fb706e19b, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 254
   deploymentSpacing: 2

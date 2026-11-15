@@ -20,8 +20,9 @@ MonoBehaviour:
     a Solntse Laser Rifle (the Rask''s Assault Rifle: 6 damage, penetration 1, 20
     m). Its Medkit restores 5 health to a friendly Biological soldier within 5 m,
     such as a wounded Rask rifleman or the Ultima, as its action; it can''t be used
-    on one at full health. A Specialist: one per army.'
+    on one at full health. A Specialist, so you can field more than one.'
   leader: {fileID: 11400000, guid: 0e97ba075d3d3304e9bbf80960616d39, type: 2}
   members: []
   equipmentSwapsForWholeUnit: 0
+  supplyCost: 37
   deploymentSpacing: 1.2

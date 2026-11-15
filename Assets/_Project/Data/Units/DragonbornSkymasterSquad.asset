@@ -14,9 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Dragonborn Skymaster Squad
   role: 3
-  description: "Dragonborn shock troops on jetpacks: a Skylord and four Skymasters (10 health, Armor Level 2, 75% accuracy). They move 40 m (80 m sprinting), and their Jump Packs carry them onto walls, crates and anything else they can climb at no extra cost, so they can strike anywhere on the field. Each fires Twin Raptor Pistols (2 shots, 4 damage, penetration 1, 20 m), pistols they can still use in close range. A Specialist: one per army."
+  description: 'Dragonborn shock troops on jetpacks: a Skylord and four Skymasters
+    (10 health, Armor Level 2, 75% accuracy). They move 40 m (80 m sprinting), and
+    their Jump Packs carry them onto walls, crates and anything else they can climb
+    at no extra cost, so they can strike anywhere on the field. Each fires Twin Raptor
+    Pistols (2 shots, 4 damage, penetration 1, 20 m), pistols they can still use
+    in close range. A Specialist, so you can field more than one.'
   leader: {fileID: 11400000, guid: e59a2f886b0b1ec4ab9439a95779cb59, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: 6e4d1795e070f994795d01d9a5324ddf, type: 2}
     count: 4
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 100
   deploymentSpacing: 2

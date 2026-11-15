@@ -109,7 +109,9 @@ namespace Eldoria.Tests
             var catalog = UnitCatalog.Load();
             Assert.That(ArmyBuilderScreen.FactionCanFieldArmy(catalog, ArmySelection.AIFaction), Is.True, "the AI picks a faction that can field an army");
             Assert.That(ArmyRules.IsValid(ArmySelection.AIArmy, ArmySelection.AIFaction), Is.True, "the AI's army follows the same rules");
-            Assert.That(ArmySelection.AIArmy.Count, Is.EqualTo(6), "the AI fills every slot");
+            Assert.That(ArmyRules.SupplyOf(ArmySelection.AIArmy), Is.LessThanOrEqualTo(ArmyRules.SupplyCap), "within the Supply Cap");
+            Assert.That(catalog.UnitsFor(ArmySelection.AIFaction).Where(u => u.role != UnitRole.Commander)
+                .All(u => ArmyRules.WhyCannotAdd(ArmySelection.AIArmy, u, ArmySelection.AIFaction) != null), Is.True, "the AI fills its Supply Cap");
             var aiUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).Where(u => u.Side == Side.AI).ToList();
             Assert.That(aiUnits.Count, Is.EqualTo(ArmySelection.AIArmy.Count));
             Assert.That(Turns.Current, Is.EqualTo(1), "a fresh battle on turn 1");

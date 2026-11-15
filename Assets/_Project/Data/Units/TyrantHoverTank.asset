@@ -14,7 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Tyrant Hover-tank
   role: 2
-  description: "A dagger-shaped Draconis hover-tank flown by a Kobold pilot. Its Tyrant Railgun (5 damage, penetration 7, 50 m, once a turn) punches through any armor in the game for 150% damage, and it has 100% accuracy. It glides 30 m a move, and terrain can't slow it (Hover): hills, water and climbing onto obstacles cost it nothing extra, though it still has to go around anything that blocks its way. Being Mechanical it can't sprint. With 15 health and Armor Level 4 it shrugs off small arms, and when destroyed it has a 10% chance to explode (Unstable). Heavy Support, so you can field more than one."
+  description: 'A dagger-shaped Draconis hover-tank flown by a Kobold pilot. Its
+    Tyrant Railgun (5 damage, penetration 7, 50 m, once a turn) punches through any
+    armor in the game for 150% damage, and it has 100% accuracy. It glides 30 m a
+    move, and terrain can''t slow it (Hover): hills, water and climbing onto obstacles
+    cost it nothing extra, though it still has to go around anything that blocks
+    its way. Being Mechanical it can''t sprint. With 15 health and Armor Level 4
+    it shrugs off small arms, and when destroyed it has a 10% chance to explode (Unstable).
+    Heavy Support, so you can field more than one.'
   leader: {fileID: 11400000, guid: ebe61b12d5ceb5c479d708e3e99f6010, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 224
   deploymentSpacing: 2

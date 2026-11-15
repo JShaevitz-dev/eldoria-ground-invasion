@@ -28,7 +28,7 @@ After **Play**, you'll:
 
 1. **Choose a battlefield:** the Boxed in, the Open Season or the Siege of Ft Solstice.
 2. **Choose your faction**, which decides which units and commanders you can take.
-3. **Build your army:** up to 6 units, exactly 1 Commander, and no duplicate Specialist units. Units whose soldiers
+3. **Build your army:** units whose Supply Costs add up to no more than 750, with exactly 1 Commander (any other unit can be taken more than once). Units whose soldiers
    have weapon or equipment options can be customized. Then press **Confirm army**.
 
 The three maps:

@@ -66,6 +66,7 @@ namespace Eldoria.Tests
             u.members = member != null && count > 0
                 ? new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = member, count = count } }
                 : new List<UnitTemplate.Member>();
+            u.supplyCost = Eldoria.Rules.SupplyCost.Calculate(u, null);   // like the real units' (worked out by the catalog rebuild)
             return u;
         }
 
@@ -131,6 +132,11 @@ namespace Eldoria.Tests
         }
 
         /// <summary>A Mechanical stand-in (the old Medium Tank): Health 20, Armor 4, Accuracy 75%, Move 30 m; Mechanical, Tank, Unstable; a cannon with Manual Load; a frag grenade usable every turn.</summary>
+        /// <summary>A transport stand-in: the Medium Tank with Embark and Disembark.</summary>
+        public static UnitTemplate Transport => Cached("Transport", () => Unit("Transport", UnitRole.HeavySupport,
+            Sized(Soldier("Transport", 20, 4, 75, 30f, new[] { "Mechanical", "Tank" }, new[] { Ability("Embark"), Ability("Disembark") },
+                new[] { Weapon("Cannon100mm") }, Prefab("MediumTank")), 1.8f, 2.3f)));
+
         public static UnitTemplate MediumTank => Cached("MediumTank", () => Unit("Medium Tank", UnitRole.HeavySupport,
             Sized(Soldier("Medium Tank", 20, 4, 75, 30f, new[] { "Mechanical", "Tank", "Unstable" }, new[] { Ability("TankFragGrenade") },
                 new[] { Weapon("Cannon100mm") }, Prefab("MediumTank")), 1.8f, 2.3f)));

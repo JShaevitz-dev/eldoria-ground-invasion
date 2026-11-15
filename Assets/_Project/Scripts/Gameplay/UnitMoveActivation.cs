@@ -139,8 +139,11 @@ namespace Eldoria.Gameplay
         public List<Soldier> OutOfCohesion()
         {
             if (Phase == MovePhase.MoveLeader) return new List<Soldier>();
+            // A unit getting out of a transport: every soldier has to move out of it (they all start inside).
+            bool disembarking = Unit.DisembarkingFrom != null;
             return Unit.LivingSoldiers.Where(m => IsFollower(m)
-                                           && !MovementRules.IsWithinCohesion(LeaderPosition, positions[m], MovementRules.CohesionRangeFor(Unit))).ToList();
+                                           && ((disembarking && !HasMoved(m))
+                                               || !MovementRules.IsWithinCohesion(LeaderPosition, positions[m], MovementRules.CohesionRangeFor(Unit)))).ToList();
         }
 
         /// <summary>Moves every soldier out of cohesion to the nearest legal spot. Returns the soldiers that were moved.</summary>

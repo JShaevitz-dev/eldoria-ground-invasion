@@ -96,11 +96,22 @@ it can take, and any weapon changes and names (below). The army builder lists th
 Before a battle, the player chooses the **map** (Boxed in, Open Season or the Siege of Ft Solstice), then each side chooses a **faction** and builds an **army list** from that faction's units:
 
 - Every unit must be one the army's **faction** has access to.
-- An army has **6 slots**: it can have **1 to 6 units** (empty slots are allowed).
+- **Supply Cap:** the Supply Costs of an army's units can add up to **no more than 750**. There's **no limit on how many units** an army has. The army builder shows the list's total against the cap ("Supply 520 / 750") and won't add a unit that would go over it.
 - It must contain **exactly 1 Commander** unit: at least one, and **only 1 Commander is allowed** in a list at a time.
-- It **can't have duplicates of a Commander or Specialist** unit (e.g. only one of a given Specialist unit; two different Specialists together is fine). **Infantry** and **Heavy Support** units can be taken more than once.
+- **Only the Commander is unique** (an army has exactly one). **Infantry**, **Heavy Support** and **Specialist** units can all be taken more than once.
 
 **Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the catalog's demo army (keeping only units the faction has; none set yet), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
+
+**Supply Cost:** every unit has a **Supply Cost**, shown in the army builder next to its role and size, with the army list's total by "Your army". It's worked out from the unit's stats:
+
+> **Supply Cost = total Health + highest potential damage per turn + sum of Armor + 20 × active abilities + 10 × passive abilities + 200 heavy armor tax (if any soldier has Armor 4 or higher)**
+
+- **Total Health:** every soldier's Health, with their standard equipment.
+- **Highest potential damage per turn**, with no bonuses (every shot hits; no crits, auras, penetration or armor): a unit's action is either a **volley** (every soldier firing their most damaging weapon: Damage × Shots, with the faction's changes such as the Rask's +2, counting weapons the army builder can give them) or an **ability attack** (its weapon's Damage × Shots against one target). The higher of the two.
+- **Sum of Armor:** every soldier's Armor Level, with their standard equipment (e.g. a Combat Shield).
+- **Abilities:** each different ability in the unit (its soldiers' own and those their standard equipment gives) counts once, however many soldiers have it. Equipment the army builder can swap in (e.g. a Medkit for a Frag Grenade) doesn't change the cost.
+- **Heavy armor tax:** **+200**, once per unit, if any of its soldiers has an Armor Level (with standard equipment) of **4 or higher**. So far the Sagittarius MBT, Marshal Command Tank and Tyrant Hover-tank (Armor 4) and the Stinger Heavy Robot (Armor 5) pay it.
+- It's recalculated whenever the unit catalog is rebuilt (**Eldoria > Rebuild Unit Catalog**), so it follows any change to a unit.
 
 **A faction can only field an army once it has a Commander unit.** While **no faction** has one, the army builder says so (*"No faction has a Commander yet, so a battle can't be started"*) instead of the faction choice, listing the factions greyed out with how far along each is (*"2 units · no Commander yet"*, *"no units yet"*), with a **Back** button, and the main menu notes it under the title (*"No Commanders yet"*). Starting a battle (or sending a multiplayer army) is refused with the same message. Once some faction has a Commander, the faction choice works as usual and each faction shows its units (*"3 units available"*, or *"· no Commander yet"* for one that can't field an army). Add Unit and Soldier template assets under Data, put each unit in its faction's unit list, then run **Eldoria > Rebuild Unit Catalog** so the army builder lists them.
 
@@ -121,7 +132,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
-**Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
+**Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). Units go in **rows of 6** across the zone; an army of more than 6 units fills further rows **7 m behind** each other (never off the battlefield). A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
 
 ### Mortar Team
 
@@ -176,7 +187,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - **Shotgun:** Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m.
 - **Combat Shield:** +1 Armor Level, so they fight at **Armor 3**.
 - They have the ISF Rifleman's stats, not its Frag Grenade.
-- A Specialist, so one per army.
+- A Specialist (an army can take more than one).
 
 ### ISF Ranger
 
@@ -193,7 +204,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
   - an **Anti-Materiel Rifle**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed** (can't fire after moving that turn). It trades the Sniper Rifle's +50% aim for damage that armor can't stop;
   - a **Shotgun**: Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords (so it can fire after moving, but not in close range).
 - **Sniper Precision:** when the Ranger shoots, the player picks the exact enemy soldier to target (the AI prefers Solo soldiers and sergeants).
-- A Specialist and a Solo unit: one per army.
+- A Specialist and a Solo unit (an army can take more than one).
 
 ### Dragon Hierarch
 
@@ -263,7 +274,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 - **Solntse Laser Rifle:** the Rask's Assault Rifle, Damage 6 for them: Damage 6, Shots 1, Penetration 1, Range 20 m.
 - **Repair Kit** (standard equipment): its action can restore **10 health** to a friendly **Mechanical** soldier within 5 m (e.g. the Stinger Heavy Robot or the Intimidator Medium Robot). Refused, with no action spent, on a soldier at full health.
-- A Specialist, so one per army.
+- A Specialist (an army can take more than one).
 
 ### Rask Redhand
 
@@ -275,7 +286,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 - **Solntse Laser Rifle:** Damage 6, Shots 1, Penetration 1, Range 20 m.
 - **Medkit** (standard equipment): its action can restore **5 health** to a friendly **Biological** soldier within 5 m (itself included). Refused, with no action spent, on a soldier at full health.
-- A Specialist, so one per army.
+- A Specialist (an army can take more than one).
 
 ### Rask Rifle Team
 
@@ -327,7 +338,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 - **Twin Raptor Pistols:** Damage 4, **Shots 2**, Penetration 1, +0% accuracy, Range 20 m; **Pistol** (usable in close range).
 - **Jump Pack:** climbing onto an object costs them **no movement** (normally 10 m).
-- A Specialist, so one per army.
+- A Specialist (an army can take more than one).
 
 ### Tyrant Hover-tank
 
@@ -353,7 +364,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - **Fang Caster:** the Draconis name for the Assault Rifle: Damage 4, Shots 1, Penetration 1, Range 20 m.
 - **Repair Kit** (standard equipment): its action can restore **10 health** to a friendly **Mechanical** soldier within 5 m (e.g. the Tyrant Hover-tank). Refused, with no action spent, on a soldier at full health.
 - Swarm comes with the Militiaman's stats; on a unit of one it has no effect.
-- A Specialist, so one per army.
+- A Specialist (an army can take more than one).
 
 ### Kobold Militia
 
@@ -636,6 +647,21 @@ Two players can fight each other over the network instead of against the AI.
 - Debug orders (kill the squad leader) aren't available in multiplayer.
 
 How it works (for development): both games run the battle themselves. The host rolls the dice seed and who goes south, and both games use that seed. Each order the active player gives (select a unit, move, gather, end move, shoot, use an ability, end turn) is sent to the other game, which gives the same order through the same rules and dice. After every order the sending game includes a fingerprint of the battle (turn, every soldier's health and position), and the other game checks its own matches. If they ever disagree, the HUD shows a warning. While a walk animation is playing, the rules (and the fingerprint) use where the soldier's move ends, not how far the animation has got, and every animation ends exactly on that spot, so both games measure from the same place however fast each one draws.
+
+## Transports — *implemented (no unit is a transport yet)*
+
+A transport vehicle has two active abilities (Data/Abilities):
+
+- **Embark** (target: a unit): choose a **friendly unit** whose closest soldier is **within 2.5 m of the transport's hull** (measured edge to edge; the green ring shows it). It **boards the transport**: it's taken off the battlefield (it can't be seen, targeted, or commanded) but **stays in the battle** (a side with only units aboard transports hasn't lost). It's the transport's action.
+  - A transport carries **one unit at a time**.
+  - A unit can't board if any of its soldiers is **Mechanical** or **Large**, if it's carrying a unit itself, or if it's aboard another transport.
+- **Disembark** (no target; used as soon as its button is pressed): the unit aboard gets out **inside the transport** (every soldier at the transport's spot) and **starts its move at once, leader first**: it's selected straight away. It's the transport's action; the unit that got out then has its own move and action.
+  - The **leader must move out** (no holding position, and the unit can't be deselected), then **every other soldier must move out too** (Gather does it), before the move can end.
+  - A unit that has already acted this turn (e.g. it acted, then boarded) can't get out until the next turn.
+  - If the turn ends before its leader has moved, the unit goes back aboard.
+- **Destroyed with a unit aboard:** the unit aboard is lost with the transport.
+- Works in multiplayer: getting out (and the selection that follows) happens in both games as part of the Disembark order.
+- The AI doesn't use transports yet.
 
 ## Winning — *implemented*
 

@@ -65,6 +65,10 @@ namespace Eldoria.Units
                  "with that swap takes it together), instead of a choice per soldier type.")]
         public bool equipmentSwapsForWholeUnit;
 
+        [Tooltip("What the unit costs in an army list. Worked out from its stats by the Supply Cost formula " +
+                 "(Rules.SupplyCost) when the unit catalog is rebuilt (Eldoria > Rebuild Unit Catalog).")]
+        [Min(0)] public int supplyCost;
+
         [Tooltip("Meters between soldiers in the formation they deploy in.")]
         [Min(0.5f)] public float deploymentSpacing = 2f;
 

@@ -300,6 +300,11 @@ namespace Eldoria.Gameplay
         {
             if (Victory.IsOver || aiTurn || NotYourTurn) return false;
             if (unit == null || unit == squad || !TurnUnits.Contains(unit) || unit.IsDestroyed) return false;
+            if (unit.IsEmbarked)
+            {
+                Flash($"{unit.DisplayName} is aboard {unit.Carrier.DisplayName}: use the transport's Disembark to get it out.");
+                return false;
+            }
             if (actedThisTurn.Contains(unit))
             {
                 Flash($"{unit.DisplayName} has already acted this turn.");
@@ -319,7 +324,7 @@ namespace Eldoria.Gameplay
             StartActivation();
             Flash($"Commanding {unit.DisplayName}.");
             if (applyingRemote && cameraRig != null && unit.Leader != null) cameraRig.FocusOn(unit.Leader.Position);
-            Broadcast(OrderKinds.Select, unit);
+            if (!silentSelect) Broadcast(OrderKinds.Select, unit);
             return true;
         }
 
@@ -332,7 +337,7 @@ namespace Eldoria.Gameplay
             for (int i = 1; i <= units.Count; i++)
             {
                 var u = units[(start + i + units.Count) % units.Count];
-                if (u != squad && !actedThisTurn.Contains(u) && !u.IsDestroyed) return SelectUnit(u);
+                if (u != squad && !actedThisTurn.Contains(u) && !u.IsDestroyed && !u.IsEmbarked) return SelectUnit(u);
             }
             Flash("No other unit can act this turn.");
             return false;
@@ -346,6 +351,11 @@ namespace Eldoria.Gameplay
         {
             if (aiTurn || NotYourTurn || activation == null || actionTaken) return false;
             if (activation.Phase != MovePhase.MoveLeader || activation.LeaderMove != MoveKind.None) return false;
+            if (squad.DisembarkingFrom != null)
+            {
+                Flash($"{squad.DisplayName} has just got out of {squad.DisembarkingFrom.DisplayName}: move it out first.");
+                return false;
+            }
             string name = squad.DisplayName;
             shootMode = false;
             abilityMode = null;
@@ -371,7 +381,7 @@ namespace Eldoria.Gameplay
         /// once it has finished its move.
         /// </summary>
         public List<Unit> UnitsThatCanStillMove() =>
-            TurnUnits.Where(u => u != null && !u.IsDestroyed && !actedThisTurn.Contains(u)
+            TurnUnits.Where(u => u != null && !u.IsDestroyed && !u.IsEmbarked && !actedThisTurn.Contains(u)
                                  && !(u == squad && activation != null && activation.Phase == MovePhase.Complete)).ToList();
 
         /// <summary>
@@ -443,6 +453,7 @@ namespace Eldoria.Gameplay
             }
             shootMode = false;
             abilityMode = null;
+            ReembarkIfStillInside();
             Deselect();
             if (IsMultiplayer)
             {
@@ -579,6 +590,12 @@ namespace Eldoria.Gameplay
         public bool OrderHold()
         {
             if (NotYourTurn || NoActiveUnit()) return false;
+            if (squad.DisembarkingFrom != null)
+            {
+                Flash($"{squad.DisplayName} is inside {squad.DisembarkingFrom.DisplayName}: move its leader out.");
+                CombatAudio.PlayError();
+                return false;
+            }
             if (!activation.HoldLeader()) return false;
             selected = NextOutOfCohesion();
             Flash($"{activation.Leader.name} holds position.");
@@ -629,6 +646,7 @@ namespace Eldoria.Gameplay
                 return false;
             }
             selected = null;
+            squad.DisembarkingFrom = null;   // out of the transport
             Flash("Move complete.");
             Broadcast(OrderKinds.EndMove);
             return true;
@@ -855,7 +873,9 @@ namespace Eldoria.Gameplay
             if (abilityMode != null && abilityUser != null)
             {
                 foreach (var r in new[] { moveRing, sprintRing, followRing, cursorRing, pathLine }.Concat(cohesionRings)) r.Hide();
-                abilityRing.ShowCircle(abilityUser.Position, abilityMode.range, FollowColor);
+                // (Embark is measured from the transport's hull, so its ring is that much wider.)
+                float ringRadius = abilityMode.range + (abilityMode.transport == TransportAction.Embark ? abilityUser.Radius : 0f);
+                abilityRing.ShowCircle(abilityUser.Position, ringRadius, FollowColor);
                 // Aiming at the ground: preview the blast area under the cursor (red if out of range).
                 if (abilityMode.targets == AbilityTarget.Point && hasHover)
                 {
@@ -1200,7 +1220,8 @@ namespace Eldoria.Gameplay
             if (playerUnits.Count > 1 || squad == null)
             {
                 var units = playerUnits.Where(u => u != null).Select(u =>
-                    u == squad ? $"[{u.DisplayName}]" : actedThisTurn.Contains(u) || u.IsDestroyed ? $"{u.DisplayName} (done)" : u.DisplayName);
+                    u == squad ? $"[{u.DisplayName}]" : u.IsEmbarked ? $"{u.DisplayName} (aboard {u.Carrier.DisplayName})"
+                    : actedThisTurn.Contains(u) || u.IsDestroyed ? $"{u.DisplayName} (done)" : u.DisplayName);
                 GUILayout.Label("Units: " + string.Join(", ", units) + "  — Tab or click to switch", wrap);
             }
 
@@ -1375,7 +1396,11 @@ namespace Eldoria.Gameplay
             string why = usedThisTurn ? null : ActiveAbilities.WhyCannotCast(user, ability);
             if (why != null) return $"{ability.displayName}{spell} — {why}";
             string perBattle = ability.usesPerBattle > 0 && user.Unit != null ? $" ({user.Unit.UsesLeftThisBattle(ability)} left this battle)" : "";
-            return $"{ability.displayName}{spell} — {ability.range:0} m{perBattle}";
+            if (ability.transport == TransportAction.Disembark)
+                return user.Unit != null && user.Unit.Passenger != null ? $"{ability.displayName} — {user.Unit.Passenger.DisplayName}" : $"{ability.displayName} — nobody aboard";
+            if (ability.transport == TransportAction.Embark && user.Unit != null && user.Unit.Passenger != null)
+                return $"{ability.displayName} — carrying {user.Unit.Passenger.DisplayName}";
+            return $"{ability.displayName}{spell} — {ability.range:0.#} m{perBattle}";
         }
 
         /// <summary>Picks an ability to use (the HUD button): the next click chooses its target.</summary>
@@ -1384,6 +1409,12 @@ namespace Eldoria.Gameplay
             shootMode = false;
             abilityUser = user;
             abilityMode = ability;
+            // An ability with no target (e.g. Disembark) is used straight away.
+            if (ability != null && ability.targets == AbilityTarget.Self)
+            {
+                UseAbility(ability, user, null, user != null ? user.Unit : null);
+                if (abilityMode == ability) abilityMode = null;
+            }
         }
 
         /// <summary>The ability waiting for the player to click a target (null if none).</summary>
@@ -1395,6 +1426,14 @@ namespace Eldoria.Gameplay
         /// </summary>
         public AbilityResult UseAbility(Ability ability, Soldier user, Soldier targetSoldier, Unit targetUnit = null, Vector3? point = null)
         {
+            if (ability != null && ability.transport == TransportAction.Disembark && user != null && user.Unit != null
+                && user.Unit.Passenger != null && actedThisTurn.Contains(user.Unit.Passenger))
+            {
+                var refused = new AbilityResult { Reason = $"{user.Unit.Passenger.DisplayName} has already acted this turn: it can get out next turn" };
+                Flash(refused.Reason);
+                CombatAudio.PlayError();
+                return refused;
+            }
             if (!CanUseAbilities)
             {
                 var refused = new AbilityResult { Reason = actionTaken ? "This unit has already taken its action this turn" : "Finish the move first" };
@@ -1431,7 +1470,39 @@ namespace Eldoria.Gameplay
             else Flash($"{user.name} uses {ability.displayName}. {squad.DisplayName}'s turn is over.");
             if (applyingRemote) recentLog.Insert(0, $"{squad.DisplayName}: {user.name} uses {ability.displayName}.");
             Broadcast(OrderKinds.Ability, soldier: user, targetUnit: targetUnit, targetSoldier: targetSoldier, ability: ability.name, point: point);
+            if (ability.transport == TransportAction.Disembark && result.TargetUnit != null) BeginDisembarkMove(result.TargetUnit);
             return result;
+        }
+
+        /// <summary>Selecting a unit without sending the selection to the other player (they work it out themselves).</summary>
+        private bool silentSelect;
+
+        /// <summary>
+        /// After Disembark: the unit that got out is selected at once and starts its move, leader first, from inside the
+        /// transport. Both multiplayer games do this as part of the Disembark order, so it isn't sent separately.
+        /// </summary>
+        private void BeginDisembarkMove(Unit unit)
+        {
+            silentSelect = true;
+            try
+            {
+                if (!SelectUnit(unit)) return;
+            }
+            finally { silentSelect = false; }
+            Flash($"{unit.DisplayName} gets out of {unit.DisembarkingFrom?.DisplayName}: move its leader out, then the rest follow.");
+        }
+
+        /// <summary>
+        /// A unit that got out of a transport but whose leader hasn't moved yet when the turn ends goes back aboard (it can
+        /// try again next turn); one that's half-way out is stopped by End turn as any move is.
+        /// </summary>
+        private void ReembarkIfStillInside()
+        {
+            if (squad == null || squad.DisembarkingFrom == null || activation == null) return;
+            if (activation.Phase != MovePhase.MoveLeader || activation.LeaderMove != MoveKind.None) return;
+            var transport = squad.DisembarkingFrom;
+            if (transport.IsDestroyed || transport.Passenger != null) return;
+            transport.Embark(squad);
         }
 
         private void ToggleShootMode()

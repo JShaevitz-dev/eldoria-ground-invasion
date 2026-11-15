@@ -21,4 +21,6 @@ MonoBehaviour:
     target for enemy snipers. A Commander: every army needs exactly one.'
   leader: {fileID: 11400000, guid: 05c19f326243aca4a86a22117f75de60, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 24
   deploymentSpacing: 2

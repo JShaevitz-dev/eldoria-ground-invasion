@@ -363,7 +363,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "ISF Ranger";
                 u.role = UnitRole.Specialist;
-                u.description = "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. Or swap the Sniper Rifle for an Anti-Materiel Rifle (10 damage that ignores armor, but without the +50% aim) or a Shotgun (10 damage up close, out to 10 m, and it can fire after moving). The Anti-Materiel Rifle can't fire after moving, and with 5 health and only light armor the Ranger must stay out of sight, though its Chromashift Textiles give anyone aiming at it -25% accuracy; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit: one per army.";
+                u.description = "A lone marksman who picks off key enemies from up to 50 m. At 150% accuracy every shot hits, with a 50% chance to crit, and you choose exactly which enemy soldier to shoot: ideal for removing sergeants and officers. Or swap the Sniper Rifle for an Anti-Materiel Rifle (10 damage that ignores armor, but without the +50% aim) or a Shotgun (10 damage up close, out to 10 m, and it can fire after moving). The Anti-Materiel Rifle can't fire after moving, and with 5 health and only light armor the Ranger must stay out of sight, though its Chromashift Textiles give anyone aiming at it -25% accuracy; moving 15 m, they can reposition quickly between shots. A Specialist and a Solo unit; you can field more than one.";
                 u.leader = ranger;
                 u.members = new List<UnitTemplate.Member>();
             });
@@ -867,7 +867,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Kobold Mechanist";
                 u.role = UnitRole.Specialist;
-                u.description = "A Kobold engineer who keeps the Empire's war machines running. The Mechanist has the Kobold Militiaman's stats but a little armor (5 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Fang Caster (the Draconis Assault Rifle: 4 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Tyrant Hover-tank, as its action; it can't be used on one at full health. Keep it close behind your machines and out of the line of fire. A Specialist: one per army.";
+                u.description = "A Kobold engineer who keeps the Empire's war machines running. The Mechanist has the Kobold Militiaman's stats but a little armor (5 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Fang Caster (the Draconis Assault Rifle: 4 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Tyrant Hover-tank, as its action; it can't be used on one at full health. Keep it close behind your machines and out of the line of fire. A Specialist, so you can field more than one.";
                 u.leader = mechanist;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 1.2f;
@@ -1017,7 +1017,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Dragonborn Skymaster Squad";
                 u.role = UnitRole.Specialist;
-                u.description = "Dragonborn shock troops on jetpacks: a Skylord and four Skymasters (10 health, Armor Level 2, 75% accuracy). They move 40 m (80 m sprinting), and their Jump Packs carry them onto walls, crates and anything else they can climb at no extra cost, so they can strike anywhere on the field. Each fires Twin Raptor Pistols (2 shots, 4 damage, penetration 1, 20 m), pistols they can still use in close range. A Specialist: one per army.";
+                u.description = "Dragonborn shock troops on jetpacks: a Skylord and four Skymasters (10 health, Armor Level 2, 75% accuracy). They move 40 m (80 m sprinting), and their Jump Packs carry them onto walls, crates and anything else they can climb at no extra cost, so they can strike anywhere on the field. Each fires Twin Raptor Pistols (2 shots, 4 damage, penetration 1, 20 m), pistols they can still use in close range. A Specialist, so you can field more than one.";
                 u.leader = skylord;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = skymaster, count = 4 } };
                 u.deploymentSpacing = 2f;
@@ -1434,7 +1434,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Rask Blackhand";
                 u.role = UnitRole.Specialist;
-                u.description = "A Rask combat engineer, named for the soot-black gauntlets of their trade. The Blackhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Stinger or Intimidator, as its action; it can't be used on one at full health. A Specialist: one per army.";
+                u.description = "A Rask combat engineer, named for the soot-black gauntlets of their trade. The Blackhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Stinger or Intimidator, as its action; it can't be used on one at full health. A Specialist, so you can field more than one.";
                 u.leader = blackhand;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 1.2f;
@@ -1481,7 +1481,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Rask Redhand";
                 u.role = UnitRole.Specialist;
-                u.description = "A Rask field medic, named for the red gauntlets of their trade. The Redhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Medkit restores 5 health to a friendly Biological soldier within 5 m, such as a wounded Rask rifleman or the Ultima, as its action; it can't be used on one at full health. A Specialist: one per army.";
+                u.description = "A Rask field medic, named for the red gauntlets of their trade. The Redhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Medkit restores 5 health to a friendly Biological soldier within 5 m, such as a wounded Rask rifleman or the Ultima, as its action; it can't be used on one at full health. A Specialist, so you can field more than one.";
                 u.leader = redhand;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 1.2f;
@@ -1929,7 +1929,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "ISF Boarding Team";
                 u.role = UnitRole.Specialist;
-                u.description = "Close-quarters assault troops trained to storm ships and strongpoints. Each carries a Shotgun (10 damage, penetration 1, 10 m) and a Combat Shield that raises their Armor Level to 3, so they can close the distance under fire and clear rooms and trenches at point-blank range. A Specialist: one per army.";
+                u.description = "Close-quarters assault troops trained to storm ships and strongpoints. Each carries a Shotgun (10 damage, penetration 1, 10 m) and a Combat Shield that raises their Armor Level to 3, so they can close the distance under fire and clear rooms and trenches at point-blank range. A Specialist, so you can field more than one.";
                 u.leader = sergeantTemplate;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = specialist, count = 4 } };
                 u.deploymentSpacing = 1.5f;
@@ -2218,11 +2218,48 @@ namespace Eldoria.EditorTools
                 a.usesPerTurn = 1;
                 a.usesPerBattle = 0;
             });
+            EnsureTransportAbilities();
             GetOrCreate<Equipment>($"{DataDir}/Equipment/RepairKit.asset", e =>
             {
                 e.displayName = "Repair Kit";
                 e.description = "Gives the soldier the active ability Repair Kit: a friendly Mechanical soldier within 5 m restores 10 health.";
                 e.abilities = new List<Ability> { repair };
+            });
+        }
+
+        /// <summary>
+        /// The transport abilities (Data/Abilities), for transport vehicles:
+        /// <list type="bullet">
+        /// <item>Embark (active, target: a unit): a friendly unit within 2.5 m of the transport's hull boards it.</item>
+        /// <item>Disembark (active, no target): the unit aboard gets out inside the transport and moves at once, leader first.</item>
+        /// </list>
+        /// No unit has them yet.
+        /// </summary>
+        public static void EnsureTransportAbilities()
+        {
+            EnsureFolder(DataDir, "Abilities");
+            GetOrCreate<Ability>($"{DataDir}/Abilities/Embark.asset", a =>
+            {
+                a.displayName = "Embark";
+                a.description = "Active. Choose a friendly unit within 2.5 m of the transport: it boards the transport (one unit at a time; not Mechanical or Large units).";
+                a.kind = AbilityKind.Active;
+                a.keywords = new List<Keyword>();
+                a.targets = AbilityTarget.Unit;
+                a.affects = AuraAffects.Allies;
+                a.includeSelf = false;
+                a.range = 2.5f;
+                a.transport = TransportAction.Embark;
+            });
+            GetOrCreate<Ability>($"{DataDir}/Abilities/Disembark.asset", a =>
+            {
+                a.displayName = "Disembark";
+                a.description = "Active. The unit aboard gets out inside the transport and makes its move straight away, leader first.";
+                a.kind = AbilityKind.Active;
+                a.keywords = new List<Keyword>();
+                a.targets = AbilityTarget.Self;
+                a.affects = AuraAffects.Allies;
+                a.range = 0f;
+                a.transport = TransportAction.Disembark;
             });
         }
 
@@ -2272,8 +2309,29 @@ namespace Eldoria.EditorTools
             EnsureEquipment();
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
+            EnsureSupplyCosts(catalog);
             AssetDatabase.SaveAssets();
             Debug.Log($"[Eldoria] Unit catalog: {catalog.units.Count} unit(s), {catalog.factions.Count} faction(s).");
+        }
+
+        /// <summary>
+        /// Works out every unit's Supply Cost from its stats (<see cref="Eldoria.Rules.SupplyCost"/>), with the weapon names
+        /// and changes of the faction that fields it, and stores it on the unit. Recalculated on every rebuild, so it follows
+        /// any change to the unit's stats.
+        /// </summary>
+        public static void EnsureSupplyCosts(UnitCatalog catalog)
+        {
+            foreach (var unit in catalog.Available)
+            {
+                var faction = catalog.Factions.FirstOrDefault(f => f.Has(unit));
+                var parts = Eldoria.Rules.SupplyCost.Breakdown(unit, faction);
+                if (unit.supplyCost != parts.Total)
+                {
+                    unit.supplyCost = parts.Total;
+                    EditorUtility.SetDirty(unit);
+                }
+                Debug.Log($"[Eldoria] Supply Cost: {unit.displayName}: {parts}");
+            }
         }
 
         /// <summary>

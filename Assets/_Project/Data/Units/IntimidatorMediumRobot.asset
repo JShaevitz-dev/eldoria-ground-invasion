@@ -22,4 +22,6 @@ MonoBehaviour:
     sprint. Heavy Support, so you can field more than one.'
   leader: {fileID: 11400000, guid: 1667155efaec4c245a2f0455e49394df, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 73
   deploymentSpacing: 3

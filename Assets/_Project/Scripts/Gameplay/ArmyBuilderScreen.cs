@@ -28,6 +28,7 @@ namespace Eldoria.Gameplay
         private int customizing = -1;
         private List<string> problems = new List<string>();
         private Vector2 scroll;
+        private Vector2 armyScroll;
         private GUIStyle title, heading, body, small, good, bad, warn, stat, paragraph, button, bigButton;
 
         /// <summary>The chosen faction (null while the player is still choosing one).</summary>
@@ -191,6 +192,9 @@ namespace Eldoria.Gameplay
                 .Where(o => o != null && o.IsValid).GroupBy(o => o.equipment).Select(g => g.First()).ToList();
         }
 
+        /// <summary>The Supply Cost of the units in the list.</summary>
+        public int SupplyTotal => army.Where(u => u != null).Sum(u => u.supplyCost);
+
         public bool CanCustomize(int slot) => CustomizableSoldiers(slot).Count > 0 || UnitEquipmentSwaps(slot).Count > 0;
 
         /// <summary>Opens the customize panel for a slot (or closes it with -1).</summary>
@@ -303,7 +307,7 @@ namespace Eldoria.Gameplay
             if (GUILayout.Button("Change faction", button, GUILayout.Width(160f), GUILayout.Height(30f))) ChangeFaction();
             GUILayout.EndHorizontal();
             if (Faction == null) { GUILayout.EndArea(); return Result.None; }
-            GUILayout.Label($"Up to {ArmyRules.MaxUnits} units · exactly 1 Commander · no duplicate Specialist units", small);
+            GUILayout.Label($"Supply Cap {ArmyRules.SupplyCap} · exactly 1 Commander · any number of other units", small);
             GUILayout.Space(10f);
 
             GUILayout.BeginHorizontal();
@@ -322,23 +326,24 @@ namespace Eldoria.Gameplay
 
             // --- The army ---
             GUILayout.BeginVertical(GUI.skin.box);
-            GUILayout.Label($"Your army ({army.Count}/{ArmyRules.MaxUnits})", heading);
-            int remove = -1;   // applied after drawing, so every slot is drawn the same way this frame
-            for (int i = 0; i < ArmyRules.MaxUnits; i++)
+            var supplyStyle = SupplyTotal > ArmyRules.SupplyCap ? bad : heading;
+            GUILayout.Label($"Your army ({army.Count} unit{(army.Count == 1 ? "" : "s")})", heading);
+            GUILayout.Label($"Supply {SupplyTotal} / {ArmyRules.SupplyCap}", supplyStyle);
+            int remove = -1;   // applied after drawing, so every unit is drawn the same way this frame
+            armyScroll = GUILayout.BeginScrollView(armyScroll, GUILayout.MinHeight(200f));
+            if (army.Count == 0) GUILayout.Label("— empty: add a Commander first —", small);
+            for (int i = 0; i < army.Count; i++)
             {
                 GUILayout.BeginHorizontal(GUI.skin.box, GUILayout.Height(44f));
-                if (i < army.Count)
-                {
-                    string summary = loadouts[i].Describe(w => WeaponStats.For(w, Faction).Name);
-                    GUILayout.Label($"{i + 1}. {army[i].displayName}\n    {army[i].role.DisplayName()}" +
-                                    (summary.Length > 0 ? $"\n    <size=11>{summary}</size>" : ""), body);
-                    if (CanCustomize(i) && GUILayout.Button(customizing == i ? "Done" : "Customize", button, GUILayout.Width(100f)))
-                        Customize(customizing == i ? -1 : i);
-                    if (GUILayout.Button("Remove", button, GUILayout.Width(90f))) remove = i;
-                }
-                else GUILayout.Label($"{i + 1}. — empty —", small);
+                string summary = loadouts[i].Describe(w => WeaponStats.For(w, Faction).Name);
+                GUILayout.Label($"{i + 1}. {army[i].displayName}  ({army[i].supplyCost})\n    {army[i].role.DisplayName()}" +
+                                (summary.Length > 0 ? $"\n    <size=11>{summary}</size>" : ""), body);
+                if (CanCustomize(i) && GUILayout.Button(customizing == i ? "Done" : "Customize", button, GUILayout.Width(100f)))
+                    Customize(customizing == i ? -1 : i);
+                if (GUILayout.Button("Remove", button, GUILayout.Width(90f))) remove = i;
                 GUILayout.EndHorizontal();
             }
+            GUILayout.EndScrollView();
             if (remove >= 0) RemoveAt(remove);
 
             GUILayout.Space(8f);
@@ -447,7 +452,7 @@ namespace Eldoria.Gameplay
             GUILayout.BeginVertical();
             GUILayout.Label(unit.displayName, heading);
             string unique = ArmyRules.IsUnique(unit.role) ? " · one per army" : "";
-            GUILayout.Label($"{unit.role.DisplayName()}{unique} · {unit.Size} soldier{(unit.Size == 1 ? "" : "s")}", body);
+            GUILayout.Label($"{unit.role.DisplayName()}{unique} · {unit.Size} soldier{(unit.Size == 1 ? "" : "s")} · Supply Cost {unit.supplyCost}", body);
             GUILayout.EndVertical();
             string why = ArmyRules.WhyCannotAdd(army, unit, Faction);
             GUI.enabled = why == null;

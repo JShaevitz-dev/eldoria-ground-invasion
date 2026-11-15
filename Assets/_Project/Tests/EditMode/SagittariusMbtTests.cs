@@ -29,7 +29,7 @@ namespace Eldoria.Tests
             Assert.That(unit.Size, Is.EqualTo(1));
             Assert.That(unit.description, Does.Contain("100mm Cannon"));
             var commander = Catalog.Available.Single(u => u.displayName == "Field Commander");
-            Assert.That(ArmyRules.IsValid(new List<UnitTemplate> { commander, unit, unit, unit }, Isf), Is.True, "more than one tank is fine");
+            Assert.That(ArmyRules.IsValid(new List<UnitTemplate> { commander, unit, unit }, Isf), Is.True, "more than one tank is fine (2 × 254 + 24 = 532, within the Supply Cap)");
         }
 
         [Test]

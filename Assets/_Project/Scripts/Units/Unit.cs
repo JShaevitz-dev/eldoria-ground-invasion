@@ -90,6 +90,51 @@ namespace Eldoria.Units
         public Soldier Leader => leader;
         public bool IsDestroyed => !LivingSoldiers.Any();
 
+        // ---- Transports ----
+
+        /// <summary>The unit aboard this transport (null if none).</summary>
+        public Unit Passenger { get; private set; }
+
+        /// <summary>The transport this unit is aboard (null if it's on the battlefield).</summary>
+        public Unit Carrier { get; private set; }
+
+        /// <summary>Aboard a transport: off the battlefield (hidden), but still part of the battle.</summary>
+        public bool IsEmbarked => Carrier != null;
+
+        /// <summary>The transport this unit has just got out of, until it finishes the move that takes it out (else null).</summary>
+        public Unit DisembarkingFrom { get; set; }
+
+        /// <summary><paramref name="unit"/> boards this transport: it's taken off the battlefield until it disembarks.</summary>
+        public void Embark(Unit unit)
+        {
+            if (unit == null || unit == this || Passenger != null) return;
+            Passenger = unit;
+            unit.Carrier = this;
+            unit.DisembarkingFrom = null;
+            unit.gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// The unit aboard gets out: every soldier is placed inside the transport (at its leader's spot), back on the
+        /// battlefield; keywords that wore off while they were aboard are removed. Returns the unit (null if none).
+        /// </summary>
+        public Unit Disembark()
+        {
+            var unit = Passenger;
+            if (unit == null) return null;
+            Passenger = null;
+            unit.Carrier = null;
+            var spot = leader != null ? leader.Position : transform.position;
+            unit.gameObject.SetActive(true);
+            foreach (var s in unit.LivingSoldiers)
+            {
+                s.transform.position = spot;
+                s.OnTurnStarted(Turns.Phase);
+            }
+            unit.DisembarkingFrom = this;
+            return unit;
+        }
+
         /// <summary>Raised when command passes to a new soldier (old leader, result).</summary>
         public event Action<Soldier, SuccessionResult> LeaderChanged;
 
@@ -121,6 +166,13 @@ namespace Eldoria.Units
         /// <summary>Called by <see cref="Soldier.Kill"/> before the soldier is removed from play.</summary>
         public void OnSoldierKilled(Soldier soldier, System.Random rng = null)
         {
+            // A transport destroyed with a unit aboard: the unit is lost with it.
+            if (Passenger != null && IsDestroyed)
+            {
+                var lost = Passenger;
+                Passenger = null;
+                foreach (var s in lost.LivingSoldiers.ToList()) s.Kill();
+            }
             if (soldier != leader) return;
             var result = LeaderSuccession.ChooseSuccessor(soldier.Position,
                 LivingSoldiers.Where(m => m != soldier), rng ?? GameRandom.Shared);

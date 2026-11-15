@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Rask Ultima
   role: 1
-  description: "The Rask's commander: a decorated Rask officer with a gold crest and a purple cape. With 10 health and Armor Level 2 the Ultima is sturdier than the Rask it leads, but carries only a Pistol (2 damage, penetration 0, 10 m) and, as a Solo unit, is a prime target. It moves 20 m (40 m sprinting). A Commander: every army needs exactly one."
+  description: 'The Rask''s commander: a decorated Rask officer with a gold crest
+    and a purple cape. With 10 health and Armor Level 2 the Ultima is sturdier than
+    the Rask it leads, but carries only a Pistol (2 damage, penetration 0, 10 m)
+    and, as a Solo unit, is a prime target. It moves 20 m (40 m sprinting). A Commander:
+    every army needs exactly one.'
   leader: {fileID: 11400000, guid: f3dbdac31d3ee734ab02160ab0723fab, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 14
   deploymentSpacing: 1.2

@@ -22,4 +22,6 @@ MonoBehaviour:
     tank cannons are its bane. Heavy Support, so you can field more than one.'
   leader: {fileID: 11400000, guid: 8f9b4502164796b48b296336e360e852, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 73
   deploymentSpacing: 2

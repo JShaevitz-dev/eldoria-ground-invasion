@@ -14,16 +14,33 @@ namespace Eldoria.Gameplay
     /// </summary>
     public static class ArmyDeployment
     {
+        /// <summary>Units per row across a deployment zone (an army of up to this many deploys in one row).</summary>
+        public const int UnitsPerRow = 6;
+
+        /// <summary>Metres between rows of units, for an army too big for one row.</summary>
+        public const float RowSpacing = 7f;
+
         /// <summary>
-        /// A deployment slot (unit leader position) in a zone: the six slots are spread evenly across the zone's width,
-        /// left to right as the side looks across the map (the player looks north, the AI south), a little forward of
-        /// the zone's middle so the unit's back ranks stay inside it.
+        /// A deployment slot (unit leader position) in a zone. Units go in rows of <see cref="UnitsPerRow"/> spread evenly
+        /// across the zone's width, left to right as the side looks across the map (the player looks north, the AI south).
+        /// The first row is a little forward of the zone's middle so the units' back ranks stay inside it; any further rows
+        /// (an army of more than six units) are <see cref="RowSpacing"/> behind each other, never off the battlefield.
         /// </summary>
         public static Vector3 Slot(Vector3 zoneCentre, Vector2 zoneSize, Side side, int index)
         {
             float forward = side == Side.Player ? 1f : -1f;   // towards the enemy
-            float across = (index + 0.5f) * zoneSize.x / ArmyRules.MaxUnits - zoneSize.x / 2f;
-            return zoneCentre + new Vector3(across * forward, 0f, forward * zoneSize.y * 0.125f);
+            int row = index / UnitsPerRow, col = index % UnitsPerRow;
+            float across = (col + 0.5f) * zoneSize.x / UnitsPerRow - zoneSize.x / 2f;
+            var slot = zoneCentre + new Vector3(across * forward, 0f, forward * (zoneSize.y * 0.125f - row * RowSpacing));
+            if (row > 0)
+            {
+                // Back rows stay on the battlefield, but never come in front of the first row.
+                float edge = Core.BattlefieldScale.BoardDepth / 2f - 2f;
+                float firstRow = zoneCentre.z + forward * zoneSize.y * 0.125f;
+                float z = Mathf.Clamp(slot.z, -edge, edge);
+                slot.z = forward > 0f ? Mathf.Min(z, firstRow) : Mathf.Max(z, firstRow);
+            }
+            return slot;
         }
 
         /// <summary>The slot in the current map's deployment zone for that side (the Boxed in's zones if the map has none).</summary>
@@ -70,7 +87,7 @@ namespace Eldoria.Gameplay
         private static IEnumerable<Unit> DeployArmy(IReadOnlyList<UnitTemplate> army, Side side, Transform root, Faction faction,
             IReadOnlyList<UnitLoadout> loadouts)
         {
-            var units = army.Where(u => u != null).Take(ArmyRules.MaxUnits).ToList();
+            var units = army.Where(u => u != null).ToList();
             var names = UnitNames(units, side);
             var facing = Quaternion.Euler(0f, side == Side.Player ? 0f : 180f, 0f);
             for (int i = 0; i < units.Count; i++)

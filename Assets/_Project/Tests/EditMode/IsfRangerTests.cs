@@ -30,8 +30,8 @@ namespace Eldoria.Tests
             Assert.That(unit.description, Does.Contain("Ranger").And.Contain("50 m").And.Contain("light armor").And.Contain("Anti-Materiel Rifle"));
             var commander = Catalog.Available.Single(u => u.displayName == "Field Commander");
             Assert.That(ArmyRules.IsValid(new List<UnitTemplate> { commander, unit }, Isf), Is.True);
-            Assert.That(ArmyRules.WhyCannotAdd(new List<UnitTemplate> { commander, unit }, unit, Isf), Does.Contain("Already in the army"),
-                "a Specialist: one per army");
+            Assert.That(ArmyRules.WhyCannotAdd(new List<UnitTemplate> { commander, unit }, unit, Isf), Is.Null,
+                "Specialists can be taken more than once");
         }
 
         [Test]

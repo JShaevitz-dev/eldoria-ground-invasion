@@ -14,7 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Stinger Heavy Robot
   role: 2
-  description: "The Rask's six-legged siege engine: a heavily armored war robot with 25 health and Armor Level 5, proof against almost everything but the heaviest guns. The Plasma Mortar on its back (5 damage, penetration 3, 50 m, once a turn) shells targets at long range, and its Stabilizers let it fire even after moving. Mechanical: it strides 30 m but can't sprint. Heavy Support, so you can field more than one."
+  description: 'The Rask''s six-legged siege engine: a heavily armored war robot
+    with 25 health and Armor Level 5, proof against almost everything but the heaviest
+    guns. The Plasma Mortar on its back (5 damage, penetration 3, 50 m, once a turn)
+    shells targets at long range, and its Stabilizers let it fire even after moving.
+    Mechanical: it strides 30 m but can''t sprint. Heavy Support, so you can field
+    more than one.'
   leader: {fileID: 11400000, guid: f3d05ff75d89d024ba09a3096bb0942b, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 245
   deploymentSpacing: 5

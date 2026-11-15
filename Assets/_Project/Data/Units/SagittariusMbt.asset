@@ -14,7 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Sagittarius MBT
   role: 2
-  description: "The ISF's main battle tank and one of the hardest targets on the field: 20 health and Armor Level 4 shrug off rifles, machine guns, grenades and flamethrowers alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) can crack other heavy armor, but it's Manual Load: one shot a turn. It can also throw a Frag Grenade every turn. It moves a long way (30 m) but, being Mechanical, can't sprint. When destroyed it has a 10% chance to explode (Unstable), so keep your own soldiers clear of it. Heavy Support, so you can field more than one."
+  description: 'The ISF''s main battle tank and one of the hardest targets on the
+    field: 20 health and Armor Level 4 shrug off rifles, machine guns, grenades and
+    flamethrowers alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) can crack
+    other heavy armor, but it''s Manual Load: one shot a turn. It can also throw
+    a Frag Grenade every turn. It moves a long way (30 m) but, being Mechanical,
+    can''t sprint. When destroyed it has a 10% chance to explode (Unstable), so keep
+    your own soldiers clear of it. Heavy Support, so you can field more than one.'
   leader: {fileID: 11400000, guid: d420e1774b90e3c43a6c52eb71fa18b4, type: 2}
   members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 254
   deploymentSpacing: 2

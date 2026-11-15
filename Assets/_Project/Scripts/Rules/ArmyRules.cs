@@ -7,16 +7,22 @@ namespace Eldoria.Rules
     /// <summary>
     /// Army list building (Docs/Rules.md, Army lists):
     ///   - the player picks a faction first; every unit must be one that faction has access to;
-    ///   - an army has 6 slots: 1 to 6 units;
+    ///   - the units' Supply Costs add up to no more than the Supply Cap (<see cref="SupplyCap"/>, 750); there's no
+    ///     limit on how many units;
     ///   - exactly 1 Commander unit (at least one, and no more than one);
-    ///   - no duplicates of a Commander or Specialist unit (Infantry and Heavy Support can be taken more than once).
+    ///   - every other unit (Infantry, Heavy Support and Specialists) can be taken more than once.
     /// </summary>
     public static class ArmyRules
     {
-        public const int MaxUnits = 6;
+        /// <summary>The most an army's units' Supply Costs can add up to.</summary>
+        public const int SupplyCap = 750;
 
-        /// <summary>Only one of each unit with this role per army.</summary>
-        public static bool IsUnique(UnitRole role) => role == UnitRole.Commander || role == UnitRole.Specialist;
+        /// <summary>The Supply Cost of an army list.</summary>
+        public static int SupplyOf(IEnumerable<UnitTemplate> army) =>
+            (army ?? Enumerable.Empty<UnitTemplate>()).Where(u => u != null).Sum(u => u.supplyCost);
+
+        /// <summary>Only one of each unit with this role per army (only Commanders: an army has exactly one).</summary>
+        public static bool IsUnique(UnitRole role) => role == UnitRole.Commander;
 
         /// <summary>Why the list isn't valid (empty if it is).</summary>
         /// <param name="faction">The army's faction: every unit must be one it has access to (null: not checked).</param>
@@ -27,7 +33,8 @@ namespace Eldoria.Rules
             if (faction != null)
                 foreach (var outsider in units.Where(u => !faction.Has(u)).Distinct())
                     problems.Add($"{outsider.displayName} isn't available to {faction.displayName}.");
-            if (units.Count > MaxUnits) problems.Add($"Too many units: {units.Count} (an army has {MaxUnits} slots).");
+            int supply = SupplyOf(units);
+            if (supply > SupplyCap) problems.Add($"Over the Supply Cap: {supply} of {SupplyCap}.");
             int commanders = units.Count(u => u.role == UnitRole.Commander);
             if (commanders == 0) problems.Add("An army needs at least 1 Commander unit.");
             if (commanders > 1) problems.Add($"Only 1 Commander unit is allowed in an army ({commanders} chosen).");
@@ -43,7 +50,9 @@ namespace Eldoria.Rules
         {
             if (unit == null) return "No unit";
             if (faction != null && !faction.Has(unit)) return $"Not available to {faction.displayName}";
-            if (army.Count(u => u != null) >= MaxUnits) return $"All {MaxUnits} slots are full";
+            int supply = SupplyOf(army);
+            if (supply + unit.supplyCost > SupplyCap)
+                return $"Over the Supply Cap ({supply} + {unit.supplyCost} > {SupplyCap})";
             if (IsUnique(unit.role) && army.Contains(unit)) return $"Already in the army ({unit.role.DisplayName()} units are unique)";
             if (unit.role == UnitRole.Commander && army.Any(u => u != null && u.role == UnitRole.Commander))
                 return "The army already has its Commander (only 1 allowed)";
@@ -51,8 +60,8 @@ namespace Eldoria.Rules
         }
 
         /// <summary>
-        /// A random valid army from the available units, filling every slot it can: 1 Commander, then random units (never a
-        /// second Commander, nor a second copy of a Specialist).
+        /// A random valid army from the available units: 1 Commander, then random units (never a second Commander) for as
+        /// long as another one fits under the Supply Cap.
         /// </summary>
         public static List<UnitTemplate> RandomArmy(IEnumerable<UnitTemplate> available, System.Random rng)
         {
@@ -62,14 +71,18 @@ namespace Eldoria.Rules
             if (commanders.Count == 0) return army;   // no valid army possible
             army.Add(commanders[0]);
 
-            while (army.Count < MaxUnits)
+            // (Units that cost nothing would never fill the cap: they're left out, and there's a safety limit.)
+            while (army.Count < MaxRandomUnits)
             {
-                var options = pool.Where(u => u.role != UnitRole.Commander && WhyCannotAdd(army, u) == null).ToList();
+                var options = pool.Where(u => u.role != UnitRole.Commander && u.supplyCost > 0 && WhyCannotAdd(army, u) == null).ToList();
                 if (options.Count == 0) break;
                 army.Add(options[rng.Next(options.Count)]);
             }
             return army;
         }
+
+        /// <summary>A safety limit on the units in a random army.</summary>
+        public const int MaxRandomUnits = 60;
 
         /// <summary>What the unit is made of, e.g. "Sergeant + 9× Trooper".</summary>
         public static string Composition(UnitTemplate unit)
