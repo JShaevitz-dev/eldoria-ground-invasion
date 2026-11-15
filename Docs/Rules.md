@@ -66,6 +66,12 @@ role) or **Transport**. It's shown in the HUD when the unit is selected, and the
 | **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad, Kobold Mechanist, Rask Blackhand, Rask Redhand, Rask Reliquary |
 | **Transport** | Workhorse Transport. Like every role but Commander, an army can take more than one. |
 
+**The role ecosystem** (design intent, used when designing and balancing units; not a rule in itself):
+
+- **Heavy Support beats Infantry and armor:** it brings maximum firepower to bear on large infantry units or armored Heavy Support.
+- **Specialists beat Heavy Support:** either by fortifying infantry against it, or as a direct answer to Heavy Support (or to other Specialists).
+- **Infantry beats unsupported Specialists and Heavy Support, and is best at objectives.** Infantry get **no objective-specific rules**: when objectives arrive that need a unit to interact with them or hold them over several rounds, infantry's staying power is what holds the line.
+
 ### Factions — *implemented*
 
 Every army belongs to a **faction**. The faction a player chooses at the start of building their list decides **which units and commanders** they can take.
