@@ -19,6 +19,7 @@ MonoBehaviour:
   appliesTo: 3
   interactions: []
   triggers: []
+  grantsAbilities: []
   grantsNearby: {fileID: 11400000, guid: b97acd89e47dbf9409a4cc27cd9604f6, type: 2}
   grantRadius: 5
   grantsWhenBetween: 1

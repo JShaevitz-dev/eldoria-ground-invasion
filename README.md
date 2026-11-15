@@ -131,6 +131,7 @@ Inspector.
 | **Mortar Team** | International Space Force of Humanity | Heavy Support | ISF Mortar Specialist (Mortar Launcher, Assault Rifle) + ISF Rifleman; Armor 2 |
 | **Sagittarius MBT** | International Space Force of Humanity | Heavy Support | Sagittarius MBT (the original Eldoria's Medium Tank: Health 20, Armor 4, 100mm Cannon) |
 | **Olympian Mech** | International Space Force of Humanity | Heavy Support | Olympian Mech (the original Eldoria's Stahl Colossus: Health 15, Armor 3, Machine Gun, Iron Claw, Stabilizers) |
+| **Workhorse Transport** | International Space Force of Humanity | Transport | Workhorse Transport (a six-wheeled armored truck: Health 10, Armor 3, Move 40; Transport: carries one unit of Biological soldiers; Mechanical; Stabilizers; Machine Gun) |
 | **ISF Boarding Team** | International Space Force of Humanity | Specialist | Boarding Sergeant + 4 Boarding Specialists (the ISF Rifleman's stats; Shotgun; a Combat Shield carried as standard, so Armor 3) |
 | **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (the original Eldoria's Sniper with Armor 1: Accuracy 100%, Sniper Rifle, Anti-Materiel Rifle or Shotgun, Sniper Precision; Chromashift Textiles: −25% to anyone aiming at it) |
 | **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) + 2 Dragonborn Honorguard (the Dragonborn Footman's stats with 95% accuracy) |
@@ -152,9 +153,9 @@ Inspector.
 A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
 them (and add each unit to its faction's unit list). They're created in code
-(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureIsfBoardingTeam`, `EnsureMasterSergeantJakoby`, `EnsureMarshalCommandTank`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
-`EnsureDragonbornSquad`, `EnsureDragonbornSkymasterSquad`, `EnsureDragonbornExemplar`, `EnsureTyrantHoverTank`, `EnsureKoboldMechanist`, `EnsureKoboldMilitia`, `EnsureRaskUltima`, `EnsureRaskRifleTeam`, `EnsureStingerHeavyRobot`, `EnsureIntimidatorMediumRobot`, `EnsureRaskBlackhand`, `EnsureRaskRedhand`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support or
-Specialist.
+(`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureIsfBoardingTeam`, `EnsureMasterSergeantJakoby`, `EnsureMarshalCommandTank`, `EnsureWorkhorseTransport`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
+`EnsureDragonbornSquad`, `EnsureDragonbornSkymasterSquad`, `EnsureDragonbornExemplar`, `EnsureTyrantHoverTank`, `EnsureKoboldMechanist`, `EnsureKoboldMilitia`, `EnsureRaskUltima`, `EnsureRaskRifleTeam`, `EnsureStingerHeavyRobot`, `EnsureIntimidatorMediumRobot`, `EnsureRaskBlackhand`, `EnsureRaskRedhand`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support,
+Specialist or Transport.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,
 Rocket Launcher, Broadsword, Iron Claw, the new Anti-Materiel Rifle: Damage 10, Penetration X, 50 m, Deployed; and the new Mortar Launcher:

@@ -1,41 +1,42 @@
+using System.Collections.Generic;
+using System.Linq;
+using Eldoria.Rules;
 using Eldoria.Units;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Eldoria.Tests
 {
-    /// <summary>Unit roles: Infantry, Commander, Heavy Support, Specialist (Docs/Rules.md, Roles).</summary>
+    /// <summary>The unit roles: Infantry, Commander, Heavy Support, Specialist and Transport.</summary>
     public class UnitRoleTests
     {
         [Test]
-        public void RolesAreWrittenAsInTheRules()
+        public void TransportIsARole()
         {
-            Assert.That(UnitRole.HeavySupport.DisplayName(), Is.EqualTo("Heavy Support"));
-            Assert.That(UnitRole.Infantry.DisplayName(), Is.EqualTo("Infantry"));
+            Assert.That(UnitRole.Transport.DisplayName(), Is.EqualTo("Transport"));
+            Assert.That(ArmyRules.IsUnique(UnitRole.Transport), Is.False, "an army can take more than one");
         }
 
         [Test]
-        public void CommandersAreListedFirstThenInfantryHeavySupportAndSpecialists()
+        public void TransportsAreListedLast()
         {
-            Assert.That(UnitRole.Commander.ListOrder(), Is.LessThan(UnitRole.Infantry.ListOrder()));
-            Assert.That(UnitRole.Infantry.ListOrder(), Is.LessThan(UnitRole.HeavySupport.ListOrder()));
-            Assert.That(UnitRole.HeavySupport.ListOrder(), Is.LessThan(UnitRole.Specialist.ListOrder()));
+            var order = new[] { UnitRole.Transport, UnitRole.Specialist, UnitRole.Infantry, UnitRole.Commander, UnitRole.HeavySupport }
+                .OrderBy(r => r.ListOrder()).ToArray();
+            Assert.That(order, Is.EqualTo(new[] { UnitRole.Commander, UnitRole.Infantry, UnitRole.HeavySupport, UnitRole.Specialist, UnitRole.Transport }));
         }
 
         [Test]
-        public void ADeployedUnitHasItsTemplatesRole()
+        public void AnArmyCanTakeTransports()
         {
-            var template = TestArmies.Unit("Test Heavy Team", UnitRole.HeavySupport, TestArmies.Trooper, TestArmies.Trooper, 2);
-            var unit = UnitFactory.Spawn(template, Side.Player, Vector3.zero, Quaternion.identity);
-            try
-            {
-                Assert.That(unit.Role, Is.EqualTo(UnitRole.HeavySupport));
-            }
-            finally
-            {
-                Object.DestroyImmediate(unit.gameObject);
-                Object.DestroyImmediate(template);
-            }
+            var transport = TestArmies.Unit("Test Transport", UnitRole.Transport, TestArmies.Transport.leader);
+            var army = new List<UnitTemplate> { TestArmies.FieldCommander, transport, transport };
+            Assert.That(ArmyRules.IsValid(army), Is.True, ArmyRules.Problems(army).FirstOrDefault());
+            Assert.That(ArmyRules.Problems(new List<UnitTemplate> { transport }).Single(), Does.Contain("Commander"), "not a Commander");
+        }
+
+        [Test]
+        public void TheWorkhorseIsTheTransportSoFar()
+        {
+            Assert.That(UnitCatalog.Load().Available.Where(u => u.role == UnitRole.Transport).Select(u => u.displayName), Is.EqualTo(new[] { "Workhorse Transport" }));
         }
     }
 }

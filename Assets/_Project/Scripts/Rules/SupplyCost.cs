@@ -19,7 +19,8 @@ namespace Eldoria.Rules
     /// +2 Damage), counting weapons they can be given in the army builder; an ability attack is its weapon's Damage × Shots
     /// against one target. The higher of the two. No bonuses: every shot hits, no crits, auras, penetration or armor.</item>
     /// <item><b>Sum of Armor</b>: every soldier's Armor Level, with their standard equipment (e.g. a Combat Shield).</item>
-    /// <item><b>Abilities</b>: the unit's different abilities (its soldiers' own and those their standard equipment gives),
+    /// <item><b>Abilities</b>: the unit's different abilities (its soldiers' own, and those their standard equipment and
+    /// keywords give, e.g. Transport's Embark and Disembark),
     /// each counted once however many soldiers have it.</item>
     /// <item><b>Heavy armor tax</b>: 200, once per unit, if any of its soldiers has an Armor Level (with standard
     /// equipment) of <see cref="HeavyArmorThreshold"/> (4) or higher.</item>
@@ -63,8 +64,7 @@ namespace Eldoria.Rules
                 volley += WeaponsAvailableTo(s, gear).Select(w => Damage(w, faction)).DefaultIfEmpty(0).Max();
             }
 
-            var abilities = roster.SelectMany(s => s.abilities.Concat(Gear(s).SelectMany(e => e.abilities)))
-                .Where(a => a != null).Distinct().ToList();
+            var abilities = roster.SelectMany(s => s.AllAbilities()).Distinct().ToList();
             int bestAbility = abilities.Select(a => a.attackWeapon != null ? a.attackWeapon : a.areaWeapon)
                 .Where(w => w != null).Select(w => Damage(w, faction)).DefaultIfEmpty(0).Max();
             parts.Damage = Mathf.Max(volley, bestAbility);

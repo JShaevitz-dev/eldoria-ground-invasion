@@ -78,7 +78,7 @@ namespace Eldoria.Gameplay
             menu.Builder?.ChooseFaction(isf);
             yield return Screenshot("army.png");
             Eldoria.Units.UnitTemplate Unit(string name) => menu.Builder?.Available.FirstOrDefault(u => u.displayName == name);
-            Check(menu.Builder != null && menu.Builder.Available.Count == 10, $"the ISF's units are listed ({menu.Builder?.Available.Count})");
+            Check(menu.Builder != null && menu.Builder.Available.Count == 11, $"the ISF's units are listed ({menu.Builder?.Available.Count})");
             menu.Builder?.Clear();
             foreach (var name in new[] { "Field Commander", "ISF Rifle Squad", "Olympian Mech", "Mortar Team", "Sagittarius MBT", "ISF Ranger" })
                 Check(menu.Builder?.Add(Unit(name)) == null, $"{name} is added");

@@ -86,11 +86,17 @@ namespace Eldoria.Units
         private void RefreshEquipmentAbilities()
         {
             abilitiesWithEquipment = null;
-            if (template == null || !Gear.Any()) return;
+            if (template == null) return;
+            // Abilities given by the soldier's keywords (e.g. Transport: Embark and Disembark), with their equipment's.
+            var granted = (InherentKeywords ?? Enumerable.Empty<Keyword>()).Where(k => k != null)
+                .SelectMany(k => k.grantsAbilities).Where(a => a != null).ToList();
+            if (!Gear.Any() && granted.Count == 0) return;
             abilitiesWithEquipment = new List<Ability>(template.abilities);
             foreach (var e in Gear)
                 foreach (var a in e.abilities)
                     if (a != null && !abilitiesWithEquipment.Contains(a)) abilitiesWithEquipment.Add(a);
+            foreach (var a in granted)
+                if (!abilitiesWithEquipment.Contains(a)) abilitiesWithEquipment.Add(a);
         }
 
         public SoldierTemplate Template => template;

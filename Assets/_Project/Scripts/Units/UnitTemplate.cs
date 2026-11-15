@@ -12,17 +12,20 @@ namespace Eldoria.Units
         Commander,
         HeavySupport,
         Specialist,
+        /// <summary>A transport vehicle (e.g. one with the Transport keyword). Can be taken more than once.</summary>
+        Transport,
     }
 
     public static class UnitRoles
     {
         /// <summary>The role as it's written in the rules: "Heavy Support", not "HeavySupport".</summary>
-        /// <summary>Order for listing units: Commanders first, then Infantry, Heavy Support and Specialists.</summary>
+        /// <summary>Order for listing units: Commanders first, then Infantry, Heavy Support, Specialists and Transports.</summary>
         public static int ListOrder(this UnitRole role) => role switch
         {
             UnitRole.Commander => 0,
             UnitRole.Infantry => 1,
             UnitRole.HeavySupport => 2,
+            UnitRole.Transport => 4,
             _ => 3,
         };
 

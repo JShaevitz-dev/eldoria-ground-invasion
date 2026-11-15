@@ -197,6 +197,10 @@ namespace Eldoria.Units
         [Tooltip("Things this keyword does by itself when its soldier is targeted or damaged.")]
         public List<KeywordTrigger> triggers = new List<KeywordTrigger>();
 
+        [Header("Abilities")]
+        [Tooltip("Abilities a soldier with this keyword has (e.g. Transport: Embark and Disembark).")]
+        public List<Ability> grantsAbilities = new List<Ability>();
+
         [Header("Granted nearby")]
         [Tooltip("On terrain objects: soldiers within Grant Radius of the object gain this keyword (e.g. Half-cover → In half-cover).")]
         public Keyword grantsNearby;

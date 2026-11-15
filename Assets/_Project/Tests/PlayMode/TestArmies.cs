@@ -132,9 +132,9 @@ namespace Eldoria.Tests
         }
 
         /// <summary>A Mechanical stand-in (the old Medium Tank): Health 20, Armor 4, Accuracy 75%, Move 30 m; Mechanical, Tank, Unstable; a cannon with Manual Load; a frag grenade usable every turn.</summary>
-        /// <summary>A transport stand-in: the Medium Tank with Embark and Disembark.</summary>
+        /// <summary>A transport stand-in: the Medium Tank with the Transport keyword (which gives Embark and Disembark).</summary>
         public static UnitTemplate Transport => Cached("Transport", () => Unit("Transport", UnitRole.HeavySupport,
-            Sized(Soldier("Transport", 20, 4, 75, 30f, new[] { "Mechanical", "Tank" }, new[] { Ability("Embark"), Ability("Disembark") },
+            Sized(Soldier("Transport", 20, 4, 75, 30f, new[] { "Mechanical", "Tank", "Transport" }, null,
                 new[] { Weapon("Cannon100mm") }, Prefab("MediumTank")), 1.8f, 2.3f)));
 
         public static UnitTemplate MediumTank => Cached("MediumTank", () => Unit("Medium Tank", UnitRole.HeavySupport,

@@ -151,13 +151,16 @@ namespace Eldoria.Rules
             return null;
         }
 
-        /// <summary>Soldier keywords that keep a unit out of a transport (too big, or a vehicle itself).</summary>
-        public static readonly string[] CannotEmbark = { "Mechanical", "Large" };
+        /// <summary>The keyword that makes a soldier a transport (it gives Embark and Disembark).</summary>
+        public const string TransportKeyword = "Transport";
+
+        /// <summary>Every soldier of a unit boarding a transport must have this keyword.</summary>
+        public const string PassengerKeyword = "Biological";
 
         /// <summary>
-        /// Embark: a friendly unit (not this one, not aboard another transport, not carrying one, with no Mechanical or Large
-        /// soldiers) whose closest soldier is within the ability's range of the transport's hull (edge to edge); the
-        /// transport carries one unit at a time. Disembark: there's a unit aboard.
+        /// Embark: a friendly unit (not this one, not aboard another transport, not carrying one) whose soldiers are all
+        /// Biological, however many there are, and whose closest soldier is within the ability's range of the transport's
+        /// hull (edge to edge). A transport's capacity is one such unit. Disembark: there's a unit aboard.
         /// </summary>
         private static string WhyCannotTransport(Soldier user, Ability ability, Unit target)
         {
@@ -172,8 +175,8 @@ namespace Eldoria.Rules
             if (target.Side != transport.Side) return $"{target.DisplayName} isn't a friendly unit";
             if (target.IsEmbarked) return $"{target.DisplayName} is already aboard a transport";
             if (target.Passenger != null) return $"{target.DisplayName} is carrying a unit";
-            var big = target.LivingSoldiers.FirstOrDefault(s => CannotEmbark.Any(k => s.HasKeyword(k)));
-            if (big != null) return $"{big.name} can't board a transport ({CannotEmbark.First(k => big.HasKeyword(k))})";
+            var notBiological = target.LivingSoldiers.FirstOrDefault(s => !s.HasKeyword(PassengerKeyword));
+            if (notBiological != null) return $"{notBiological.name} can't board a transport (only {PassengerKeyword} soldiers can)";
             float gap = target.LivingSoldiers.Min(s => Measure.Between(user, s) - user.Radius - s.Radius);
             if (gap > ability.range + Epsilon) return $"Out of range: {target.DisplayName} must be within {ability.range:0.#} m of {transport.DisplayName}";
             return null;

@@ -64,8 +64,7 @@ namespace Eldoria.Rules
             // The soldiers' own abilities, then those their standard equipment gives (each copy adds uses per battle).
             int Sources(SoldierTemplate s, Ability a) =>
                 (s.abilities.Contains(a) ? 1 : 0) + (s.equipment ?? new List<Equipment>()).Count(e => e != null && e.abilities.Contains(a));
-            var abilities = unit.Roster().SelectMany(s => s.abilities.Concat((s.equipment ?? new List<Equipment>()).Where(e => e != null).SelectMany(e => e.abilities)))
-                .Where(a => a != null).Distinct();
+            var abilities = unit.Roster().SelectMany(s => s.AllAbilities()).Distinct();
             foreach (var a in abilities)
             {
                 var tags = new List<string> { a.IsActive ? "active" : "passive" };

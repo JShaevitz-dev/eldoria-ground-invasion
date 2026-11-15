@@ -72,6 +72,18 @@ namespace Eldoria.Units
         [Tooltip("Equipment this soldier type can be given in the army builder.")]
         public List<Equipment> equipmentOptions = new List<Equipment>();
 
+        /// <summary>
+        /// Every ability the soldier type has before any army builder choice: its own, those its standard equipment gives,
+        /// and those its keywords (and its equipment's) give (e.g. Transport: Embark and Disembark). Each once.
+        /// </summary>
+        public List<Ability> AllAbilities()
+        {
+            var gear = (equipment ?? new List<Equipment>()).Where(e => e != null).ToList();
+            var keywordList = keywords.Concat(gear.SelectMany(e => e.keywords)).Where(k => k != null);
+            return abilities.Concat(gear.SelectMany(e => e.abilities)).Concat(keywordList.SelectMany(k => k.grantsAbilities))
+                .Where(a => a != null).Distinct().ToList();
+        }
+
         /// <summary>Does the army builder offer this soldier type any weapon or equipment swaps, or equipment?</summary>
         public bool HasOptions => (weaponOptions != null && weaponOptions.Any(o => o != null && o.IsValid))
                                   || (equipmentSwaps != null && equipmentSwaps.Any(o => o != null && o.IsValid))

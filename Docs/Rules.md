@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Eldoria Ground Invasion) has its first three factions, and all three can field armies:** the ISF (Field
-> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand). The game
+> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, Workhorse Transport), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand). The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -55,8 +55,8 @@ Living record of the rules decided so far. **Status** shows what the code does t
 
 ### Roles — *implemented*
 
-Every unit has a **role**: **Infantry**, **Commander**, **Heavy Support** or **Specialist** (any unit not given another
-role). It's shown in the HUD when the unit is selected, and the army builder lists units in that order, Commanders first.
+Every unit has a **role**: **Infantry**, **Commander**, **Heavy Support**, **Specialist** (any unit not given another
+role) or **Transport**. It's shown in the HUD when the unit is selected, and the army builder lists units Commanders first, then Infantry, Heavy Support, Specialists and Transports.
 
 | Role | Units |
 |---|---|
@@ -64,6 +64,7 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 | **Commander** | Field Commander, Master Sergeant Jakoby, Marshal Command Tank, Dragon Hierarch, Dragonborn Exemplar, Rask Ultima |
 | **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, Stinger Heavy Robot, Tyrant Hover-tank, Intimidator Medium Robot |
 | **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad, Kobold Mechanist, Rask Blackhand, Rask Redhand |
+| **Transport** | Workhorse Transport. Like every role but Commander, an army can take more than one. |
 
 ### Factions — *implemented*
 
@@ -75,7 +76,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger and the ISF Boarding Team, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank and the Kobold Mechanist, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand and the Rask Redhand, so all three can field armies (the AI picks one of them).
+So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger, the ISF Boarding Team and the Workhorse Transport, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank and the Kobold Mechanist, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand and the Rask Redhand, so all three can field armies (the AI picks one of them).
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -109,7 +110,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - **Total Health:** every soldier's Health, with their standard equipment.
 - **Highest potential damage per turn**, with no bonuses (every shot hits; no crits, auras, penetration or armor): a unit's action is either a **volley** (every soldier firing their most damaging weapon: Damage × Shots, with the faction's changes such as the Rask's +2, counting weapons the army builder can give them) or an **ability attack** (its weapon's Damage × Shots against one target). The higher of the two.
 - **Sum of Armor:** every soldier's Armor Level, with their standard equipment (e.g. a Combat Shield).
-- **Abilities:** each different ability in the unit (its soldiers' own and those their standard equipment gives) counts once, however many soldiers have it. Equipment the army builder can swap in (e.g. a Medkit for a Frag Grenade) doesn't change the cost.
+- **Abilities:** each different ability in the unit (its soldiers' own, and those their standard equipment and keywords give, e.g. a Transport's Embark and Disembark) counts once, however many soldiers have it. Equipment the army builder can swap in (e.g. a Medkit for a Frag Grenade) doesn't change the cost.
 - **Heavy armor tax:** **+200**, once per unit, if any of its soldiers has an Armor Level (with standard equipment) of **4 or higher**. So far the Sagittarius MBT, Marshal Command Tank and Tyrant Hover-tank (Armor 4) and the Stinger Heavy Robot (Armor 5) pay it.
 - It's recalculated whenever the unit catalog is rebuilt (**Eldoria > Rebuild Unit Catalog**), so it follows any change to a unit.
 
@@ -414,6 +415,18 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - Like the Sagittarius: **Mechanical** (can't sprint, never in close range), **Unstable** (a 10% chance to explode when destroyed), radius 1.8 m.
 - The ISF's third Commander: an ISF army takes one of the Field Commander, Master Sergeant Jakoby or the Marshal Command Tank.
 
+### Workhorse Transport
+
+*International Space Force of Humanity · Transport.* One soldier: a six-wheeled armored truck with a gunmetal cab, a heavy grille and clustered headlights, an armored cargo body with side and roof panels in the faction's colour, and a machine gun on the cab roof.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Abilities |
+|---|---|---|---|---|---|---|---|
+| Workhorse Transport | 10 | 3 | 75% | 40 m (can't sprint) | Transport, Mechanical | Machine Gun | Embark, Disembark (from Transport), Stabilizers (passive) |
+
+- **Transport:** carries **one unit of Biological soldiers**, however many (see Transports): **Embark** takes a friendly unit within 2.5 m of the truck aboard; **Disembark** puts it out at once to make its move. A unit aboard is lost if the truck is destroyed.
+- **Machine Gun:** Damage 5, Shots 5, Penetration 1, Range 20 m; Deployed, but **Stabilizers** nullify Deployed, so it fires after moving.
+- **Mechanical:** can't sprint and is never in close range. Radius 1.6 m.
+
 ### ISF Rifle Squad
 
 *International Space Force of Humanity · Infantry.* 1 **ISF Rifleman Sergeant** (leader) + 9 **ISF Riflemen**.
@@ -480,10 +493,11 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 - **Large** (soldier, Trait): a very large creature, e.g. the Dragon Hierarch. No effect on its own yet; other rules can check for it.
 - **Jump Pack** (soldier, Trait): **able to climb up objects without movement cost**: climbing onto an object costs the soldier 0 m instead of 10 m. The Dragonborn Skymaster Squad has it.
 - **Hover** (soldier, Trait): **terrain cannot reduce the movement of this soldier**: a move costs only its flat (horizontal) distance, with no climbing cost, no wading penalty and nothing extra for slopes. The Tyrant Hover-tank has it.
+- **Transport** (soldier, Trait): a transport vehicle: gives the abilities **Embark** and **Disembark** (see Transports). It carries one unit of Biological soldiers, however many. The Workhorse Transport has it.
 - **Heavy** (soldier, Trait): a heavy war machine, e.g. the Stinger Heavy Robot. No effect on its own yet; other rules can check for it.
 - **Natural** (weapon, Trait): a natural weapon such as claws or teeth, which **can't be disabled by Disarm**. *Disarm isn't in the game yet, so for now it has no effect.*
 
-Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Heavy, Jump Pack, Hover, Natural, Swarm) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front, Chromashift).
+Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic, Officer, Solo, Sniper Precision, Spell, Large, Heavy, Jump Pack, Hover, Transport, Natural, Swarm) or **Status** (a temporary state: Moved, In half-cover, In full cover, Led from the front, Chromashift).
 
 - Some traits **do nothing on their own**: **Officer** and **Solo** only matter because other weapons and abilities check for them (e.g. something that only affects Officers, or has no effect on Solo soldiers) — done with keyword interactions such as *"if the target has / lacks Officer → …"*.
 
@@ -648,13 +662,13 @@ Two players can fight each other over the network instead of against the AI.
 
 How it works (for development): both games run the battle themselves. The host rolls the dice seed and who goes south, and both games use that seed. Each order the active player gives (select a unit, move, gather, end move, shoot, use an ability, end turn) is sent to the other game, which gives the same order through the same rules and dice. After every order the sending game includes a fingerprint of the battle (turn, every soldier's health and position), and the other game checks its own matches. If they ever disagree, the HUD shows a warning. While a walk animation is playing, the rules (and the fingerprint) use where the soldier's move ends, not how far the animation has got, and every animation ends exactly on that spot, so both games measure from the same place however fast each one draws.
 
-## Transports — *implemented (no unit is a transport yet)*
+## Transports — *implemented*
 
-A transport vehicle has two active abilities (Data/Abilities):
+A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle: the keyword gives it two active abilities (Data/Abilities), **Embark** and **Disembark**. Its **capacity is one unit of Biological soldiers, however many soldiers that unit has.**
 
 - **Embark** (target: a unit): choose a **friendly unit** whose closest soldier is **within 2.5 m of the transport's hull** (measured edge to edge; the green ring shows it). It **boards the transport**: it's taken off the battlefield (it can't be seen, targeted, or commanded) but **stays in the battle** (a side with only units aboard transports hasn't lost). It's the transport's action.
-  - A transport carries **one unit at a time**.
-  - A unit can't board if any of its soldiers is **Mechanical** or **Large**, if it's carrying a unit itself, or if it's aboard another transport.
+  - A transport carries **one unit at a time**, of any size.
+  - **Every soldier of the unit must be Biological** (so no robots, tanks or other machines). It also can't board if it's carrying a unit itself or is aboard another transport.
 - **Disembark** (no target; used as soon as its button is pressed): the unit aboard gets out **inside the transport** (every soldier at the transport's spot) and **starts its move at once, leader first**: it's selected straight away. It's the transport's action; the unit that got out then has its own move and action.
   - The **leader must move out** (no holding position, and the unit can't be deselected), then **every other soldier must move out too** (Gather does it), before the move can end.
   - A unit that has already acted this turn (e.g. it acted, then boarded) can't get out until the next turn.

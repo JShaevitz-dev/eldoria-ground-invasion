@@ -2145,6 +2145,131 @@ namespace Eldoria.EditorTools
             return prefab;
         }
 
+        /// <summary>
+        /// Workhorse Transport (Transport, ISF): 1 Workhorse Transport (Health 10, Armor 3, Accuracy 75%, Move 40 m; Transport,
+        /// Mechanical; Stabilizers (passive: nullifies Deployed); Machine Gun). The Transport keyword gives it Embark and
+        /// Disembark: it carries one unit of Biological soldiers. A six-wheeled armored truck. Radius 1.6 m, 3 m tall.
+        /// Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureWorkhorseTransport(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var mg = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/MachineGun.asset");
+            var stabilizers = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/Stabilizers.asset");
+            var truck = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/WorkhorseTransport.asset", s =>
+            {
+                s.displayName = "Workhorse Transport";
+                s.health = 10; s.armorLevel = 3; s.accuracy = 75; s.movementRange = 40f;
+                s.keywords = new List<Keyword> { keywords["Transport"], keywords["Mechanical"] };
+                s.abilities = new List<Ability> { stabilizers };   // Embark and Disembark come from the Transport keyword
+                s.weapons = new List<WeaponTemplate> { mg };
+                s.primaryWeapon = mg;
+                s.radius = 1.6f;
+                s.height = 3f;
+            });
+            if (truck.prefab == null)
+            {
+                truck.prefab = BuildWorkhorsePrefab("WorkhorseTransport", truck);
+                EditorUtility.SetDirty(truck);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/WorkhorseTransport.asset", u =>
+            {
+                u.displayName = "Workhorse Transport";
+                u.role = UnitRole.Transport;
+                u.description = "The ISF's armored troop carrier: a six-wheeled truck with an armored cargo body that can carry one unit of Biological soldiers, however many, across the battlefield. Embark takes a friendly unit within 2.5 m aboard, safe from fire; Disembark puts it out at once to make its move. It drives 40 m (it can't sprint, being Mechanical), and with 10 health and Armor Level 3 it shrugs off rifles and pistols. A roof-mounted Machine Gun (5 shots, 5 damage, penetration 1, 20 m) can fire on the move thanks to its Stabilizers. A unit aboard is lost if it's destroyed. A Transport: you can field more than one.";
+                u.leader = truck;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A placeholder Workhorse built from primitives, facing +z: a six-wheeled armored truck. A gunmetal cab with a sloped
+        /// hood, a heavy grille and bumper, two clusters of four round headlights and a slit windscreen; a tall armored cargo
+        /// body behind it with side and roof panels in the primary colour (the faction's colour when deployed), vision slits
+        /// and a rear door; six big wheels on three axles under fenders; and a machine gun on a ring mount on the cab roof.
+        /// </summary>
+        private static GameObject BuildWorkhorsePrefab(string name, SoldierTemplate template)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var paint = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var hull = GetOrCreateMaterial("Truck_Steel", new Color(0.32f, 0.33f, 0.36f));
+            var dark = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var tire = GetOrCreateMaterial("Tire", new Color(0.08f, 0.08f, 0.09f));
+            var glass = GetOrCreateMaterial("Cockpit_Glass", new Color(0.3f, 0.55f, 0.6f));
+            var lamp = GetOrCreateMaterial("Headlight", new Color(1f, 0.95f, 0.8f));
+            var steel = GetOrCreateMaterial("Shield_Steel", new Color(0.6f, 0.62f, 0.66f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = true;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+            var model = new GameObject("Model");
+            model.transform.SetParent(root.transform, false);
+            model.transform.localScale = Vector3.one * (template.height / 3f);   // laid out for a 3 m tall truck
+
+            // Six wheels on three axles (front, middle, rear), under dark fenders.
+            foreach (float side in new[] { -1f, 1f })
+                foreach (float z in new[] { 2.3f, -0.7f, -2.2f })
+                {
+                    Part(model, "Wheel", PrimitiveType.Cylinder, tire, new Vector3(side * 1.22f, 0.58f, z), new Vector3(1.16f, 0.24f, 1.16f), new Vector3(0f, 0f, 90f));
+                    Part(model, "Hub", PrimitiveType.Cylinder, steel, new Vector3(side * 1.35f, 0.58f, z), new Vector3(0.45f, 0.03f, 0.45f), new Vector3(0f, 0f, 90f));
+                    Part(model, "Fender", PrimitiveType.Cube, dark, new Vector3(side * 1.22f, 1.22f, z), new Vector3(0.42f, 0.1f, 1.35f));
+                }
+            Part(model, "Chassis", PrimitiveType.Cube, dark, new Vector3(0f, 0.9f, 0f), new Vector3(2.1f, 0.4f, 6.6f));
+
+            // The cab: a sloped hood, a heavy grille and bumper, headlights and a slit windscreen.
+            Part(model, "Cab", PrimitiveType.Cube, hull, new Vector3(0f, 1.75f, 1.95f), new Vector3(2.4f, 1.2f, 1.9f));
+            Part(model, "Hood", PrimitiveType.Cube, hull, new Vector3(0f, 1.42f, 3.3f), new Vector3(2.3f, 0.62f, 1.2f), new Vector3(8f, 0f, 0f));
+            Part(model, "Grille", PrimitiveType.Cube, dark, new Vector3(0f, 1.28f, 3.92f), new Vector3(1.3f, 0.62f, 0.08f));
+            foreach (float y in new[] { 1.12f, 1.24f, 1.36f, 1.48f })
+                Part(model, "Grille Bar", PrimitiveType.Cube, steel, new Vector3(0f, y, 3.97f), new Vector3(1.25f, 0.03f, 0.03f));
+            Part(model, "Bumper", PrimitiveType.Cube, dark, new Vector3(0f, 0.82f, 4.0f), new Vector3(2.6f, 0.3f, 0.32f));
+            foreach (float side in new[] { -1f, 1f })
+                foreach (float lx in new[] { 0.78f, 1.0f })
+                    foreach (float ly in new[] { 1.18f, 1.4f })
+                        Part(model, "Headlight", PrimitiveType.Sphere, lamp, new Vector3(side * lx, ly, 3.95f), new Vector3(0.16f, 0.16f, 0.06f));
+            Part(model, "Windscreen", PrimitiveType.Cube, glass, new Vector3(0f, 2.05f, 2.92f), new Vector3(2.0f, 0.36f, 0.05f), new Vector3(-18f, 0f, 0f));
+            foreach (float side in new[] { -1f, 1f })
+                Part(model, "Side Window", PrimitiveType.Cube, glass, new Vector3(side * 1.21f, 2.0f, 2.1f), new Vector3(0.04f, 0.32f, 0.8f));
+
+            // The armored cargo body, its side and roof panels in the faction's colour.
+            Part(model, "Cargo Body", PrimitiveType.Cube, hull, new Vector3(0f, 2.0f, -0.95f), new Vector3(2.5f, 1.9f, 3.9f));
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(model, "Side Panel", PrimitiveType.Cube, paint, new Vector3(side * 1.27f, 2.15f, -0.95f), new Vector3(0.04f, 1.15f, 3.5f));
+                foreach (float z in new[] { -0.1f, -1.0f, -1.9f })
+                    Part(model, "Vision Slit", PrimitiveType.Cube, dark, new Vector3(side * 1.29f, 2.55f, z), new Vector3(0.03f, 0.08f, 0.45f));
+            }
+            Part(model, "Roof Panel", PrimitiveType.Cube, paint, new Vector3(0f, 2.97f, -0.95f), new Vector3(2.3f, 0.06f, 3.6f));
+            Part(model, "Rear Door", PrimitiveType.Cube, dark, new Vector3(0f, 1.95f, -2.92f), new Vector3(1.6f, 1.5f, 0.06f));
+
+            // The machine gun on a ring mount on the cab roof.
+            Part(model, "Gun Ring", PrimitiveType.Cylinder, dark, new Vector3(0f, 2.4f, 1.8f), new Vector3(0.7f, 0.06f, 0.7f));
+            Part(model, "Machine Gun", PrimitiveType.Cube, dark, new Vector3(0f, 2.58f, 2.05f), new Vector3(0.16f, 0.18f, 0.85f));
+            Part(model, "Gun Barrel", PrimitiveType.Cylinder, steel, new Vector3(0f, 2.6f, 2.65f), new Vector3(0.07f, 0.25f, 0.07f), new Vector3(90f, 0f, 0f));
+            Part(model, "Gun Shield", PrimitiveType.Cube, hull, new Vector3(0f, 2.62f, 2.3f), new Vector3(0.6f, 0.36f, 0.05f));
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
         // ------------------------------------------------------------------ Equipment
 
         /// <summary>
@@ -2233,7 +2358,7 @@ namespace Eldoria.EditorTools
         /// <item>Embark (active, target: a unit): a friendly unit within 2.5 m of the transport's hull boards it.</item>
         /// <item>Disembark (active, no target): the unit aboard gets out inside the transport and moves at once, leader first.</item>
         /// </list>
-        /// No unit has them yet.
+        /// Soldiers get them from the Transport keyword. No unit has it yet.
         /// </summary>
         public static void EnsureTransportAbilities()
         {
@@ -2241,7 +2366,7 @@ namespace Eldoria.EditorTools
             GetOrCreate<Ability>($"{DataDir}/Abilities/Embark.asset", a =>
             {
                 a.displayName = "Embark";
-                a.description = "Active. Choose a friendly unit within 2.5 m of the transport: it boards the transport (one unit at a time; not Mechanical or Large units).";
+                a.description = "Active. Choose a friendly unit within 2.5 m of the transport: it boards the transport. A transport carries one unit, of Biological soldiers only (any number).";
                 a.kind = AbilityKind.Active;
                 a.keywords = new List<Keyword>();
                 a.targets = AbilityTarget.Unit;
@@ -2303,6 +2428,7 @@ namespace Eldoria.EditorTools
             EnsureIsfBoardingTeam(factions[0], keywords);
             EnsureMasterSergeantJakoby(factions[0], keywords);
             EnsureMarshalCommandTank(factions[0], keywords);
+            EnsureWorkhorseTransport(factions[0], keywords);
             EnsureMortarTeam(factions[0], keywords);   // after the ISF Rifle Squad: it uses its ISF Rifleman
             EnsureSagittariusMbt(factions[0], keywords);
             EnsureOlympianMech(factions[0], keywords);
@@ -2516,6 +2642,20 @@ namespace Eldoria.EditorTools
             Kw("Large", "Large", KeywordTarget.Soldier, "A very large creature. No effect on its own yet; other rules can check for it.");
             Kw("JumpPack", "Jump Pack", KeywordTarget.Soldier,
                 "Able to climb up objects without movement cost: climbing onto an object costs this soldier 0 m (normally 10 m).");
+            GetOrCreate<Keyword>($"{DataDir}/Keywords/Transport.asset", k =>
+            {
+                k.displayName = "Transport";
+                k.appliesTo = KeywordTarget.Soldier;
+                k.description = "A transport vehicle: has the abilities Embark and Disembark. It can carry one unit of Biological soldiers, however many there are.";
+            }, k =>
+            {
+                EnsureTransportAbilities();
+                foreach (var file in new[] { "Embark", "Disembark" })
+                {
+                    var ability = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/{file}.asset");
+                    if (ability != null && !k.grantsAbilities.Contains(ability)) k.grantsAbilities.Add(ability);
+                }
+            });
             Kw("Hover", "Hover", KeywordTarget.Soldier,
                 "Terrain cannot reduce the movement of this soldier: a move costs only its flat distance (no climbing cost, no wading penalty, slopes cost no extra).");
             Kw("Heavy", "Heavy", KeywordTarget.Soldier, "A heavy war machine. No effect on its own yet; other rules can check for it.");
@@ -2591,7 +2731,7 @@ namespace Eldoria.EditorTools
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
                 ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait,
                 ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Melee"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait,
-                ["Large"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Large"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Transport"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status, ["Empowered"] = KeywordCategory.Status,

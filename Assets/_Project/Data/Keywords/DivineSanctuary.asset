@@ -25,6 +25,7 @@ MonoBehaviour:
     amount: 1
     onlyIfSourceIsBetween: 0
   triggers: []
+  grantsAbilities: []
   grantsNearby: {fileID: 0}
   grantRadius: 5
   grantsWhenBetween: 0

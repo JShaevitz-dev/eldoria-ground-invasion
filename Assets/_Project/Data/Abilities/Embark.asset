@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Embark
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
   displayName: Embark
-  description: 'Active. Choose a friendly unit within 2.5 m of the transport: it
-    boards the transport (one unit at a time; not Mechanical or Large units).'
+  description: "Active. Choose a friendly unit within 2.5 m of the transport: it boards the transport. A transport carries one unit, of Biological soldiers only (any number)."
   kind: 1
   keywords: []
   affects: 0

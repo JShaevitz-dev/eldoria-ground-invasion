@@ -52,8 +52,23 @@ namespace Eldoria.Tests
                 Is.EqualTo((AbilityKind.Active, AbilityTarget.Unit, AuraAffects.Allies, 2.5f, TransportAction.Embark)));
             Assert.That((Disembark.kind, Disembark.targets, Disembark.transport),
                 Is.EqualTo((AbilityKind.Active, AbilityTarget.Self, TransportAction.Disembark)));
-            var withThem = UnitCatalog.Load().Available.Where(u => u.Roster().Any(s => s.abilities.Contains(Embark)));
-            Assert.That(withThem, Is.Empty, "no unit is a transport yet");
+            var withThem = UnitCatalog.Load().Available.Where(u => u.Roster().Any(s => s.AllAbilities().Contains(Embark)));
+            Assert.That(withThem.Select(u => u.displayName), Is.EqualTo(new[] { "Workhorse Transport" }), "the ISF's Workhorse is the transport so far");
+        }
+
+        [Test]
+        public void TheTransportKeywordGivesEmbarkAndDisembark()
+        {
+            var keyword = KeywordLibrary.Get("Transport");
+            Assert.That(keyword, Is.Not.Null);
+            Assert.That((keyword.appliesTo, keyword.category), Is.EqualTo((KeywordTarget.Soldier, KeywordCategory.Trait)));
+            Assert.That(keyword.grantsAbilities, Is.EqualTo(new[] { Embark, Disembark }));
+            var transport = Spawn(TestArmies.Transport, Side.Player, Vector3.zero);
+            Assert.That(TestArmies.Transport.leader.abilities, Is.Empty, "not given directly");
+            Assert.That(transport.Leader.Abilities, Is.EquivalentTo(new[] { Embark, Disembark }), "from the keyword");
+            Assert.That(TestArmies.Transport.leader.AllAbilities(), Is.EquivalentTo(new[] { Embark, Disembark }));
+            Assert.That(UnitInfo.AbilityLines(TestArmies.Transport), Is.EquivalentTo(new[] { "Embark (active)", "Disembark (active)" }));
+            Assert.That(SupplyCost.Breakdown(TestArmies.Transport, null).ActiveAbilities, Is.EqualTo(2), "they count towards its Supply Cost");
         }
 
         [Test]
@@ -84,7 +99,7 @@ namespace Eldoria.Tests
             var enemy = Spawn(TestArmies.InfantrySquad, Side.AI, new Vector3(0f, 0f, 3f));
             Assert.That(ActiveAbilities.WhyCannotUse(driver, Embark, targetUnit: enemy), Does.Contain("isn't a friendly unit"));
             var tank = Spawn(TestArmies.MediumTank, Side.Player, new Vector3(5f, 0f, 0f));
-            Assert.That(ActiveAbilities.WhyCannotUse(driver, Embark, targetUnit: tank), Does.Contain("can't board a transport"));
+            Assert.That(ActiveAbilities.WhyCannotUse(driver, Embark, targetUnit: tank), Does.Contain("only Biological soldiers"));
             Assert.That(ActiveAbilities.WhyCannotUse(driver, Embark, targetUnit: transport), Does.Contain("can't board itself"));
             Assert.That(ActiveAbilities.WhyCannotUse(driver, Disembark, targetUnit: transport), Does.Contain("Nobody is aboard"));
 
@@ -93,6 +108,20 @@ namespace Eldoria.Tests
             Assert.That(ActiveAbilities.Use(driver, Embark, null, first).Used, Is.True);
             Turns.StartNextTurn();   // (once a turn)
             Assert.That(ActiveAbilities.WhyCannotUse(driver, Embark, targetUnit: second), Does.Contain("already carrying"), "one unit at a time");
+        }
+
+        [Test]
+        public void ItCarriesOneUnitOfBiologicalSoldiersHoweverBig()
+        {
+            var transport = Spawn(TestArmies.Transport, Side.Player, Vector3.zero);
+            var driver = transport.Leader;
+            // Twenty soldiers: size doesn't matter.
+            var big = Spawn(UnitCatalog.Load().Available.Single(u => u.displayName == "Kobold Militia"), Side.Player, new Vector3(0f, 0f, -3f));
+            Assert.That(big.LivingSoldiers.Count(), Is.EqualTo(20));
+            Assert.That(ActiveAbilities.Use(driver, Embark, null, big).Used, Is.True, "a unit of 20 Biological soldiers boards");
+            Turns.StartNextTurn();
+            var another = Spawn(TestArmies.FieldCommander, Side.Player, new Vector3(-3f, 0f, 0f));
+            Assert.That(ActiveAbilities.WhyCannotUse(driver, Embark, targetUnit: another), Does.Contain("already carrying"), "one unit only");
         }
 
         [Test]
