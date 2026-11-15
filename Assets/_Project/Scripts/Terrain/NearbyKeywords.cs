@@ -13,7 +13,7 @@ namespace Eldoria.Terrain
     ///  - Terrain objects: if an object has a keyword with "Grants Nearby" set (e.g. Half-cover → In half-cover),
     ///    soldiers within its Grant Radius of the nearest part of the object have the granted keyword.
     ///  - Soldier auras: if a living soldier has a passive aura ability (e.g. Lead from the front → Led from the front),
-    ///    the soldiers it affects (allies/enemies, optionally itself) within its radius have the granted keyword.
+    ///    the soldiers it affects (allies/enemies, optionally itself, optionally only those with a keyword) within its radius have the granted keyword.
     ///  - Close range: a Biological soldier with a Biological enemy less than 2 m away has "In close range"
     ///    (see Rules.CloseRange; the rule itself is always checked live, this keyword is for display).
     /// All distances are horizontal. Refreshed whenever a soldier moves, a move is undone, and at the start of each turn.
@@ -63,6 +63,7 @@ namespace Eldoria.Terrain
 
         private static bool Affects(Ability ability, Soldier source, Soldier soldier)
         {
+            if (ability.auraMustHave != null && !soldier.HasKeyword(ability.auraMustHave.displayName)) return false;
             if (soldier == source) return ability.includeSelf;
             bool sameSide = source.Unit != null && soldier.Unit != null && source.Unit.Side == soldier.Unit.Side;
             return ability.affects == AuraAffects.Everyone

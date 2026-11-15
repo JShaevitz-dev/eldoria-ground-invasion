@@ -70,6 +70,8 @@ namespace Eldoria.Units
         public Keyword grantsNearby;
         [Tooltip("Meters, measured horizontally from the soldier with this ability.")]
         [Min(0f)] public float radius = 15f;
+        [Tooltip("Only soldiers with this keyword are affected by the aura (e.g. Biological). Empty = no requirement.")]
+        public Keyword auraMustHave;
 
         [Header("Active")]
         public AbilityTarget targets = AbilityTarget.Soldier;

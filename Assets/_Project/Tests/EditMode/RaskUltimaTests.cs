@@ -40,7 +40,7 @@ namespace Eldoria.Tests
             Assert.That(u.displayName, Is.EqualTo("Rask Ultima"));
             Assert.That((u.health, u.armorLevel), Is.EqualTo((10, 2)));
             Assert.That((u.accuracy, u.movementRange, u.radius, u.height), Is.EqualTo((r.accuracy, r.movementRange, r.radius, r.height)));
-            Assert.That((u.accuracy, u.movementRange), Is.EqualTo((50, 20f)));
+            Assert.That((u.accuracy, u.movementRange), Is.EqualTo((75, 20f)));
             Assert.That((r.health, r.armorLevel), Is.EqualTo((5, 1)), "the Rifleman is unchanged");
             Assert.That(u.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Biological", "Solo", "Officer" }));
             Assert.That(u.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Pistol" }));

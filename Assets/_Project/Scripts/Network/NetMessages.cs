@@ -164,6 +164,8 @@ namespace Eldoria.Network
         public const string EndTurn = "endTurn";
         /// <summary>The player who sent it concedes the battle (can be sent on either player's turn).</summary>
         public const string Concede = "concede";
+        /// <summary>The player who sent it has finished deploying: where each of their soldiers stands (<see cref="OrderMsg.placements"/>).</summary>
+        public const string Deploy = "deploy";
     }
 
     /// <summary>
@@ -184,6 +186,8 @@ namespace Eldoria.Network
         public string ability = "";
         public bool hasPoint;
         public int px, py, pz;
+        /// <summary>A deployment: for each soldier, five numbers: unit id, index in the unit, and x, y, z as exact float bits.</summary>
+        public List<int> placements = new List<int>();
         public long checksum;
 
         public Vector3 Point

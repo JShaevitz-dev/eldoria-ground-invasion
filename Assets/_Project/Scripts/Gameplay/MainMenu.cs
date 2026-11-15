@@ -261,6 +261,7 @@ namespace Eldoria.Gameplay
             lastLoadouts = loadouts?.Select(l => l?.Clone()).ToList();
             lastFaction = faction;
             ArmySelection.Set(army, aiArmy, faction, aiFaction, loadouts);
+            ArmySelection.DeploymentPhase = true;
             SceneManager.LoadScene(ChosenMap.Scene);
             return problems;
         }

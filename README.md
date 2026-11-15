@@ -2,7 +2,7 @@
 
 > **A fork of Eldoria with its first three factions, all three playable:** the International Space Force of Humanity
 > (Field Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team), the Imperial Army of The Draconis Imperialis (Dragon
-> Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand). Every game system is here (army lists and factions, movement,
+> Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). Every game system is here (army lists and factions, movement,
 > terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the three maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
@@ -52,6 +52,8 @@ Two players can play each other over a network. On the main menu, pick **Multipl
 2. The other player presses **Join**, types in the host's IP address, and presses **Connect**.
 3. The host chooses the battlefield. Then both players choose a faction and build an army, and the battle starts once
    both have confirmed. Who deploys at the south edge and moves first is decided at random.
+4. Both players place their units in their deployment zones at the same time, without seeing each other's armies,
+   and press Ready. The battle begins when both are ready.
 
 Things to check:
 
@@ -138,7 +140,8 @@ Inspector.
 | **Rask Ultima** | Most Holy Army of The Rask Divine Collective | Commander | Rask Ultima (the Rask Rifleman's stats with Health 10 and Armor 2; Biological, Solo, Officer; Pistol) |
 | **Rask Blackhand** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Blackhand (the Rask Ultima's stats with Armor 1 and no Officer; Solntse Laser Rifle; a Repair Kit as standard) |
 | **Rask Redhand** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Redhand (the Rask Ultima's stats with Armor 1 and no Officer; Solntse Laser Rifle; a Medkit as standard) |
-| **Rask Rifle Team** | Most Holy Army of The Rask Divine Collective | Infantry | Rask Superior + 19 Rask Riflemen (the Kobold Militiaman's stats with Armor 1; Solntse Laser Rifles: the Rask name for the Assault Rifle, Damage 6) |
+| **Rask Reliquary** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Reliquary (a shrine on tracks: Health 10, Armor 2, Move 20; Mechanical; no weapon; Sanctifying Presence: other friendly Biological soldiers within 20 m get +2 damage and +20% accuracy; Supply Cost 118, the formula + 100) |
+| **Rask Rifle Team** | Most Holy Army of The Rask Divine Collective | Infantry | Rask Superior + 19 Rask Riflemen (the Kobold Militiaman's stats with Armor 1 and 75% accuracy; Solntse Laser Rifles: the Rask name for the Assault Rifle, Damage 6) |
 | **Intimidator Medium Robot** | Most Holy Army of The Rask Divine Collective | Heavy Support | Intimidator Medium Robot (a gorilla-like four-legged robot: Health 10, Armor 3, Accuracy 75%, Move 30; Mechanical, Robotic; Stabilizers; Twin Intimidator Machine Guns: the Machine Gun with 10 shots, one on each shoulder) |
 | **Stinger Heavy Robot** | Most Holy Army of The Rask Divine Collective | Heavy Support | Stinger Heavy Robot (a six-legged beetle robot: Health 25, Armor 5, Accuracy 75%, Move 30; Mechanical, Heavy, Robotic; Stabilizers; Plasma Mortar: the Mortar Launcher's stats) |
 | **Kobold Militia** | Imperial Army of The Draconis Imperialis | Infantry | Kobold Sergeant + 19 Kobold Militiamen (Health 5, Armor 0, Accuracy 50%, Move 20 m, Swarm; Fang Casters, the Draconis name for the Assault Rifle) |
@@ -154,7 +157,7 @@ A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier*
 weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
 them (and add each unit to its faction's unit list). They're created in code
 (`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureIsfBoardingTeam`, `EnsureMasterSergeantJakoby`, `EnsureMarshalCommandTank`, `EnsureWorkhorseTransport`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
-`EnsureDragonbornSquad`, `EnsureDragonbornSkymasterSquad`, `EnsureDragonbornExemplar`, `EnsureTyrantHoverTank`, `EnsureKoboldMechanist`, `EnsureKoboldMilitia`, `EnsureRaskUltima`, `EnsureRaskRifleTeam`, `EnsureStingerHeavyRobot`, `EnsureIntimidatorMediumRobot`, `EnsureRaskBlackhand`, `EnsureRaskRedhand`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support,
+`EnsureDragonbornSquad`, `EnsureDragonbornSkymasterSquad`, `EnsureDragonbornExemplar`, `EnsureTyrantHoverTank`, `EnsureKoboldMechanist`, `EnsureKoboldMilitia`, `EnsureRaskUltima`, `EnsureRaskRifleTeam`, `EnsureStingerHeavyRobot`, `EnsureIntimidatorMediumRobot`, `EnsureRaskBlackhand`, `EnsureRaskRedhand`, `EnsureRaskReliquary`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support,
 Specialist or Transport.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,

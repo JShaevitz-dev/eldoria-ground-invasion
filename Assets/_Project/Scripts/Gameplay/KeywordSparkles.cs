@@ -61,7 +61,7 @@ namespace Eldoria.Gameplay
 
             foreach (var soldier in FindObjectsByType<Soldier>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
-                var color = SparkleColorFor(soldier);
+                var color = soldier.Unit != null && soldier.Unit.Hidden ? null : SparkleColorFor(soldier);   // nothing shows a hidden unit
                 effects.TryGetValue(soldier, out var ps);
                 if (color.HasValue)
                 {

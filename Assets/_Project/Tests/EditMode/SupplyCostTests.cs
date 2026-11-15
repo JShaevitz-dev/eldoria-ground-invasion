@@ -6,8 +6,8 @@ using NUnit.Framework;
 namespace Eldoria.Tests
 {
     /// <summary>
-    /// Supply Cost = total Health + highest potential damage per turn (no bonuses) + sum of Armor + 20 × active abilities
-    /// + 10 × passive abilities. Every unit carries its cost, worked out by that formula.
+    /// Supply Cost = 3 × Firepower + ½ × Durability + 20 × active abilities + 10 × passive abilities + armor tax, where
+    /// Firepower counts hit chance and penetration, and Durability is Health × (1 + Armor ÷ 4). Every unit carries its cost.
     /// </summary>
     public class SupplyCostTests
     {
@@ -21,77 +21,116 @@ namespace Eldoria.Tests
         {
             foreach (var u in Catalog.Available)
             {
-                var parts = SupplyCost.Breakdown(u, FactionOf(u));
-                TestContext.Out.WriteLine($"SUPPLY | {FactionOf(u).displayName} | {u.displayName} | {u.role} | {parts.Health} | {parts.Damage} | {parts.Armor} | {parts.ActiveAbilities} | {parts.PassiveAbilities} | {parts.ArmorTax} | {parts.Total}");
-                Assert.That(u.supplyCost, Is.EqualTo(parts.Total), u.displayName);
+                var p = SupplyCost.Breakdown(u, FactionOf(u));
+                TestContext.Out.WriteLine($"SUPPLY | {FactionOf(u).displayName} | {u.displayName} | {u.role} | {u.Size} | {p.Firepower:0.##} | {p.Durability:0.##} | {p.ActiveAbilities} | {p.PassiveAbilities} | {p.BestArmor} | {p.ArmorTax} | {u.supplyCostAdjustment} | {u.supplyCost} | {(double)u.supplyCost / u.Size:0.#}");
+                Assert.That(u.supplyCost, Is.EqualTo(p.Total + u.supplyCostAdjustment), u.displayName);
+                if (u.displayName != "Rask Reliquary") Assert.That(u.supplyCostAdjustment, Is.EqualTo(0), u.displayName);
                 Assert.That(u.supplyCost, Is.GreaterThan(0), u.displayName);
             }
         }
 
         [Test]
-        public void TheFieldCommander()
+        public void PenetrationFactorsAverageTheRulesOverArmor0To4()
         {
-            // 10 health + a Pistol (2 × 1) + Armor 2 + Lead from the front (passive).
-            var p = Parts("Field Commander");
-            Assert.That((p.Health, p.Damage, p.Armor, p.ActiveAbilities, p.PassiveAbilities, p.Total), Is.EqualTo((10, 2, 2, 0, 1, 24)));
+            Assert.That(SupplyCost.PenetrationFactor(0), Is.EqualTo(0.3).Within(1e-6));
+            Assert.That(SupplyCost.PenetrationFactor(1), Is.EqualTo(0.6).Within(1e-6));
+            Assert.That(SupplyCost.PenetrationFactor(2), Is.EqualTo(0.9).Within(1e-6));
+            Assert.That(SupplyCost.PenetrationFactor(3), Is.EqualTo(1.2).Within(1e-6));
+            Assert.That(SupplyCost.PenetrationFactor(4), Is.EqualTo(1.4).Within(1e-6));
+            Assert.That(SupplyCost.PenetrationFactor(5), Is.EqualTo(1.5).Within(1e-6));
+            Assert.That(SupplyCost.PenetrationFactor(7), Is.EqualTo(1.5).Within(1e-6));
+            Assert.That(SupplyCost.PenetrationFactor(null), Is.EqualTo(1.0), "Penetration X");
+        }
+
+        [Test]
+        public void ArmorTaxes()
+        {
+            Assert.That(new[] { 0, 2, 3, 4, 5 }.Select(SupplyCost.ArmorTaxFor), Is.EqualTo(new[] { 0, 0, 50, 100, 100 }));
+            string Taxed(int tax) => string.Join(", ", Catalog.Available.Where(u => SupplyCost.Breakdown(u, FactionOf(u)).ArmorTax == tax)
+                .Select(u => u.displayName).OrderBy(n => n, System.StringComparer.Ordinal));
+            Assert.That(Taxed(100), Is.EqualTo("Marshal Command Tank, Sagittarius MBT, Stinger Heavy Robot, Tyrant Hover-tank"));
+            Assert.That(Taxed(50), Is.EqualTo("ISF Boarding Team, Intimidator Medium Robot, Olympian Mech, Workhorse Transport"));
         }
 
         [Test]
         public void TheIsfRifleSquad()
         {
-            // 10 × 5 health; 10 Assault Rifles (4 each: the Sergeant's is better than his Pistol) = 40, more than a grenade's 5;
-            // 10 × Armor 2; the Frag Grenade (one active ability for the squad). The Medkit/Repair Kit swaps don't count.
+            // Firepower: 10 Assault Rifles × (4 damage × 75% × 0.6 for Penetration 1) = 18 (the grenade: 5 × 0.3 = 1.5).
+            // Durability: 10 × 5 health × 1.5 (Armor 2) = 75. Cost: 3 × 18 + ½ × 75 + the Frag Grenade 20 = 111.5 → 112.
             var p = Parts("ISF Rifle Squad");
-            Assert.That((p.Health, p.Damage, p.Armor, p.ActiveAbilities, p.PassiveAbilities, p.Total), Is.EqualTo((50, 40, 20, 1, 0, 130)));
+            Assert.That(p.Firepower, Is.EqualTo(18).Within(1e-6));
+            Assert.That(p.Durability, Is.EqualTo(75).Within(1e-6));
+            Assert.That((p.ActiveAbilities, p.PassiveAbilities, p.ArmorTax, p.Total), Is.EqualTo((1, 0, 0, 112)));
         }
 
         [Test]
-        public void TheHeavyWeaponsTeamCountsItsMostDamagingWeaponOption()
+        public void TheFieldCommander()
         {
-            // 5 × 5 health; Sergeant's Pistol 2 + 3 Assault Rifles 12 + the Flamethrower option (10 × 3 = 30, more than the
-            // Machine Gun's 5 × 5 = 25) = 44; 5 × Armor 2.
-            var p = Parts("Heavy Weapons Team");
-            Assert.That((p.Health, p.Damage, p.Armor, p.ActiveAbilities, p.PassiveAbilities, p.Total), Is.EqualTo((25, 44, 10, 0, 0, 79)));
-        }
-
-        [Test]
-        public void TheRaskRifleTeamCountsTheRasksBetterRifles()
-        {
-            // 20 × 5 health; 20 Solntse Laser Rifles at 6 damage (the Rask's +2) = 120; 20 × Armor 1.
-            var p = Parts("Rask Rifle Team");
-            Assert.That((p.Health, p.Damage, p.Armor, p.Total), Is.EqualTo((100, 120, 20, 240)));
+            // Pistol: 2 × 75% × 0.3 = 0.45; 10 health × 1.5 = 15; Lead from the front (passive). 1.35 + 7.5 + 10 = 18.85 → 19.
+            var p = Parts("Field Commander");
+            Assert.That(p.Firepower, Is.EqualTo(0.45).Within(1e-6));
+            Assert.That(p.Total, Is.EqualTo(19));
         }
 
         [Test]
         public void TheSagittariusMbt()
         {
-            // 20 health + the 100mm Cannon (10) + Armor 4 + its Frag Grenade (active) + the heavy armor tax (Armor 4).
+            // 100mm Cannon: 10 × 75% × 1.4 (Penetration 4) = 10.5; 20 health × 2 (Armor 4) = 40; Frag Grenade; tax 100.
+            // 31.5 + 20 + 20 + 100 = 171.5 → 172.
             var p = Parts("Sagittarius MBT");
-            Assert.That((p.Health, p.Damage, p.Armor, p.ActiveAbilities, p.PassiveAbilities, p.ArmorTax, p.Total), Is.EqualTo((20, 10, 4, 1, 0, 200, 254)));
+            Assert.That(p.Firepower, Is.EqualTo(10.5).Within(1e-6));
+            Assert.That(p.Durability, Is.EqualTo(40).Within(1e-6));
+            Assert.That((p.ActiveAbilities, p.ArmorTax, p.Total), Is.EqualTo((1, 100, 172)));
         }
 
         [Test]
-        public void Armor4OrHigherPaysTheHeavyArmorTax()
+        public void TheRaskRifleTeamAt75PercentAccuracy()
         {
-            // The Stinger (Armor 5): 25 health + the Plasma Mortar (5) + 5 armor + Stabilizers (passive) + 200.
-            var stinger = Parts("Stinger Heavy Robot");
-            Assert.That((stinger.Health, stinger.Damage, stinger.Armor, stinger.PassiveAbilities, stinger.ArmorTax, stinger.Total), Is.EqualTo((25, 5, 5, 1, 200, 245)));
-            // Armor 4 is taxed too; Armor 3 isn't.
-            Assert.That(Parts("Tyrant Hover-tank").ArmorTax, Is.EqualTo(200));
-            Assert.That(Parts("Olympian Mech").ArmorTax, Is.EqualTo(0), "Armor 3");
-            Assert.That(Parts("ISF Boarding Team").ArmorTax, Is.EqualTo(0), "Armor 3 with the Combat Shield");
-            var taxed = Catalog.Available.Where(u => SupplyCost.Breakdown(u, FactionOf(u)).ArmorTax > 0).Select(u => u.displayName);
-            Assert.That(taxed, Is.EquivalentTo(new[] { "Stinger Heavy Robot", "Sagittarius MBT", "Marshal Command Tank", "Tyrant Hover-tank" }));
+            // 20 Solntse Laser Rifles × (6 × 75% × 0.6) = 54; 20 × 5 health × 1.25 (Armor 1) = 125. 162 + 62.5 = 224.5 → 225.
+            var p = Parts("Rask Rifle Team");
+            Assert.That(p.Firepower, Is.EqualTo(54).Within(1e-6));
+            Assert.That(p.Durability, Is.EqualTo(125).Within(1e-6));
+            Assert.That(p.Total, Is.EqualTo(225));
+        }
+
+        [Test]
+        public void TheKoboldMilitia()
+        {
+            // 20 Fang Casters × (4 × 50% × 0.6) = 24; 20 × 5 health (Armor 0) = 100. 72 + 50 = 122.
+            var p = Parts("Kobold Militia");
+            Assert.That(p.Firepower, Is.EqualTo(24).Within(1e-6));
+            Assert.That(p.Durability, Is.EqualTo(100).Within(1e-6));
+            Assert.That(p.Total, Is.EqualTo(122));
+        }
+
+        [Test]
+        public void TheHeavyWeaponsTeamCountsItsBestWeaponOption()
+        {
+            // The Flamethrower option (10 × 3 shots × 75% × 1 for Penetration X = 22.5) beats the Machine Gun (5 × 5 × 75% ×
+            // 0.6 = 11.25) and the Rocket Launcher (5 × 75% × 1.5 = 5.625). With the Sergeant's Pistol (0.45) and 3 Assault
+            // Rifles (5.4): 28.35. Durability 25 × 1.5 = 37.5. 85.05 + 18.75 = 103.8 → 104.
+            var p = Parts("Heavy Weapons Team");
+            Assert.That(p.Firepower, Is.EqualTo(28.35).Within(1e-6));
+            Assert.That(p.Total, Is.EqualTo(104));
+        }
+
+        [Test]
+        public void HitChanceIsCappedAt100Percent()
+        {
+            // The ISF Ranger (100%) with the Sniper Rifle (+50%) hits 100%, no more: 10 × 1.0 × 0.6 = 6. Its Anti-Materiel
+            // Rifle option (10 × 100% × 1 for Penetration X = 10) is worth more.
+            var ranger = Unit("ISF Ranger").leader;
+            var sniper = ranger.weapons.Single();
+            Assert.That(SupplyCost.HitChance(ranger, WeaponStats.For(sniper, FactionOf(Unit("ISF Ranger")))), Is.EqualTo(1.0));
+            Assert.That(Parts("ISF Ranger").Firepower, Is.EqualTo(10).Within(1e-6), "the Anti-Materiel Rifle: 10 × 100% × 1");
         }
 
         [Test]
         public void AbilitiesAreCountedOncePerUnit()
         {
-            // Jakoby's two Frag Grenades give one ability.
-            Assert.That(Parts("Master Sergeant Jakoby").ActiveAbilities, Is.EqualTo(1));
-            // The Olympian Mech: Iron Claw (active) and Stabilizers (passive).
+            Assert.That(Parts("Master Sergeant Jakoby").ActiveAbilities, Is.EqualTo(1), "two Frag Grenades, one ability");
             var mech = Parts("Olympian Mech");
-            Assert.That((mech.ActiveAbilities, mech.PassiveAbilities), Is.EqualTo((1, 1)));
+            Assert.That((mech.ActiveAbilities, mech.PassiveAbilities), Is.EqualTo((1, 1)), "Iron Claw and Stabilizers");
         }
     }
 }

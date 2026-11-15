@@ -56,7 +56,7 @@ namespace Eldoria.Tests
             Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
             Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("11 units available"));
             Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("7 units available"));
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("6 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("7 units available"));
 
             menu.Builder.ChooseFaction(Isf);
             yield return null;   // draws the unit list
@@ -114,7 +114,10 @@ namespace Eldoria.Tests
                 .All(u => ArmyRules.WhyCannotAdd(ArmySelection.AIArmy, u, ArmySelection.AIFaction) != null), Is.True, "the AI fills its Supply Cap");
             var aiUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).Where(u => u.Side == Side.AI).ToList();
             Assert.That(aiUnits.Count, Is.EqualTo(ArmySelection.AIArmy.Count));
-            Assert.That(Turns.Current, Is.EqualTo(1), "a fresh battle on turn 1");
+            Assert.That(controller.IsDeploying, Is.True, "a fresh battle starts with deployment");
+            Assert.That(aiUnits.All(u => u.Hidden), Is.True, "with the AI's army hidden");
+            controller.ReadyDeployment();
+            Assert.That(Turns.Current, Is.EqualTo(1), "then turn 1");
             Assert.That(Victory.IsOver, Is.False);
         }
 
@@ -140,7 +143,13 @@ namespace Eldoria.Tests
             var zones = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None);
             foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
             foreach (var s in unit.Soldiers)
-                Assert.That(zones.Single(z => z.Side == unit.Side).Contains(s.Position), Is.True, $"{unit.DisplayName}: {s.name}");
+            {
+                // The first row of six units deploys in the zone; an army of more fills rows behind it (on the battlefield).
+                if (unit.NetId % 100 < ArmyDeployment.UnitsPerRow)
+                    Assert.That(zones.Single(z => z.Side == unit.Side).Contains(s.Position), Is.True, $"{unit.DisplayName} (#{unit.NetId}): {s.name} at {s.Position}, zone {zones.Single(z => z.Side == unit.Side).transform.position} {zones.Single(z => z.Side == unit.Side).Size}");
+                else
+                    Assert.That(Eldoria.Rules.MovementRules.IsInsideBattlefield(s.Position, 0f), Is.True, $"{unit.DisplayName}: {s.name}");
+            }
             Assert.That(Object.FindFirstObjectByType<MovementController>().PlayerUnits.Count, Is.EqualTo(ArmySelection.PlayerArmy.Count));
         }
 

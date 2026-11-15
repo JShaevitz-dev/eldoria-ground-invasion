@@ -112,6 +112,12 @@ namespace Eldoria.Network
             if (c == null) yield break;
             yield return null;
             Debug.Log($"[Eldoria] MP smoke: commanding {(c.LocalSide == Side.Player ? "south (moves first)" : "north")}, {c.PlayerUnits.Count} units.");
+            Check(c.IsDeploying, "the battle starts with deployment");
+            Check(FindObjectsByType<Unit>(FindObjectsSortMode.None).Where(u => u.Side != c.LocalSide).All(u => u.Hidden), "the opponent's army is hidden");
+            c.ReadyDeployment();
+            yield return Until(() => !c.IsDeploying, 60f);
+            Check(!c.IsDeploying, "both players deployed");
+            Check(FindObjectsByType<Unit>(FindObjectsSortMode.None).All(u => !u.Hidden), "both armies are revealed");
 
             float deadline = Time.realtimeSinceStartup + 300f;
             while (!c.BattleOver && Turns.Current < LastTurn && !session.Lost && Time.realtimeSinceStartup < deadline)

@@ -42,9 +42,10 @@ namespace Eldoria.Tests
             Assert.That(rifleman.displayName, Is.EqualTo("Rask Rifleman"));
             foreach (var s in new[] { superior, rifleman })
             {
-                Assert.That((s.health, s.accuracy, s.movementRange), Is.EqualTo((kobold.health, kobold.accuracy, kobold.movementRange)), s.displayName);
+                Assert.That((s.health, s.movementRange), Is.EqualTo((kobold.health, kobold.movementRange)), s.displayName);
+                Assert.That((s.accuracy, kobold.accuracy), Is.EqualTo((75, 50)), "75% accuracy; the kobolds stay at 50%");
                 Assert.That(kobold.armorLevel, Is.EqualTo(0), "the kobolds stay at Armor 0");
-                Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((5, 1, 50, 20f)), s.displayName);
+                Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((5, 1, 75, 20f)), s.displayName);
                 Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Biological", "Swarm" }), s.displayName);
                 Assert.That(s.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle" }), s.displayName);
                 Assert.That(s.height, Is.EqualTo(1.2f), "two-thirds of a human's height");

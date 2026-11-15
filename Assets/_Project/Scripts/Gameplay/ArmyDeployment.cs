@@ -24,9 +24,10 @@ namespace Eldoria.Gameplay
         /// A deployment slot (unit leader position) in a zone. Units go in rows of <see cref="UnitsPerRow"/> spread evenly
         /// across the zone's width, left to right as the side looks across the map (the player looks north, the AI south).
         /// The first row is a little forward of the zone's middle so the units' back ranks stay inside it; any further rows
-        /// (an army of more than six units) are <see cref="RowSpacing"/> behind each other, never off the battlefield.
+        /// (an army of more than six units) are <see cref="RowSpacing"/> behind each other, never off the battlefield: a unit
+        /// whose formation is <paramref name="depth"/> metres deep behind its leader keeps its back rank on the board too.
         /// </summary>
-        public static Vector3 Slot(Vector3 zoneCentre, Vector2 zoneSize, Side side, int index)
+        public static Vector3 Slot(Vector3 zoneCentre, Vector2 zoneSize, Side side, int index, float depth = 0f)
         {
             float forward = side == Side.Player ? 1f : -1f;   // towards the enemy
             int row = index / UnitsPerRow, col = index % UnitsPerRow;
@@ -35,7 +36,7 @@ namespace Eldoria.Gameplay
             if (row > 0)
             {
                 // Back rows stay on the battlefield, but never come in front of the first row.
-                float edge = Core.BattlefieldScale.BoardDepth / 2f - 2f;
+                float edge = Core.BattlefieldScale.BoardDepth / 2f - 2f - depth;
                 float firstRow = zoneCentre.z + forward * zoneSize.y * 0.125f;
                 float z = Mathf.Clamp(slot.z, -edge, edge);
                 slot.z = forward > 0f ? Mathf.Min(z, firstRow) : Mathf.Max(z, firstRow);
@@ -44,11 +45,11 @@ namespace Eldoria.Gameplay
         }
 
         /// <summary>The slot in the current map's deployment zone for that side (the Boxed in's zones if the map has none).</summary>
-        public static Vector3 SlotFor(Side side, int index)
+        public static Vector3 SlotFor(Side side, int index, float depth = 0f)
         {
             var zone = Object.FindObjectsByType<DeploymentZone>(FindObjectsSortMode.None).FirstOrDefault(z => z.Side == side);
-            if (zone != null) return Slot(zone.transform.position, zone.Size, side, index);
-            return Slot(new Vector3(0f, 0f, side == Side.Player ? -26f : 26f), new Vector2(80f, 8f), side, index);
+            if (zone != null) return Slot(zone.transform.position, zone.Size, side, index, depth);
+            return Slot(new Vector3(0f, 0f, side == Side.Player ? -26f : 26f), new Vector2(80f, 8f), side, index, depth);
         }
 
         /// <summary>The AI's colour when it has no faction (e.g. tests): the old enemy red. The player keeps the model's own blue.</summary>
@@ -84,6 +85,15 @@ namespace Eldoria.Gameplay
             return deployed;   // nearby keywords (cover, auras) are worked out when the first turn starts
         }
 
+        /// <summary>How far a unit's formation reaches behind its leader: its back rank, plus a soldier's radius.</summary>
+        public static float FormationDepth(UnitTemplate unit)
+        {
+            if (unit == null) return 0f;
+            int ranks = Mathf.CeilToInt(unit.Size / (float)UnitFactory.RankWidth);
+            float radius = unit.Roster().Where(s => s != null).Select(s => s.radius).DefaultIfEmpty(0f).Max();
+            return (ranks - 1) * unit.deploymentSpacing + radius;
+        }
+
         private static IEnumerable<Unit> DeployArmy(IReadOnlyList<UnitTemplate> army, Side side, Transform root, Faction faction,
             IReadOnlyList<UnitLoadout> loadouts)
         {
@@ -92,7 +102,7 @@ namespace Eldoria.Gameplay
             var facing = Quaternion.Euler(0f, side == Side.Player ? 0f : 180f, 0f);
             for (int i = 0; i < units.Count; i++)
             {
-                var unit = Spawn(units[i], side, SlotFor(side, i), facing, names[i], root, faction,
+                var unit = Spawn(units[i], side, SlotFor(side, i, FormationDepth(units[i])), facing, names[i], root, faction,
                     loadouts != null && i < loadouts.Count ? loadouts[i] : null);
                 unit.NetId = NetIdOf(side, i);
                 yield return unit;

@@ -16,7 +16,7 @@ MonoBehaviour:
   role: 3
   description: 'A Rask field medic, named for the red gauntlets of their trade. The
     Redhand has the Rask Ultima''s health, accuracy and move but lighter armor (10
-    health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with
+    health, Armor Level 1, 75% accuracy, 20 m a move) and fights alone (Solo), with
     a Solntse Laser Rifle (the Rask''s Assault Rifle: 6 damage, penetration 1, 20
     m). Its Medkit restores 5 health to a friendly Biological soldier within 5 m,
     such as a wounded Rask rifleman or the Ultima, as its action; it can''t be used
@@ -24,5 +24,5 @@ MonoBehaviour:
   leader: {fileID: 11400000, guid: 0e97ba075d3d3304e9bbf80960616d39, type: 2}
   members: []
   equipmentSwapsForWholeUnit: 0
-  supplyCost: 37
+  supplyCost: 34
   deploymentSpacing: 1.2

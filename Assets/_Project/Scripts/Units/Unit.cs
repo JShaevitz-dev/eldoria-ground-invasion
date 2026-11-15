@@ -73,6 +73,33 @@ namespace Eldoria.Units
         public string DisplayName => displayName;
         public UnitTemplate Template => template;
 
+        private readonly List<Renderer> hiddenRenderers = new List<Renderer>();
+        private readonly List<Collider> hiddenColliders = new List<Collider>();
+
+        /// <summary>The unit is hidden from this game's player (the other side's units during deployment): not drawn, labelled or clickable.</summary>
+        public bool Hidden { get; private set; }
+
+        /// <summary>Hides the unit (its models and colliders) or shows it again.</summary>
+        public void SetHidden(bool hidden)
+        {
+            if (hidden == Hidden) return;
+            Hidden = hidden;
+            if (hidden)
+            {
+                foreach (var r in GetComponentsInChildren<Renderer>())
+                    if (r.enabled) { r.enabled = false; hiddenRenderers.Add(r); }
+                foreach (var c in GetComponentsInChildren<Collider>())
+                    if (c.enabled) { c.enabled = false; hiddenColliders.Add(c); }
+            }
+            else
+            {
+                foreach (var r in hiddenRenderers) if (r != null) r.enabled = true;
+                foreach (var c in hiddenColliders) if (c != null) c.enabled = true;
+                hiddenRenderers.Clear();
+                hiddenColliders.Clear();
+            }
+        }
+
         /// <summary>The unit's id in this battle (the same in both games of a multiplayer battle); -1 if it has none.</summary>
         public int NetId { get; set; } = -1;
 

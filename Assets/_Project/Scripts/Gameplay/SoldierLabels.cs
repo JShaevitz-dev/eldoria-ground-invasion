@@ -72,7 +72,7 @@ namespace Eldoria.Gameplay
             if (cam == null || soldiers.Length == 0 || Event.current.type != EventType.Repaint) return;
             style ??= new GUIStyle(GUI.skin.label) { richText = true, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
 
-            foreach (var s in soldiers.Where(s => s != null && s.IsAlive && s.gameObject.activeInHierarchy))
+            foreach (var s in soldiers.Where(s => s != null && s.IsAlive && s.gameObject.activeInHierarchy && !(s.Unit != null && s.Unit.Hidden)))
             {
                 Vector3 world = s.transform.position + Vector3.up * (s.Height + HeightAboveHead);
                 Vector3 screen = cam.WorldToScreenPoint(world);

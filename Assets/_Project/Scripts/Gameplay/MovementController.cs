@@ -24,7 +24,7 @@ namespace Eldoria.Gameplay
     ///   K = (debug) kill the squad leader to test succession.
     /// Camera: WASD / Q E / right-drag / middle-drag / scroll (left mouse is free for orders).
     /// </summary>
-    public class MovementController : MonoBehaviour
+    public partial class MovementController : MonoBehaviour
     {
         /// <summary>The unit being commanded; null until the player picks one (each turn starts with none selected).</summary>
         private Unit squad;
@@ -218,7 +218,9 @@ namespace Eldoria.Gameplay
             if (ai == null) ai = gameObject.AddComponent<AITurnController>();
 
             Turns.ResetCounter();
-            NextTurn();
+            // A battle from the menu (or a lobby) starts with deployment; the first turn starts once both sides are deployed.
+            if (ShouldDeploy()) BeginDeployment();
+            else NextTurn();
         }
 
         private void OnDestroy()
@@ -242,6 +244,7 @@ namespace Eldoria.Gameplay
             shootMode = false;
             abilityMode = null;
             HideMoveVisuals();
+            if (deploying) EndDeploymentState();   // conceded during deployment: show everyone
         }
 
         /// <summary>Starts the battle again from the beginning (reloads the map).</summary>
@@ -298,7 +301,7 @@ namespace Eldoria.Gameplay
         /// </summary>
         public bool SelectUnit(Unit unit)
         {
-            if (Victory.IsOver || aiTurn || NotYourTurn) return false;
+            if (Victory.IsOver || deploying || aiTurn || NotYourTurn) return false;
             if (unit == null || unit == squad || !TurnUnits.Contains(unit) || unit.IsDestroyed) return false;
             if (unit.IsEmbarked)
             {
@@ -391,7 +394,7 @@ namespace Eldoria.Gameplay
         /// </summary>
         public void RequestEndTurn()
         {
-            if (Victory.IsOver || aiTurn || NotYourTurn) return;
+            if (Victory.IsOver || deploying || aiTurn || NotYourTurn) return;
             if ((activation == null || activation.Phase != MovePhase.MoveFollowers) && UnitsThatCanStillMove().Count > 0)
             {
                 shootMode = false;
@@ -445,7 +448,7 @@ namespace Eldoria.Gameplay
         public void EndTurn(bool instant = false)
         {
             confirmingEndTurn = false;
-            if (Victory.IsOver || aiTurn || NotYourTurn) return;
+            if (Victory.IsOver || deploying || aiTurn || NotYourTurn) return;
             if (activation != null && activation.Phase == MovePhase.MoveFollowers)
             {
                 Flash("Finish this unit's move first.");
@@ -698,6 +701,14 @@ namespace Eldoria.Gameplay
             if (confirmingConcede)
             {
                 // Asked whether to concede: only the box's buttons work until it's answered (no hotkeys).
+                UpdateTimedVisuals();
+                return;
+            }
+
+            if (deploying)
+            {
+                // Before the battle: place this player's units in their deployment zone.
+                UpdateDeployment(mouse, kb);
                 UpdateTimedVisuals();
                 return;
             }
@@ -1179,6 +1190,12 @@ namespace Eldoria.Gameplay
             var title = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 14 };
             if (!Victory.IsOver && !(IsMultiplayer && session.Lost)) DrawConcedeButton();
 
+            if (deploying)
+            {
+                DrawDeploymentHud(wrap, title);
+                return;
+            }
+
             if (aiTurn)
             {
                 GUILayout.Label($"ENEMY TURN  —  Round {Turns.Round}", title);
@@ -1657,6 +1674,7 @@ namespace Eldoria.Gameplay
                         Victory.Concede(playerSide == Side.Player ? Side.AI : Side.Player);
                         ok = Victory.IsOver;
                         break;
+                    case OrderKinds.Deploy: ok = ReceiveDeployment(order); break;
                     case OrderKinds.EndTurn:
                         var before = (Turns.Current, Turns.ActiveSide);
                         EndTurn();
@@ -1671,7 +1689,8 @@ namespace Eldoria.Gameplay
                 quietFlash = false;
             }
             long mine = StateChecksum();
-            if (!ok || mine != order.checksum) session.ReportDesync(order, mine);
+            // A deployment is sent before the sender knows the other side's, so its checksum can't match: only check it arrived.
+            if (!ok || (order.kind != OrderKinds.Deploy && mine != order.checksum)) session.ReportDesync(order, mine);
         }
 
         /// <summary>

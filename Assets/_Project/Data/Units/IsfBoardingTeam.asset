@@ -14,14 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: ISF Boarding Team
   role: 3
-  description: 'Close-quarters assault troops trained to storm ships and strongpoints.
+  description: Close-quarters assault troops trained to storm ships and strongpoints.
     Each carries a Shotgun (10 damage, penetration 1, 10 m) and a Combat Shield that
     raises their Armor Level to 3, so they can close the distance under fire and
-    clear rooms and trenches at point-blank range. A Specialist, so you can field more than one.'
+    clear rooms and trenches at point-blank range. A Specialist, so you can field
+    more than one.
   leader: {fileID: 11400000, guid: 64f3fb8b73fab8e4884cfb3d78dd5cb9, type: 2}
   members:
   - soldier: {fileID: 11400000, guid: 986bc51868d5dec4c82440e6bf910475, type: 2}
     count: 4
   equipmentSwapsForWholeUnit: 0
-  supplyCost: 90
+  supplyCost: 139
   deploymentSpacing: 1.5

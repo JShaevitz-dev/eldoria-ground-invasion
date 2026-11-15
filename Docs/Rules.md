@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Eldoria Ground Invasion) has its first three factions, and all three can field armies:** the ISF (Field
-> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, Workhorse Transport), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand). The game
+> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, Workhorse Transport), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -63,7 +63,7 @@ role) or **Transport**. It's shown in the HUD when the unit is selected, and the
 | **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia, Rask Rifle Team |
 | **Commander** | Field Commander, Master Sergeant Jakoby, Marshal Command Tank, Dragon Hierarch, Dragonborn Exemplar, Rask Ultima |
 | **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, Stinger Heavy Robot, Tyrant Hover-tank, Intimidator Medium Robot |
-| **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad, Kobold Mechanist, Rask Blackhand, Rask Redhand |
+| **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad, Kobold Mechanist, Rask Blackhand, Rask Redhand, Rask Reliquary |
 | **Transport** | Workhorse Transport. Like every role but Commander, an army can take more than one. |
 
 ### Factions — *implemented*
@@ -76,7 +76,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger, the ISF Boarding Team and the Workhorse Transport, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank and the Kobold Mechanist, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand and the Rask Redhand, so all three can field armies (the AI picks one of them).
+So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger, the ISF Boarding Team and the Workhorse Transport, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank and the Kobold Mechanist, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand, the Rask Redhand and the Rask Reliquary, so all three can field armies (the AI picks one of them).
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -105,13 +105,22 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 **Supply Cost:** every unit has a **Supply Cost**, shown in the army builder next to its role and size, with the army list's total by "Your army". It's worked out from the unit's stats:
 
-> **Supply Cost = total Health + highest potential damage per turn + sum of Armor + 20 × active abilities + 10 × passive abilities + 200 heavy armor tax (if any soldier has Armor 4 or higher)**
+> **Supply Cost = 3 × Firepower + ½ × Durability + 20 × active abilities + 10 × passive abilities + armor tax** (rounded to the nearest whole number)
 
-- **Total Health:** every soldier's Health, with their standard equipment.
-- **Highest potential damage per turn**, with no bonuses (every shot hits; no crits, auras, penetration or armor): a unit's action is either a **volley** (every soldier firing their most damaging weapon: Damage × Shots, with the faction's changes such as the Rask's +2, counting weapons the army builder can give them) or an **ability attack** (its weapon's Damage × Shots against one target). The higher of the two.
-- **Sum of Armor:** every soldier's Armor Level, with their standard equipment (e.g. a Combat Shield).
+- **Firepower:** the damage the unit can expect to do in a turn. Its action is either a **volley** or an **ability**, so it's the higher of:
+  - a volley: every soldier's best weapon (counting weapons the army builder can give them), each worth **Damage × Shots × hit chance × penetration factor**, added up;
+  - its best ability attack against one target: the ability weapon's Damage × Shots × penetration factor, × the user's hit chance for an aimed attack (area and unit attacks don't roll to hit).
+  - **Hit chance:** the soldier's Accuracy (with standard equipment) + the weapon's accuracy bonus, capped at 100%. Weapons use the faction's stats (e.g. the Rask's +2 Damage). No other bonuses (crits, auras, cover).
+  - **Penetration factor:** the weapon's average damage multiplier against Armor 0 to 4 under the penetration rules, so anti-armor weapons count for more than small arms that can't hurt armor:
+
+    | Penetration | 0 | 1 | 2 | 3 | 4 | 5+ | X |
+    |---|---|---|---|---|---|---|---|
+    | Factor | 0.3 | 0.6 | 0.9 | 1.2 | 1.4 | 1.5 | 1.0 |
+- **Durability:** every soldier's Health × (1 + Armor ÷ 4), with standard equipment (e.g. a Combat Shield), added up. It counts at **half weight**: what a unit can do counts for more than how long it lasts.
 - **Abilities:** each different ability in the unit (its soldiers' own, and those their standard equipment and keywords give, e.g. a Transport's Embark and Disembark) counts once, however many soldiers have it. Equipment the army builder can swap in (e.g. a Medkit for a Frag Grenade) doesn't change the cost.
-- **Heavy armor tax:** **+200**, once per unit, if any of its soldiers has an Armor Level (with standard equipment) of **4 or higher**. So far the Sagittarius MBT, Marshal Command Tank and Tyrant Hover-tank (Armor 4) and the Stinger Heavy Robot (Armor 5) pay it.
+- **Armor tax**, once per unit, by its best-armored soldier: **+100** for **Armor 4 or higher** (Sagittarius MBT, Marshal Command Tank, Tyrant Hover-tank, Stinger Heavy Robot); **+50** for **Armor 3** (Olympian Mech, Intimidator Medium Robot, ISF Boarding Team, Workhorse Transport). It discourages tank spam without limiting how many tanks an army takes.
+- The weights are constants in one place (`Rules.SupplyCost`), so they can be tuned.
+- **Adjustments:** a unit can carry a fixed surcharge on top of the formula (`UnitTemplate.supplyCostAdjustment`) for value the formula doesn't capture. Only the Rask Reliquary has one: +100 for its aura.
 - It's recalculated whenever the unit catalog is rebuilt (**Eldoria > Rebuild Unit Catalog**), so it follows any change to a unit.
 
 **A faction can only field an army once it has a Commander unit.** While **no faction** has one, the army builder says so (*"No faction has a Commander yet, so a battle can't be started"*) instead of the faction choice, listing the factions greyed out with how far along each is (*"2 units · no Commander yet"*, *"no units yet"*), with a **Back** button, and the main menu notes it under the title (*"No Commanders yet"*). Starting a battle (or sending a multiplayer army) is refused with the same message. Once some faction has a Commander, the faction choice works as usual and each faction shows its units (*"3 units available"*, or *"· no Commander yet"* for one that can't field an army). Add Unit and Soldier template assets under Data, put each unit in its faction's unit list, then run **Eldoria > Rebuild Unit Catalog** so the army builder lists them.
@@ -133,7 +142,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
-**Deployment:** each army deploys in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). Units go in **rows of 6** across the zone; an army of more than 6 units fills further rows **7 m behind** each other (never off the battlefield). A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
+**Deployment:** each army starts in its zone, **one unit per slot in list order**, left to right as that side looks across the map (the AI's slots are the player's turned 180°). Units go in **rows of 6** across the zone; an army of more than 6 units fills further rows **7 m behind** each other (never off the battlefield, back ranks included). The players can then move their units during the deployment phase. A unit taken more than once is numbered ("Rifle Squad 1", "Rifle Squad 2"). Restarting a battle replays the same armies.
 
 ### Mortar Team
 
@@ -260,7 +269,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
 |---|---|---|---|---|---|---|
-| Rask Ultima | 10 | 2 | 50% | 20 m (sprint 40 m) | Biological, Solo, Officer | Pistol |
+| Rask Ultima | 10 | 2 | 75% | 20 m (sprint 40 m) | Biological, Solo, Officer | Pistol |
 
 - **Pistol:** Damage 2, Shots 1, Penetration 0, Range 10 m; Pistol (usable in close range).
 - The Rask's Commander, so every Rask army has one, and the Rask can now field armies.
@@ -271,7 +280,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment |
 |---|---|---|---|---|---|---|---|
-| Rask Blackhand | 10 | 1 | 50% | 20 m (sprint 40 m) | Biological, Solo | Solntse Laser Rifle | Repair Kit |
+| Rask Blackhand | 10 | 1 | 75% | 20 m (sprint 40 m) | Biological, Solo | Solntse Laser Rifle | Repair Kit |
 
 - **Solntse Laser Rifle:** the Rask's Assault Rifle, Damage 6 for them: Damage 6, Shots 1, Penetration 1, Range 20 m.
 - **Repair Kit** (standard equipment): its action can restore **10 health** to a friendly **Mechanical** soldier within 5 m (e.g. the Stinger Heavy Robot or the Intimidator Medium Robot). Refused, with no action spent, on a soldier at full health.
@@ -283,20 +292,34 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment |
 |---|---|---|---|---|---|---|---|
-| Rask Redhand | 10 | 1 | 50% | 20 m (sprint 40 m) | Biological, Solo | Solntse Laser Rifle | Medkit |
+| Rask Redhand | 10 | 1 | 75% | 20 m (sprint 40 m) | Biological, Solo | Solntse Laser Rifle | Medkit |
 
 - **Solntse Laser Rifle:** Damage 6, Shots 1, Penetration 1, Range 20 m.
 - **Medkit** (standard equipment): its action can restore **5 health** to a friendly **Biological** soldier within 5 m (itself included). Refused, with no action spent, on a soldier at full health.
 - A Specialist (an army can take more than one).
 
+### Rask Reliquary
+
+*Most Holy Army of The Rask Divine Collective · Specialist.* One soldier: a shrine on tracks. A low tracked chassis carries a stone altar under a gilded canopy on four gold pillars, with a glowing relic on the altar, candles at the front and banners at the back.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Ability |
+|---|---|---|---|---|---|---|---|
+| Rask Reliquary | 10 | 2 | 75% | 20 m (can't sprint) | Mechanical | — | Sanctifying Presence (passive) |
+
+- **No weapon:** it can't shoot; its action is to move.
+- **Sanctifying Presence** (passive aura): **other friendly Biological soldiers within 20 m** gain the status **Sanctified**: **+2 damage** and **+20% accuracy** with their weapons. Mechanical soldiers (vehicles and robots) and the Reliquary itself don't get it, and each soldier is checked on its own.
+- **Supply Cost 118:** the formula gives 18 (it doesn't count what an aura is worth), plus a **+100 surcharge** set on this unit.
+- **Mechanical:** can't sprint and is never in close range. Radius 1.4 m.
+- A Specialist (an army can take more than one).
+
 ### Rask Rifle Team
 
-*Most Holy Army of The Rask Divine Collective · Infantry.* 1 **Rask Superior** (leader) + 19 **Rask Riflemen**: anthropomorphic rats standing at two-thirds the height of a human (1.2 m), holding rifles and wearing armor (see [Lore.md](Lore.md), the Rask). Same stats as the Kobold Militiaman, but Armor 1.
+*Most Holy Army of The Rask Divine Collective · Infantry.* 1 **Rask Superior** (leader) + 19 **Rask Riflemen**: anthropomorphic rats standing at two-thirds the height of a human (1.2 m), holding rifles and wearing armor (see [Lore.md](Lore.md), the Rask). Same stats as the Kobold Militiaman, but Armor 1 and 75% accuracy.
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
 |---|---|---|---|---|---|---|
-| Rask Superior | 5 | 1 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
-| Rask Rifleman (×19) | 5 | 1 | 50% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
+| Rask Superior | 5 | 1 | 75% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
+| Rask Rifleman (×19) | 5 | 1 | 75% | 20 m (sprint 40 m) | Biological, Swarm | Solntse Laser Rifle |
 
 - **Solntse Laser Rifle:** the Rask's name for the **Assault Rifle**, with **Damage +2** for Rask soldiers: Damage 6, Shots 1, Penetration 1, Range 20 m.
 - **Swarm:** the unit keeps cohesion out to **10 m** from its leader.
@@ -472,7 +495,7 @@ Each unit is a Unit template (Data/Units) made of Soldier templates (Data/Soldie
 - **Twin Raptor Pistols** (carried by the Dragonborn Skymaster Squad): Damage 4, Shots 2, Penetration 1, +0% accuracy, Range 20 m; Pistol.
 - **Shotgun** (an option for the ISF Ranger): Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords.
 - **Anti-Materiel Rifle** (an option for the ISF Ranger): the Sniper Rifle's stats but **Damage 10**, **no penetration value** and **no accuracy bonus**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed**.
-- **Abilities** (Data/Abilities): Empowering Presence (aura: +2 damage), Medkit (heals a friendly Biological soldier within 5 m for 5), Repair Kit (repairs a friendly Mechanical soldier within 5 m for 10), Frag Grenade (no limit per battle) and a tank's Frag Grenade (the same, kept as its own ability), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
+- **Abilities** (Data/Abilities): Sanctifying Presence (aura: +2 damage and +20% accuracy to Biological soldiers within 20 m), Empowering Presence (aura: +2 damage), Medkit (heals a friendly Biological soldier within 5 m for 5), Repair Kit (repairs a friendly Mechanical soldier within 5 m for 10), Frag Grenade (no limit per battle) and a tank's Frag Grenade (the same, kept as its own ability), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
 - **Placeholder models** (Prefabs/Units) for soldiers, officers, powered armor, a tank and a walker.
 
 ### Keywords — *implemented*
@@ -625,6 +648,18 @@ Test room terrain:
 | Rock pillar (keyword: Full-cover) | Object | Yes | No | No |
 | Barricade (keyword: Half-cover) | Object | Yes | Yes | No |
 
+## Deployment phase — *implemented*
+
+A battle started from the menu (or a multiplayer lobby) begins with a **deployment phase**, before round 1.
+
+- Each army starts in its default slots in its side's **deployment zone** (see Army lists: rows of 6). The player's zone is **outlined in blue**.
+- **Placing a unit:** click one of your units (or press **Tab** to pick the next one), then click where its **leader** should stand. Its other soldiers form up in ranks behind, facing the enemy, as they do when they first deploy. Green rings preview where they'll stand; red means they can't go there. **Esc** puts the unit down. A unit can be placed as often as you like.
+- **Where a unit can go:** every soldier must be **inside your deployment zone**, on ground they can stand on, on the battlefield, and **not on top of another of your soldiers**.
+- **Hidden armies:** you **can't see your opponent's units** (they aren't drawn, labelled or clickable), and they can't see yours, until the battle begins.
+- **Ready (Enter)** ends your deployment. Against the AI (which deploys in its default slots), the battle begins at once. In **multiplayer**, both players deploy at the same time; the first to be ready waits ("Waiting for your opponent to finish deploying…"), and the battle begins when both are. Each game then puts the opponent's units where they placed them and reveals them.
+- **Turn timer:** if it's on, deployment gets the same length of time as a turn (the HUD shows it). When it runs out, your units stay where they are and you're ready.
+- No battle orders (selecting a unit to move, End turn) during deployment. You can **concede**; the battle ends and both armies are shown.
+
 ## Turns and the AI opponent — *implemented*
 
 - **Turn order:** the **player** activates their units, then presses **End turn**; then the **AI** activates all of its units; then the player's next turn starts.
@@ -642,6 +677,7 @@ Test room terrain:
 
 - An optional **turn timer** limits how long the player has for each of their turns. It's set on the main menu: **off by default**, **10 minutes** by default (1–30 minutes), and remembered between sessions.
 - It counts down only during the player's turn (it pauses while the AI plays) and starts again from the full length at the start of each of their turns. The HUD shows the time left (red in the last minute).
+- It applies to the **deployment phase** too: the same length of time to deploy; when it runs out, the units deploy where they stand.
 - **When time runs out, the player's turn ends** as if they'd pressed End turn. A unit half-way through its move gathers its stragglers into cohesion and finishes the move; if it can't, its move is undone.
 
 ## Multiplayer — *implemented*
@@ -653,6 +689,7 @@ Two players can fight each other over the network instead of against the AI.
   - **Join:** type the host's IP address and press **Connect**.
 - **Setting up:** the **host chooses the battlefield**. Then **both players choose a faction and build an army** under the usual army list rules (each player sees only their own builder). When both have confirmed, the battle starts.
 - **Sides:** who deploys at the **south** edge and **moves first** is **decided at random** when the battle starts. The other player deploys at the north edge, and their view of the battlefield is turned around so their own army is at the bottom of the screen.
+- **Deployment:** both players deploy at the same time, without seeing each other's armies; the battle begins once both have pressed Ready (see Deployment phase).
 - **Turns:** the same as against the AI: the south player activates all their units and ends their turn, then the north player does, then the next round starts (with the south player's turn). The rules (including "until the start of the next turn") are unchanged.
 - **The other player's turn:** you watch their orders play out (the camera follows the unit they're commanding, and the log shows their volleys and abilities). You can't give orders until it's your turn.
 - **Each player's own turn timer** (the main menu option) applies to their own turns.
@@ -660,7 +697,7 @@ Two players can fight each other over the network instead of against the AI.
 - **Leaving:** if either player leaves or the connection drops, the other player is told (**Opponent disconnected**) and returns to the main menu.
 - Debug orders (kill the squad leader) aren't available in multiplayer.
 
-How it works (for development): both games run the battle themselves. The host rolls the dice seed and who goes south, and both games use that seed. Each order the active player gives (select a unit, move, gather, end move, shoot, use an ability, end turn) is sent to the other game, which gives the same order through the same rules and dice. After every order the sending game includes a fingerprint of the battle (turn, every soldier's health and position), and the other game checks its own matches. If they ever disagree, the HUD shows a warning. While a walk animation is playing, the rules (and the fingerprint) use where the soldier's move ends, not how far the animation has got, and every animation ends exactly on that spot, so both games measure from the same place however fast each one draws.
+How it works (for development): both games run the battle themselves. The host rolls the dice seed and who goes south, and both games use that seed. Each player's deployment (every soldier's exact position, sent when they press Ready) and each order the active player gives (select a unit, move, gather, end move, shoot, use an ability, end turn) is sent to the other game, which gives the same order through the same rules and dice. After every order the sending game includes a fingerprint of the battle (turn, every soldier's health and position), and the other game checks its own matches. If they ever disagree, the HUD shows a warning. While a walk animation is playing, the rules (and the fingerprint) use where the soldier's move ends, not how far the animation has got, and every animation ends exactly on that spot, so both games measure from the same place however fast each one draws.
 
 ## Transports — *implemented*
 

@@ -63,17 +63,17 @@ namespace Eldoria.Tests
         {
             var catalog = UnitCatalog.Load();
             Assert.That(catalog, Is.Not.Null);
-            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Dragon Hierarch", "Dragonborn Exemplar", "Field Commander", "Marshal Command Tank", "Master Sergeant Jakoby", "Rask Ultima", "Dragonborn Squad", "ISF Rifle Squad", "Kobold Militia", "Rask Rifle Team", "Heavy Weapons Team", "Intimidator Medium Robot", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "Stinger Heavy Robot", "Tyrant Hover-tank", "Dragonborn Skymaster Squad", "ISF Boarding Team", "ISF Ranger", "Kobold Mechanist", "Rask Blackhand", "Rask Redhand", "Workhorse Transport" }), "Commanders, Infantry, Heavy Support, then Specialists");
+            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Dragon Hierarch", "Dragonborn Exemplar", "Field Commander", "Marshal Command Tank", "Master Sergeant Jakoby", "Rask Ultima", "Dragonborn Squad", "ISF Rifle Squad", "Kobold Militia", "Rask Rifle Team", "Heavy Weapons Team", "Intimidator Medium Robot", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "Stinger Heavy Robot", "Tyrant Hover-tank", "Dragonborn Skymaster Squad", "ISF Boarding Team", "ISF Ranger", "Kobold Mechanist", "Rask Blackhand", "Rask Redhand", "Rask Reliquary", "Workhorse Transport" }), "Commanders, Infantry, Heavy Support, then Specialists");
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[] { "International Space Force of Humanity", "Imperial Army of The Draconis Imperialis", "Most Holy Army of The Rask Divine Collective" }));
             var factions = catalog.Factions.ToList();
             Assert.That(factions[0].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Field Commander", "Master Sergeant Jakoby", "Marshal Command Tank", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Sagittarius MBT", "Olympian Mech", "ISF Ranger", "ISF Boarding Team", "Workhorse Transport" }));
             Assert.That(factions[1].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Dragon Hierarch", "Dragonborn Squad", "Kobold Militia", "Dragonborn Skymaster Squad", "Tyrant Hover-tank", "Kobold Mechanist", "Dragonborn Exemplar" }), "Draconis Imperialis");
-            Assert.That(factions[2].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Rask Ultima", "Rask Rifle Team", "Stinger Heavy Robot", "Intimidator Medium Robot", "Rask Blackhand", "Rask Redhand" }), "Rask");
+            Assert.That(factions[2].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Rask Ultima", "Rask Rifle Team", "Stinger Heavy Robot", "Intimidator Medium Robot", "Rask Blackhand", "Rask Redhand", "Rask Reliquary" }), "Rask");
             Assert.That(catalog.defaultArmy, Is.Empty);
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null, "still there for deploying units");
             Assert.That(catalog.leaderMarker, Is.Not.Null);
-            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(24));
-            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(33));
+            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(25));
+            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(34));
             Assert.That(AssetDatabase.FindAssets("t:Faction", new[] { "Assets/_Project/Data/Factions" }).Length, Is.EqualTo(3));
         }
 
@@ -95,7 +95,7 @@ namespace Eldoria.Tests
             Assert.That(builder.CanFieldArmies, Is.True);
             Assert.That(builder.FactionStatus(builder.Factions[0]), Is.EqualTo("11 units available"));
             Assert.That(builder.FactionStatus(builder.Factions[1]), Is.EqualTo("7 units available"));
-            Assert.That(builder.FactionStatus(builder.Factions[2]), Is.EqualTo("6 units available"));
+            Assert.That(builder.FactionStatus(builder.Factions[2]), Is.EqualTo("7 units available"));
             Assert.That(catalog.Factions.Select(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(new[] { true, true, true }));
             Assert.That(new ArmyBuilderScreen(null).CanFieldArmies, Is.False);
             var isf = catalog.Factions.First();
@@ -334,27 +334,27 @@ namespace Eldoria.Tests
         {
             var catalog = UnitCatalog.Load();
             UnitTemplate Real(string name) => catalog.Available.Single(u => u.displayName == name);
-            var ultima = Real("Rask Ultima");          // 14
-            var rifles = Real("Rask Rifle Team");      // 240
+            var ultima = Real("Rask Ultima");          // 12
+            var rifles = Real("Rask Rifle Team");      // 220
             Assert.That(ArmyRules.SupplyCap, Is.EqualTo(750));
-            var army = new List<UnitTemplate> { ultima, rifles, rifles, rifles };   // 734
-            Assert.That(ArmyRules.SupplyOf(army), Is.EqualTo(14 + 3 * 240));
+            var army = new List<UnitTemplate> { ultima, rifles, rifles, rifles };   // 672
+            Assert.That(ArmyRules.SupplyOf(army), Is.EqualTo(ultima.supplyCost + 3 * rifles.supplyCost));
             Assert.That(ArmyRules.IsValid(army), Is.True, "under the cap");
             Assert.That(ArmyRules.WhyCannotAdd(army, rifles), Does.Contain("Over the Supply Cap"));
             Assert.That(ArmyRules.WhyCannotAdd(army, ultima), Does.Contain("Commander"), "and still one Commander");
             army.Add(rifles);
-            Assert.That(ArmyRules.Problems(army).Single(), Does.Contain("Over the Supply Cap: 974 of 750"));
+            Assert.That(ArmyRules.Problems(army).Single(), Does.Contain($"Over the Supply Cap: {ultima.supplyCost + 4 * rifles.supplyCost} of 750"));
         }
 
         [Test]
         public void ThereIsNoLimitOnHowManyUnits()
         {
             var catalog = UnitCatalog.Load();
-            var commander = catalog.Available.Single(u => u.displayName == "Field Commander");   // 24
-            var ranger = catalog.Available.Single(u => u.displayName == "ISF Ranger");            // 26
+            var commander = catalog.Available.Single(u => u.displayName == "Field Commander");
+            var ranger = catalog.Available.Single(u => u.displayName == "ISF Ranger");
             var army = new List<UnitTemplate> { commander };
             while (ArmyRules.WhyCannotAdd(army, ranger) == null) army.Add(ranger);
-            Assert.That(army.Count, Is.EqualTo(1 + (750 - 24) / 26), "as many as the Supply Cap allows");
+            Assert.That(army.Count, Is.EqualTo(1 + (750 - commander.supplyCost) / ranger.supplyCost), "as many as the Supply Cap allows");
             Assert.That(army.Count, Is.GreaterThan(6));
             Assert.That(ArmyRules.IsValid(army), Is.True);
         }
@@ -617,6 +617,12 @@ namespace Eldoria.Tests
             Assert.That(ai.z, Is.GreaterThan(ArmyDeployment.Slot(-zone, size, Side.AI, 0).z), "the AI's rows go back north");
             var far = ArmyDeployment.Slot(zone, size, Side.Player, 59);
             Assert.That(Mathf.Abs(far.z), Is.LessThanOrEqualTo(Eldoria.Core.BattlefieldScale.BoardDepth / 2f), "never off the battlefield");
+            // A deep unit (the Rask Rifle Team: 4 ranks) keeps its back rank on the board as well.
+            var rifles = UnitCatalog.Load().Available.Single(u => u.displayName == "Rask Rifle Team");
+            float depth = ArmyDeployment.FormationDepth(rifles);
+            Assert.That(depth, Is.EqualTo(3 * rifles.deploymentSpacing + rifles.leader.radius).Within(0.001f));
+            var deep = ArmyDeployment.Slot(-zone, size, Side.AI, 59, depth);
+            Assert.That(deep.z + depth, Is.LessThanOrEqualTo(Eldoria.Core.BattlefieldScale.BoardDepth / 2f - 2f + 0.001f), "its back rank too");
         }
     }
 }

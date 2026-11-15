@@ -25,6 +25,12 @@ namespace Eldoria.Gameplay
         /// <summary>The side this game's player commands: south in single player; either in multiplayer.</summary>
         public static Side LocalSide { get; set; } = Side.Player;
 
+        /// <summary>
+        /// The battle starts with a deployment phase (set when a battle is started from the menu or a multiplayer lobby;
+        /// <see cref="Set"/> clears it, so tests that set up armies directly start at the first turn).
+        /// </summary>
+        public static bool DeploymentPhase { get; set; }
+
         public static bool HasArmies => PlayerArmy != null && PlayerArmy.Count > 0 && AIArmy != null && AIArmy.Count > 0;
 
         public static void Set(IEnumerable<UnitTemplate> player, IEnumerable<UnitTemplate> ai, Faction playerFaction = null, Faction aiFaction = null,
@@ -36,6 +42,7 @@ namespace Eldoria.Gameplay
             AIArmy = ai.Where(u => u != null).ToList();
             PlayerFaction = playerFaction;
             AIFaction = aiFaction;
+            DeploymentPhase = false;
         }
 
         public static void Clear()
@@ -47,6 +54,7 @@ namespace Eldoria.Gameplay
             PlayerLoadouts = null;
             AILoadouts = null;
             LocalSide = Side.Player;
+            DeploymentPhase = false;
         }
     }
 }

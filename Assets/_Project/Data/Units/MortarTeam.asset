@@ -27,5 +27,5 @@ MonoBehaviour:
   - soldier: {fileID: 11400000, guid: 9d323bbbd7983b1469104574e81ce003, type: 2}
     count: 1
   equipmentSwapsForWholeUnit: 0
-  supplyCost: 43
+  supplyCost: 46
   deploymentSpacing: 2

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: RaskReliquary
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Rask Reliquary
+  role: 3
+  description: 'A shrine on tracks: a light Rask vehicle carrying a holy relic beneath a gilded canopy into battle. It has no weapon of its own, but its Sanctifying Presence gives every other friendly Biological soldier within 20 m +2 damage and +20% accuracy (not vehicles or robots), enough to turn a swarm of Rask riflemen into a killing field. With 10 health and Armor Level 2 it''s fragile for a vehicle, and it moves only 20 m (it can''t sprint, being Mechanical), so keep it behind your lines and in the middle of your army. A Specialist: you can field more than one. Its Supply Cost includes a +100 surcharge for the aura.'
+  leader: {fileID: 11400000, guid: d4fb73c8cb4634143bd7489999bf268f, type: 2}
+  members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 118
+  supplyCostAdjustment: 100
+  deploymentSpacing: 2

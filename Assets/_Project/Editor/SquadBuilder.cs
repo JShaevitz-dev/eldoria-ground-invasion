@@ -1308,7 +1308,7 @@ namespace Eldoria.EditorTools
 
         /// <summary>
         /// Rask Rifle Team (Infantry, Rask): 1 Rask Superior (leader) + 19 Rask Riflemen, with the Kobold Militiaman's stats
-        /// but Armor 1 (Health 5, Armor 1, Accuracy 50%, Move 20 m; Biological, Swarm). Each carries an Assault Rifle, which the Rask call
+        /// but Armor 1 and Accuracy 75% (Health 5, Armor 1, Accuracy 75%, Move 20 m; Biological, Swarm). Each carries an Assault Rifle, which the Rask call
         /// the "Solntse Laser Rifle" and which does 6 damage for them (see <see cref="EnsureRaskWeapons"/>). Anthropomorphic
         /// rats, two-thirds of a human's height, in armor. Existing assets keep their Inspector edits.
         /// </summary>
@@ -1323,7 +1323,7 @@ namespace Eldoria.EditorTools
                 var s = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", t =>
                 {
                     t.displayName = name;
-                    t.health = 5; t.armorLevel = 1; t.accuracy = 50; t.movementRange = 20f;
+                    t.health = 5; t.armorLevel = 1; t.accuracy = 75; t.movementRange = 20f;
                     t.keywords = new List<Keyword> { keywords["Biological"], keywords["Swarm"] };
                     t.abilities = new List<Ability>();
                     t.weapons = new List<WeaponTemplate> { rifle };
@@ -1346,7 +1346,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Rask Rifle Team";
                 u.role = UnitRole.Infantry;
-                u.description = "Twenty Rask riflemen, a Rask Superior and 19 Rask Riflemen: anthropomorphic rats in armor (5 health, Armor Level 1, 50% accuracy). Their Solntse Laser Rifles hit harder than other rifles (6 damage, penetration 1, 20 m). They move 20 m (40 m sprinting), and Swarm lets them spread out up to 10 m from their Superior. Infantry can be taken more than once.";
+                u.description = "Twenty Rask riflemen, a Rask Superior and 19 Rask Riflemen: anthropomorphic rats in armor (5 health, Armor Level 1, 75% accuracy). Their Solntse Laser Rifles hit harder than other rifles (6 damage, penetration 1, 20 m). They move 20 m (40 m sprinting), and Swarm lets them spread out up to 10 m from their Superior. Infantry can be taken more than once.";
                 u.leader = superiorTemplate;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 19 } };
                 u.deploymentSpacing = 1.2f;
@@ -1372,7 +1372,7 @@ namespace Eldoria.EditorTools
             var ultima = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/RaskUltima.asset", t =>
             {
                 t.displayName = "Rask Ultima";
-                t.health = 10; t.armorLevel = 2; t.accuracy = 50; t.movementRange = 20f;   // the Rifleman's, but Health 10, Armor 2
+                t.health = 10; t.armorLevel = 2; t.accuracy = 75; t.movementRange = 20f;   // the Rifleman's, but Health 10, Armor 2
                 t.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"], keywords["Officer"] };
                 t.abilities = new List<Ability>();
                 t.weapons = new List<WeaponTemplate> { pistol };
@@ -1404,7 +1404,7 @@ namespace Eldoria.EditorTools
 
         /// <summary>
         /// Rask Blackhand (Specialist, Rask): 1 Rask Blackhand with the Rask Ultima's stats but Armor 1 and without Officer
-        /// (Health 10, Accuracy 50%, Move 20 m; Biological, Solo), an Assault Rifle (the Rask "Solntse Laser Rifle", Damage 6 for them) and a
+        /// (Health 10, Accuracy 75%, Move 20 m; Biological, Solo), an Assault Rifle (the Rask "Solntse Laser Rifle", Damage 6 for them) and a
         /// Repair Kit carried as standard equipment. The Rask model with black gauntlets, goggles, a tool pack and a wrench.
         /// Existing assets keep their Inspector edits.
         /// </summary>
@@ -1418,7 +1418,7 @@ namespace Eldoria.EditorTools
             var blackhand = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/RaskBlackhand.asset", t =>
             {
                 t.displayName = "Rask Blackhand";
-                t.health = 10; t.armorLevel = 1; t.accuracy = 50; t.movementRange = 20f;   // the Rask Ultima's, but Armor 1
+                t.health = 10; t.armorLevel = 1; t.accuracy = 75; t.movementRange = 20f;   // the Rask Ultima's, but Armor 1
                 t.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"] };   // no Officer
                 t.abilities = new List<Ability>();
                 t.weapons = new List<WeaponTemplate> { rifle };
@@ -1436,7 +1436,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Rask Blackhand";
                 u.role = UnitRole.Specialist;
-                u.description = "A Rask combat engineer, named for the soot-black gauntlets of their trade. The Blackhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Stinger or Intimidator, as its action; it can't be used on one at full health. A Specialist, so you can field more than one.";
+                u.description = "A Rask combat engineer, named for the soot-black gauntlets of their trade. The Blackhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 75% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Stinger or Intimidator, as its action; it can't be used on one at full health. A Specialist, so you can field more than one.";
                 u.leader = blackhand;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 1.2f;
@@ -1451,7 +1451,7 @@ namespace Eldoria.EditorTools
 
         /// <summary>
         /// Rask Redhand (Specialist, Rask): 1 Rask Redhand with the Rask Ultima's stats but Armor 1 and without Officer
-        /// (Health 10, Accuracy 50%, Move 20 m; Biological, Solo), an Assault Rifle (the Rask "Solntse Laser Rifle", Damage 6
+        /// (Health 10, Accuracy 75%, Move 20 m; Biological, Solo), an Assault Rifle (the Rask "Solntse Laser Rifle", Damage 6
         /// for them) and a Medkit carried as standard equipment. The Rask model with red gauntlets and a medic's pack.
         /// Existing assets keep their Inspector edits.
         /// </summary>
@@ -1465,7 +1465,7 @@ namespace Eldoria.EditorTools
             var redhand = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/RaskRedhand.asset", t =>
             {
                 t.displayName = "Rask Redhand";
-                t.health = 10; t.armorLevel = 1; t.accuracy = 50; t.movementRange = 20f;   // the Ultima's, but Armor 1
+                t.health = 10; t.armorLevel = 1; t.accuracy = 75; t.movementRange = 20f;   // the Ultima's, but Armor 1
                 t.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"] };   // no Officer
                 t.abilities = new List<Ability>();
                 t.weapons = new List<WeaponTemplate> { rifle };
@@ -1483,7 +1483,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Rask Redhand";
                 u.role = UnitRole.Specialist;
-                u.description = "A Rask field medic, named for the red gauntlets of their trade. The Redhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Medkit restores 5 health to a friendly Biological soldier within 5 m, such as a wounded Rask rifleman or the Ultima, as its action; it can't be used on one at full health. A Specialist, so you can field more than one.";
+                u.description = "A Rask field medic, named for the red gauntlets of their trade. The Redhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 75% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Medkit restores 5 health to a friendly Biological soldier within 5 m, such as a wounded Rask rifleman or the Ultima, as its action; it can't be used on one at full health. A Specialist, so you can field more than one.";
                 u.leader = redhand;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 1.2f;
@@ -2272,6 +2272,138 @@ namespace Eldoria.EditorTools
             return prefab;
         }
 
+        /// <summary>
+        /// Rask Reliquary (Specialist, Rask): a shrine on tracks. 1 Rask Reliquary (Health 10, Armor 2, Accuracy 75%, Move
+        /// 20 m; Mechanical) with no weapon, and the passive aura Sanctifying Presence: other friendly Biological soldiers within 20 m gain
+        /// the status Sanctified (+2 damage and +20% accuracy when attacking). Supply Cost: the formula + 100. Radius 1.4 m, 3.2 m tall. Existing assets keep
+        /// their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureRaskReliquary(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            EnsureFolder(DataDir, "Abilities");
+            var presence = GetOrCreate<Ability>($"{DataDir}/Abilities/SanctifyingPresence.asset", a =>
+            {
+                a.displayName = "Sanctifying Presence";
+                a.description = "Passive. Other friendly Biological soldiers within 20 m gain Sanctified: +2 damage and +20% accuracy with their weapons. Mechanical soldiers (vehicles and robots) aren't affected. Each soldier is checked on its own.";
+                a.kind = AbilityKind.Passive;
+                a.keywords = new List<Keyword>();
+                a.grantsNearby = keywords["Sanctified"];
+                a.radius = 20f;
+                a.auraMustHave = keywords["Biological"];   // not vehicles or robots
+                a.affects = AuraAffects.Allies;
+                a.includeSelf = false;
+            });
+            var reliquary = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/RaskReliquary.asset", s =>
+            {
+                s.displayName = "Rask Reliquary";
+                s.health = 10; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 20f;
+                s.keywords = new List<Keyword> { keywords["Mechanical"] };
+                s.abilities = new List<Ability> { presence };
+                s.weapons = new List<WeaponTemplate>();   // no weapon of its own
+                s.primaryWeapon = null;
+                s.radius = 1.4f;
+                s.height = 3.2f;
+            });
+            if (reliquary.prefab == null)
+            {
+                reliquary.prefab = BuildReliquaryPrefab("RaskReliquary", reliquary);
+                EditorUtility.SetDirty(reliquary);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/RaskReliquary.asset", u =>
+            {
+                u.displayName = "Rask Reliquary";
+                u.role = UnitRole.Specialist;
+                u.description = "A shrine on tracks: a light Rask vehicle carrying a holy relic beneath a gilded canopy into battle. It has no weapon of its own, but its Sanctifying Presence gives every other friendly Biological soldier within 20 m +2 damage and +20% accuracy (not vehicles or robots), enough to turn a swarm of Rask riflemen into a killing field. With 10 health and Armor Level 2 it's fragile for a vehicle, and it moves only 20 m (it can't sprint, being Mechanical), so keep it behind your lines and in the middle of your army. A Specialist: you can field more than one. Its Supply Cost includes a +100 surcharge for the aura.";
+                u.leader = reliquary;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 2f;
+                u.supplyCostAdjustment = 100;   // the formula doesn't count what the aura is worth
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A placeholder Rask Reliquary built from primitives, facing +z: a shrine on tracks. A low tracked chassis with road
+        /// wheels and a sloped front plate; on the deck a stone altar under a gilded, gabled canopy on four gold pillars, a
+        /// glowing relic on the altar, candles at the front, and two banners at the back. Cloth and canopy panels use the
+        /// primary colour (the faction's colour when deployed).
+        /// </summary>
+        private static GameObject BuildReliquaryPrefab(string name, SoldierTemplate template)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var cloth = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var hull = GetOrCreateMaterial("Rask_Steel", new Color(0.52f, 0.53f, 0.56f));
+            var dark = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+            var stone = GetOrCreateMaterial("Altar_Stone", new Color(0.72f, 0.68f, 0.6f));
+            var relic = GetOrCreateMaterial("Relic_Glow", new Color(1f, 0.9f, 0.6f));
+            var wax = GetOrCreateMaterial("Candle_Wax", new Color(0.95f, 0.93f, 0.85f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = true;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+            var model = new GameObject("Model");
+            model.transform.SetParent(root.transform, false);
+            model.transform.localScale = Vector3.one * (template.height / 3.2f);   // laid out for a 3.2 m tall shrine
+
+            // The tracked chassis.
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(model, "Track", PrimitiveType.Cube, dark, new Vector3(side * 0.95f, 0.35f, 0f), new Vector3(0.5f, 0.7f, 3.3f));
+                foreach (float z in new[] { 1.1f, 0f, -1.1f })
+                    Part(model, "Road Wheel", PrimitiveType.Cylinder, hull, new Vector3(side * 1.21f, 0.32f, z), new Vector3(0.5f, 0.03f, 0.5f), new Vector3(0f, 0f, 90f));
+            }
+            Part(model, "Deck", PrimitiveType.Cube, hull, new Vector3(0f, 0.8f, 0f), new Vector3(1.5f, 0.35f, 3.1f));
+            Part(model, "Front Plate", PrimitiveType.Cube, hull, new Vector3(0f, 0.75f, 1.65f), new Vector3(1.9f, 0.5f, 0.12f), new Vector3(35f, 0f, 0f));
+            Part(model, "Skirt", PrimitiveType.Cube, cloth, new Vector3(0f, 0.95f, 0f), new Vector3(1.95f, 0.1f, 3.2f));
+
+            // The shrine: a stone altar under a gilded canopy on four pillars, with the relic on the altar.
+            Part(model, "Altar", PrimitiveType.Cube, stone, new Vector3(0f, 1.25f, -0.2f), new Vector3(1.1f, 0.55f, 1.3f));
+            Part(model, "Altar Cloth", PrimitiveType.Cube, cloth, new Vector3(0f, 1.36f, 0.46f), new Vector3(0.7f, 0.35f, 0.02f));
+            Part(model, "Relic Stand", PrimitiveType.Cylinder, gold, new Vector3(0f, 1.62f, -0.2f), new Vector3(0.22f, 0.08f, 0.22f));
+            Part(model, "Relic", PrimitiveType.Sphere, relic, new Vector3(0f, 1.88f, -0.2f), Vector3.one * 0.34f);
+            foreach (float x in new[] { -0.62f, 0.62f })
+                foreach (float z in new[] { 0.5f, -0.9f })
+                    Part(model, "Pillar", PrimitiveType.Cylinder, gold, new Vector3(x, 1.95f, z), new Vector3(0.1f, 0.72f, 0.1f));
+            Part(model, "Canopy", PrimitiveType.Cube, cloth, new Vector3(0f, 2.7f, -0.2f), new Vector3(1.5f, 0.1f, 1.8f));
+            foreach (float side in new[] { -1f, 1f })
+                Part(model, "Roof", PrimitiveType.Cube, gold, new Vector3(side * 0.36f, 2.92f, -0.2f), new Vector3(0.85f, 0.07f, 1.9f), new Vector3(0f, 0f, side * -30f));
+            Part(model, "Finial", PrimitiveType.Sphere, gold, new Vector3(0f, 3.15f, -0.2f), Vector3.one * 0.16f);
+
+            // Candles at the front of the deck, and two banners at the back.
+            foreach (float x in new[] { -0.45f, -0.15f, 0.15f, 0.45f })
+            {
+                Part(model, "Candle", PrimitiveType.Cylinder, wax, new Vector3(x, 1.08f, 1.15f), new Vector3(0.06f, 0.1f, 0.06f));
+                Part(model, "Flame", PrimitiveType.Sphere, relic, new Vector3(x, 1.22f, 1.15f), new Vector3(0.05f, 0.08f, 0.05f));
+            }
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(model, "Banner Pole", PrimitiveType.Cylinder, dark, new Vector3(side * 0.6f, 2.0f, -1.35f), new Vector3(0.05f, 1.2f, 0.05f));
+                Part(model, "Banner", PrimitiveType.Cube, cloth, new Vector3(side * 0.6f, 2.55f, -1.2f), new Vector3(0.03f, 0.85f, 0.32f));
+                Part(model, "Banner Cap", PrimitiveType.Sphere, gold, new Vector3(side * 0.6f, 3.22f, -1.35f), Vector3.one * 0.1f);
+            }
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
         // ------------------------------------------------------------------ Equipment
 
         /// <summary>
@@ -2424,6 +2556,7 @@ namespace Eldoria.EditorTools
             EnsureIntimidatorMediumRobot(factions[2], keywords);
             EnsureRaskBlackhand(factions[2], keywords);
             EnsureRaskRedhand(factions[2], keywords);
+            EnsureRaskReliquary(factions[2], keywords);
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             EnsureIsfRanger(factions[0], keywords);
@@ -2453,12 +2586,13 @@ namespace Eldoria.EditorTools
             {
                 var faction = catalog.Factions.FirstOrDefault(f => f.Has(unit));
                 var parts = Eldoria.Rules.SupplyCost.Breakdown(unit, faction);
-                if (unit.supplyCost != parts.Total)
+                int cost = Mathf.Max(0, parts.Total + unit.supplyCostAdjustment);   // the formula, plus any surcharge
+                if (unit.supplyCost != cost)
                 {
-                    unit.supplyCost = parts.Total;
+                    unit.supplyCost = cost;
                     EditorUtility.SetDirty(unit);
                 }
-                Debug.Log($"[Eldoria] Supply Cost: {unit.displayName}: {parts}");
+                Debug.Log($"[Eldoria] Supply Cost: {unit.displayName}: {parts}" + (unit.supplyCostAdjustment != 0 ? $" + {unit.supplyCostAdjustment} adjustment = {cost}" : ""));
             }
         }
 
@@ -2697,6 +2831,17 @@ namespace Eldoria.EditorTools
                     }
                 };
             });
+            GetOrCreate<Keyword>($"{DataDir}/Keywords/Sanctified.asset", k =>
+            {
+                k.displayName = "Sanctified";
+                k.appliesTo = KeywordTarget.Soldier;
+                k.description = "Within 20 m of a friendly Rask Reliquary (Biological soldiers only, not the Reliquary itself): +2 damage and +20% accuracy with weapons.";
+                k.interactions = new List<KeywordInteraction>
+                {
+                    new KeywordInteraction { role = KeywordRole.WhenAttacking, condition = KeywordCondition.Always, effect = KeywordEffect.DamageBonus, amount = 2 },
+                    new KeywordInteraction { role = KeywordRole.WhenAttacking, condition = KeywordCondition.Always, effect = KeywordEffect.AccuracyBonus, amount = 20 },
+                };
+            });
             GetOrCreate<Keyword>($"{DataDir}/Keywords/Empowered.asset", k =>
             {
                 k.displayName = "Empowered";
@@ -2736,7 +2881,7 @@ namespace Eldoria.EditorTools
                 ["Large"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Transport"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
-                ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status, ["Empowered"] = KeywordCategory.Status,
+                ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status, ["Empowered"] = KeywordCategory.Status, ["Sanctified"] = KeywordCategory.Status,
                 ["Chromashift"] = KeywordCategory.Status,
             };
             foreach (var guid in AssetDatabase.FindAssets("t:Keyword", new[] { $"{DataDir}/Keywords" }))

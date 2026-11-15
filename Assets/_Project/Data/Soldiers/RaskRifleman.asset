@@ -16,7 +16,7 @@ MonoBehaviour:
   prefab: {fileID: 6545637600265332963, guid: 9c523f9a87361154ba79d5a7c3f3ae85, type: 3}
   health: 5
   armorLevel: 1
-  accuracy: 50
+  accuracy: 75
   movementRange: 20
   keywords:
   - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}

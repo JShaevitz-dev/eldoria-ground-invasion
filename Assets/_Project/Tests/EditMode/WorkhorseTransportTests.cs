@@ -47,10 +47,12 @@ namespace Eldoria.Tests
         [Test]
         public void ItsSupplyCost()
         {
-            // 10 health + Machine Gun (5 × 5) + Armor 3 + Embark and Disembark (2 active) + Stabilizers (passive).
+            // Machine Gun: 5 × 5 shots × 75% × 0.6 = 11.25; 10 health × 1.75 (Armor 3) = 17.5; Embark and Disembark (2 active);
+            // Stabilizers (passive); tax 50. 33.75 + 8.75 + 40 + 10 + 50 = 142.5 → 143.
             var p = SupplyCost.Breakdown(Workhorse, Isf);
-            Assert.That((p.Health, p.Damage, p.Armor, p.ActiveAbilities, p.PassiveAbilities, p.ArmorTax, p.Total), Is.EqualTo((10, 25, 3, 2, 1, 0, 88)));
-            Assert.That(Workhorse.supplyCost, Is.EqualTo(88));
+            Assert.That(p.Firepower, Is.EqualTo(11.25).Within(1e-6));
+            Assert.That((p.ActiveAbilities, p.PassiveAbilities, p.ArmorTax, p.Total), Is.EqualTo((2, 1, 50, 143)));
+            Assert.That(Workhorse.supplyCost, Is.EqualTo(143));
         }
 
         [Test]

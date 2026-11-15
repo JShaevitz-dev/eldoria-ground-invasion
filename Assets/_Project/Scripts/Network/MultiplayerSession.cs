@@ -20,7 +20,7 @@ namespace Eldoria.Network
     public class MultiplayerSession : MonoBehaviour
     {
         /// <summary>Bumped when the messages change: both games must match.</summary>
-        public const int ProtocolVersion = 1;
+        public const int ProtocolVersion = 2;   // 2: the deployment phase
 
         /// <summary>The multiplayer game in progress (null in single player).</summary>
         public static MultiplayerSession Active { get; private set; }
@@ -230,6 +230,7 @@ namespace Eldoria.Network
             else
                 ArmySelection.Set(clientArmy, hostArmy, clientFaction, hostFaction, clientLoadouts, hostLoadouts);
             ArmySelection.LocalSide = LocalSide;
+            ArmySelection.DeploymentPhase = true;
             Core.GameRandom.Seed(start.seed);
             BattleStarted = true;
             SceneManager.LoadScene(start.scene);

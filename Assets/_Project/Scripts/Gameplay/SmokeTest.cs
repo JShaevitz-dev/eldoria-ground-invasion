@@ -98,6 +98,17 @@ namespace Eldoria.Gameplay
                   && ArmySelection.AIArmy.Count > 0, $"the AI's army is deployed ({ArmySelection.AIArmy?.Count} units)");
             if (controller != null)
             {
+                Check(controller.IsDeploying, "the battle starts with deployment");
+                Check(FindObjectsByType<Eldoria.Units.Unit>(FindObjectsSortMode.None).Where(u => u.Side == Eldoria.Units.Side.AI).All(u => u.Hidden),
+                    "the enemy is hidden during deployment");
+                var first = controller.PlayerUnits[0];
+                var zone = controller.DeploymentArea;
+                string why = "no zone";
+                Check(zone != null && controller.DeployUnitAt(first, new Vector3(first.Leader.Position.x, 0f, zone.transform.position.z - 2.5f), out why),
+                    $"a unit can be placed in the deployment zone ({why})");
+                controller.ReadyDeployment();
+                Check(!controller.IsDeploying && Turns.Current == 1, "Ready starts the first turn");
+                Check(FindObjectsByType<Eldoria.Units.Unit>(FindObjectsSortMode.None).All(u => !u.Hidden), "the enemy is revealed");
                 var unit = controller.PlayerUnits[0];
                 Check(controller.SelectUnit(unit), "a unit can be selected");
                 controller.PreviewAt(unit.Leader.Position + Vector3.forward * 8f);

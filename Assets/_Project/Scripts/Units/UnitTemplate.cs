@@ -72,6 +72,10 @@ namespace Eldoria.Units
                  "(Rules.SupplyCost) when the unit catalog is rebuilt (Eldoria > Rebuild Unit Catalog).")]
         [Min(0)] public int supplyCost;
 
+        [Tooltip("Added to the Supply Cost the formula gives, for a unit whose value the formula doesn't capture " +
+                 "(e.g. the Rask Reliquary's aura: +100). 0 for most units.")]
+        public int supplyCostAdjustment;
+
         [Tooltip("Meters between soldiers in the formation they deploy in.")]
         [Min(0.5f)] public float deploymentSpacing = 2f;
 

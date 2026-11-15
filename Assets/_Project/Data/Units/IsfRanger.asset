@@ -22,9 +22,10 @@ MonoBehaviour:
     after moving). The Anti-Materiel Rifle can''t fire after moving, and with 5 health
     and only light armor the Ranger must stay out of sight, though its Chromashift
     Textiles give anyone aiming at it -25% accuracy; moving 15 m, they can reposition
-    quickly between shots. A Specialist and a Solo unit; you can field more than one.'
+    quickly between shots. A Specialist and a Solo unit; you can field more than
+    one.'
   leader: {fileID: 11400000, guid: 50a0166a66c96524e927414f24bc263d, type: 2}
   members: []
   equipmentSwapsForWholeUnit: 0
-  supplyCost: 26
+  supplyCost: 43
   deploymentSpacing: 2
