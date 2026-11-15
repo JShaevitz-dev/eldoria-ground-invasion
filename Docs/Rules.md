@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Eldoria Ground Invasion) has its first three factions, and all three can field armies:** the ISF (Field
-> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team), the Draconis Imperialis (Dragon Hierarch, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot). The game
+> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand). The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -61,9 +61,9 @@ role). It's shown in the HUD when the unit is selected, and the army builder lis
 | Role | Units |
 |---|---|
 | **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia, Rask Rifle Team |
-| **Commander** | Field Commander, Master Sergeant Jakoby, Marshal Command Tank, Dragon Hierarch, Rask Ultima |
+| **Commander** | Field Commander, Master Sergeant Jakoby, Marshal Command Tank, Dragon Hierarch, Dragonborn Exemplar, Rask Ultima |
 | **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, Stinger Heavy Robot, Tyrant Hover-tank, Intimidator Medium Robot |
-| **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad |
+| **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad, Kobold Mechanist, Rask Blackhand, Rask Redhand |
 
 ### Factions — *implemented*
 
@@ -75,7 +75,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger and the ISF Boarding Team, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad and the Tyrant Hover-tank, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot and the Intimidator Medium Robot, so all three can field armies (the AI picks one of them).
+So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger and the ISF Boarding Team, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank and the Kobold Mechanist, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand and the Rask Redhand, so all three can field armies (the AI picks one of them).
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -89,7 +89,7 @@ it can take, and any weapon changes and names (below). The army builder lists th
 - The changes apply to whichever soldier holds the weapon, by **their unit's faction**, including a thrown grenade or an explosion (the faction of the soldier who used it). Armies placed directly in a scene have no faction, so their weapons are unchanged.
 - **Limits:** Damage never goes below 0, Shots below 1, Penetration below 0 or Range below 1 m. A weapon with **no penetration value** keeps none, and **unlimited range** stays unlimited.
 - The army builder shows each unit's weapons **as the chosen faction has them**.
-- **So far:** the Draconis Imperialis calls the Assault Rifle the **Fang Caster**; the Rask call it the **Solntse Laser Rifle** and add **+2 Damage** to it (6).
+- **So far:** the Draconis Imperialis calls the Assault Rifle the **Fang Caster** and the Broadsword the **Ceremonial Blade**; the Rask call it the **Solntse Laser Rifle** and add **+2 Damage** to it (6).
 
 ### Army lists — *implemented*
 
@@ -107,14 +107,17 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 **Weapons and equipment (customizing a unit):** a soldier type can offer **weapon swaps** (a weapon it carries, and what it can be swapped for, e.g. *Assault Rifle → SMG*) and **equipment** it can be given. A unit in your list whose soldiers have any options gets a **Customize** button, which opens a panel listing each of those soldier types with its weapon choices and equipment.
 - Choices apply to **every soldier of that type in the unit** (e.g. all the Troopers); the Sergeant is set separately. Each unit in the list has its own choices, even two of the same unit.
 - **A swapped weapon replaces the original**; if it was the primary weapon, the new one is the primary.
+- **Equipment swaps:** a soldier type can also offer to swap a piece of its **standard equipment** for another (e.g. the ISF Riflemen's *Frag Grenade → Medkit or Repair Kit*). The new item replaces the old one, with everything it gives. Swaps are sent to the other player in multiplayer. A unit can make its equipment swaps **one choice for the whole unit** (every soldier type with that swap takes it together, e.g. the ISF Rifle Squad); otherwise each soldier type chooses for itself.
 - **Equipment** can give **keywords**, **abilities**, **extra weapons** (carried as well, not as the primary) and **stat changes** (Health, Armor Level, Accuracy, Movement; added to the soldier's own). The list shows a short summary of a unit's choices.
 - Choices are kept with your last army, and applied when your army deploys. The AI's armies don't customize.
-- *So far only the ISF Heavy Weapons (Machine Gun → Rocket Launcher or Flamethrower) and the ISF Ranger (Sniper Rifle → Anti-Materiel Rifle or Shotgun) have options; options are set on each soldier's data (Weapon Options, Equipment Options).*
+- *So far only the ISF Heavy Weapons (Machine Gun → Rocket Launcher or Flamethrower), the ISF Ranger (Sniper Rifle → Anti-Materiel Rifle or Shotgun) and the ISF Rifleman and ISF Rifleman Sergeant (Frag Grenade → Medkit or Repair Kit; in the ISF Rifle Squad, and the Rifleman in the Mortar Team) have options; options are set on each soldier's data (Weapon Options, Equipment Options).*
 - **Standard equipment:** a soldier type can also carry equipment **as standard** (Equipment, on the soldier's data), always applied, without any army builder choice. Its stat changes are included in the unit's stats in the army builder.
-- **Equipment in the game** (Data/Equipment); no soldier type offers either as an army builder choice yet:
+- **Equipment in the game** (Data/Equipment):
   - **Combat Shield:** adds **1** to the soldier's Armor Level. Carried as standard by the ISF Boarding Team.
-  - **Frag Grenade:** gives the active ability **Frag Grenade** (thrown once per battle; 2.5 m blast). Carried twice as standard by Master Sergeant Jakoby.
-- **Duplicate equipment stacks:** each copy a soldier carries counts. For an ability limited per battle, each copy (and the soldier type's own ability, if it has it) adds that many uses: two Frag Grenades give **two throws** a battle.
+  - **Frag Grenade:** gives the active ability **Frag Grenade** (a 2.5 m blast, thrown as the unit's action; no limit per battle). Carried twice as standard by Master Sergeant Jakoby.
+  - **Medkit:** gives the active ability **Medkit**: choose **one friendly Biological soldier within 5 m** (the medic too) and they restore **5 health** (not above their maximum). Like any healing ability, it **can't be used on a soldier at full health**: the game plays the error sound and the unit keeps its action, so you can pick another target. Not a Spell, so it works after sprinting. Carried as standard by the Rask Redhand.
+  - **Repair Kit:** gives the active ability **Repair Kit**: choose **one friendly Mechanical soldier within 5 m** (the user too, if Mechanical) and they restore **10 health** (not above their maximum). Like the Medkit, it **can't be used on a soldier at full health** (error sound; the unit keeps its action) and works after sprinting. Carried as standard by the Kobold Mechanist and the Rask Blackhand.
+- **Duplicate equipment stacks:** each copy a soldier carries counts (stat changes add up). For an ability limited per battle, each copy (and the soldier type's own ability, if it has it) would add that many uses; no ability is limited per battle at the moment.
 
 **The AI's army:** the AI picks a **random faction** (of those that have a Commander, so it can field an army) and builds its own **random valid army** from that faction's units each battle under the same rules, always filling all 6 slots: 1 Commander, then random units.
 
@@ -127,11 +130,11 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
 |---|---|---|---|---|---|---|---|
 | ISF Mortar Specialist | 5 | 2 | 75% | 10 m | Biological | Mortar Launcher (primary), Assault Rifle | — |
-| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade |
+| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade (equipment; *or* Medkit, *or* Repair Kit) |
 
 - **Mortar Launcher:** Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; **Deployed** (can't fire after moving that turn), **Manual Load** (fires once a turn), **Explosive**. It fires at one soldier, like a rifle (no blast).
 - After the Specialist moves, the mortar can't fire, so they shoot with the **Assault Rifle** instead.
-- The ISF Rifleman is the same soldier as in the ISF Rifle Squad, so the team has that unit's **Frag Grenade** (once per battle).
+- The ISF Rifleman is the same soldier as in the ISF Rifle Squad, so the team has that unit's **Frag Grenade**, which it can swap for a Medkit or a Repair Kit in the same way.
 - Heavy Support, so an army can take more than one.
 
 ### Sagittarius MBT
@@ -144,7 +147,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 - **100mm Cannon:** Damage 10, Shots 1, Penetration 4, Range 50 m, **Manual Load** (fires once a turn).
 - **Mechanical:** can't sprint and is never in close range. **Unstable:** when destroyed, a 10% chance to explode (5 damage to every soldier within 5 m).
-- **Frag Grenade:** like the Rifle Squad's, but with no once-per-battle limit (once a turn).
+- **Frag Grenade:** the same as the Rifle Squad's: once a turn, no limit per battle.
 - **Wide body:** it stands on a circle of 1.8 m radius, so its route needs room for the hull the whole way.
 - Heavy Support, so an army can take more than one.
 
@@ -208,6 +211,20 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - The dragon leads the unit's move; the Honorguard then follow it, ending within 5 m of it (cohesion), however far it went.
 - The Draconis Imperialis's Commander, so every Draconis army has one.
 
+### Dragonborn Exemplar
+
+*Imperial Army of The Draconis Imperialis · Commander.* One soldier: a Dragonborn in gold armor and a crimson cape, with a tall gold crest, holding a ceremonial blade, a pistol at the hip. The Dragonborn Footman's stats with **double the health** and the **Solo** and **Officer** keywords.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
+|---|---|---|---|---|---|---|---|
+| Dragonborn Exemplar | 20 | 2 | 75% | 10 m (sprint 20 m) | Biological, Solo, Officer | Raptor Pistol (primary), Ceremonial Blade | Empowering Presence (passive) |
+
+- **Raptor Pistol:** the Twin Raptor Pistols' stats with **1 shot**: Damage 4, Shots 1, Penetration 1, +0% accuracy, Range 20 m; Pistol.
+- **Ceremonial Blade:** the Draconis name for the **Broadsword**: Damage 5, Shots 1, Penetration 1, Range 2 m; Melee.
+- **In close range** it fights with the blade: a soldier with both a Melee weapon and a pistol uses the Melee weapon when an enemy is within 2 m.
+- **Empowering Presence** (passive aura): **other friendly soldiers within 15 m** (the range of Lead from the front) gain the status **Empowered**: **+2 damage** with their weapons. Like Lead from the front, the Exemplar itself doesn't get it, and each soldier is checked on its own.
+- The Draconis Imperialis's second Commander: an army takes it **or** the Dragon Hierarch.
+
 ### Dragonborn Squad
 
 *Imperial Army of The Draconis Imperialis · Infantry.* 1 **Dragonborn Sergeant** (leader) + 4 **Dragonborn Footmen**: anthropomorphic dragons with wings and a tail, standing slightly taller than a human (2.2 m), each holding a glaive with a rifle's receiver and barrel built into its head (see [Lore.md](Lore.md), the Dragonborn).
@@ -235,6 +252,30 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 - **Pistol:** Damage 2, Shots 1, Penetration 0, Range 10 m; Pistol (usable in close range).
 - The Rask's Commander, so every Rask army has one, and the Rask can now field armies.
+
+### Rask Blackhand
+
+*Most Holy Army of The Rask Divine Collective · Specialist.* One soldier: a Rask combat engineer with soot-black gauntlets, goggles, a tool pack and a wrench. The Rask Ultima's stats, but **Armor 1** and **no Officer** keyword.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment |
+|---|---|---|---|---|---|---|---|
+| Rask Blackhand | 10 | 1 | 50% | 20 m (sprint 40 m) | Biological, Solo | Solntse Laser Rifle | Repair Kit |
+
+- **Solntse Laser Rifle:** the Rask's Assault Rifle, Damage 6 for them: Damage 6, Shots 1, Penetration 1, Range 20 m.
+- **Repair Kit** (standard equipment): its action can restore **10 health** to a friendly **Mechanical** soldier within 5 m (e.g. the Stinger Heavy Robot or the Intimidator Medium Robot). Refused, with no action spent, on a soldier at full health.
+- A Specialist, so one per army.
+
+### Rask Redhand
+
+*Most Holy Army of The Rask Divine Collective · Specialist.* One soldier: a Rask field medic with red gauntlets and a white medic's pack marked with a red cross. The Rask Ultima's stats, but **Armor 1** and **no Officer** keyword.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment |
+|---|---|---|---|---|---|---|---|
+| Rask Redhand | 10 | 1 | 50% | 20 m (sprint 40 m) | Biological, Solo | Solntse Laser Rifle | Medkit |
+
+- **Solntse Laser Rifle:** Damage 6, Shots 1, Penetration 1, Range 20 m.
+- **Medkit** (standard equipment): its action can restore **5 health** to a friendly **Biological** soldier within 5 m (itself included). Refused, with no action spent, on a soldier at full health.
+- A Specialist, so one per army.
 
 ### Rask Rifle Team
 
@@ -301,6 +342,19 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 - **Mechanical:** can't sprint and is never in close range. **Unstable:** when destroyed, a 10% chance to explode (5 damage to every soldier within 5 m).
 - A wide body (radius 1.8 m, like the Sagittarius MBT).
 
+### Kobold Mechanist
+
+*Imperial Army of The Draconis Imperialis · Specialist.* One soldier: a Kobold engineer in goggles with a tool pack and a wrench. The Kobold Militiaman's stats, but **Armor 1** and the **Solo** keyword.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment |
+|---|---|---|---|---|---|---|---|
+| Kobold Mechanist | 5 | 1 | 50% | 20 m (sprint 40 m) | Biological, Swarm, Solo | Fang Caster | Repair Kit |
+
+- **Fang Caster:** the Draconis name for the Assault Rifle: Damage 4, Shots 1, Penetration 1, Range 20 m.
+- **Repair Kit** (standard equipment): its action can restore **10 health** to a friendly **Mechanical** soldier within 5 m (e.g. the Tyrant Hover-tank). Refused, with no action spent, on a soldier at full health.
+- Swarm comes with the Militiaman's stats; on a unit of one it has no effect.
+- A Specialist, so one per army.
+
 ### Kobold Militia
 
 *Imperial Army of The Draconis Imperialis · Infantry.* 1 **Kobold Sergeant** (leader) + 19 **Kobold Militiamen**: wingless anthropomorphic dragons standing at two-thirds the height of a human (1.2 m), in fabric uniforms and holding rifles (see [Lore.md](Lore.md), the Kobolds).
@@ -331,10 +385,10 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment | Abilities |
 |---|---|---|---|---|---|---|---|---|
-| Master Sergeant Jakoby | 10 | 2 | 75% | 10 m (sprint 20 m) | Biological, Officer, Solo | Shotgun | Frag Grenade ×2 | Frag Grenade (**2× per battle**) |
+| Master Sergeant Jakoby | 10 | 2 | 75% | 10 m (sprint 20 m) | Biological, Officer, Solo | Shotgun | Frag Grenade ×2 | Frag Grenade |
 
 - **Shotgun:** Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m.
-- **Two Frag Grenades:** each gives the Frag Grenade ability's use, so he can throw **two** a battle.
+- **Two Frag Grenades:** they give him the Frag Grenade ability, which has no limit per battle (once a turn, as his action).
 - One of the ISF's three Commanders: an ISF army takes him, the Field Commander or the Marshal Command Tank.
 
 ### Marshal Command Tank
@@ -353,12 +407,13 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 *International Space Force of Humanity · Infantry.* 1 **ISF Rifleman Sergeant** (leader) + 9 **ISF Riflemen**.
 
-| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Equipment |
 |---|---|---|---|---|---|---|---|
-| ISF Rifleman Sergeant | 5 | 2 | 75% | 10 m | Biological | Assault Rifle, Pistol | Frag Grenade |
-| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade |
+| ISF Rifleman Sergeant | 5 | 2 | 75% | 10 m | Biological | Assault Rifle, Pistol | Frag Grenade (*or* Medkit, *or* Repair Kit) |
+| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade (*or* Medkit, *or* Repair Kit) |
 
-- **Frag Grenade** (active, once per battle per unit): pick a spot on the ground within 10 m of the unit leader (no line of sight needed). Every soldier within 2.5 m of it, friend or foe, takes 5 damage, penetration 0 (armor counts). Object and structure terrain between the blast and a soldier shields them. Throwing it is the unit's action.
+- **Frag Grenade** (active, **no limit per battle**; once a turn, as the unit's action): pick a spot on the ground within 10 m of the unit leader (no line of sight needed). Every soldier within 2.5 m of it, friend or foe, takes 5 damage, penetration 0 (armor counts). Object and structure terrain between the blast and a soldier shields them. Throwing it is the unit's action.
+- **Equipment option:** each soldier carries the Frag Grenade as standard **equipment**. In the army builder (**Customize**), the **whole squad** can swap its grenades, as **one choice for every soldier** (Sergeant included), for **Medkits** (heal a friendly Biological soldier within 5 m for 5) or **Repair Kits** (repair a friendly Mechanical soldier within 5 m for 10).
 - Built from the original Eldoria's Trooper and Sergeant, with Armor 2 (up from 1). Placeholder models: the old Trooper and Sergeant.
 
 ### Heavy Weapons Team
@@ -388,11 +443,12 @@ Each unit is a Unit template (Data/Units) made of Soldier templates (Data/Soldie
 - **Mortar Launcher** (carried by the ISF Mortar Team): the Frag Grenade weapon's stats with **Penetration 3**, **Range 50 m** and the keywords **Deployed** (can't fire after moving that turn), **Manual Load** (fires once a turn) and **Explosive** (like the grenade): Damage 5, Shots 1, +0% accuracy. It's a weapon fired at a soldier like any other: it doesn't have the Frag Grenade ability's 2.5 m blast.
 - **Plasma Mortar** (carried by the Rask's Stinger Heavy Robot): the Mortar Launcher's stats: Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; Deployed, Manual Load, Explosive.
 - **Twin Intimidator Machine Guns** (on the Rask's Intimidator Medium Robot): the Machine Gun's stats with 10 shots: Damage 5, Shots 10, Penetration 1, +0% accuracy, Range 20 m; Deployed.
+- **Raptor Pistol** (the Dragonborn Exemplar's): the Twin Raptor Pistols' stats with 1 shot: Damage 4, Shots 1, Penetration 1, +0% accuracy, Range 20 m; Pistol.
 - **Tyrant Railgun** (on the Tyrant Hover-tank): Damage 5, Shots 1, Penetration 7, +0% accuracy, Range 50 m; Manual Load.
 - **Twin Raptor Pistols** (carried by the Dragonborn Skymaster Squad): Damage 4, Shots 2, Penetration 1, +0% accuracy, Range 20 m; Pistol.
 - **Shotgun** (an option for the ISF Ranger): Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords.
 - **Anti-Materiel Rifle** (an option for the ISF Ranger): the Sniper Rifle's stats but **Damage 10**, **no penetration value** and **no accuracy bonus**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed**.
-- **Abilities** (Data/Abilities): Frag Grenade (once per battle) and a tank's Frag Grenade (every turn), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
+- **Abilities** (Data/Abilities): Empowering Presence (aura: +2 damage), Medkit (heals a friendly Biological soldier within 5 m for 5), Repair Kit (repairs a friendly Mechanical soldier within 5 m for 10), Frag Grenade (no limit per battle) and a tank's Frag Grenade (the same, kept as its own ability), Lead from the front (aura), Divine Healing and Divine Sanctuary (spells), Fireball and Firestorm (spells), Rocket Launcher (aimed attack), Iron Claw (aimed strike), Stabilizers (passive).
 - **Placeholder models** (Prefabs/Units) for soldiers, officers, powered armor, a tank and a walker.
 
 ### Keywords — *implemented*
@@ -437,8 +493,8 @@ Keywords are marked **Trait** (what a soldier or ability is: Biological, Robotic
 - **Spells** (magic) aren't weapons: close range and Manual Load don't apply to them, even when they attack.
 - **Aimed attack** (e.g. the Rocket Launcher ability): the user shoots one **enemy soldier** with the ability's weapon, going through the shooting steps: the target must be within the **weapon's range**, in **line of sight** and not in **full cover**, and keywords mustn't prevent it; "when targeted" triggers fire; then damage, penetration, the **hit roll** at the user's accuracy (with the sprint penalty if the unit sprinted), a crit roll, damage, "when damaged" triggers. It shoots once per point of the weapon's Shots. The weapon is the user's own (their faction's changes apply), it isn't used in volleys, and **Manual Load** applies to it (once a turn).
 - Each soldier can use each active ability once per turn (and in practice a unit uses at most one ability per turn — see Unit actions).
-- *Display:* ability buttons don't show uses per turn. A use limit is only shown to the player for abilities limited to a number of uses **per battle** (e.g. Frag Grenade: "1 left this battle").
-- **Uses per battle:** some abilities can only be used a number of times per battle **by each unit** (Frag Grenade: once). The count is shared by all the unit's soldiers.
+- *Display:* ability buttons don't show uses per turn. A use limit is only shown to the player for abilities limited to a number of uses **per battle** (no ability in the game has such a limit at the moment).
+- **Uses per battle:** an ability can be limited to a number of uses per battle **by each unit**, the count shared by all the unit's soldiers. *No ability has such a limit at the moment: the Frag Grenade's once-per-battle limit was removed.*
 - **Duplicate abilities are condensed:** when several soldiers in a unit have the same ability, the interface shows **one button**, and pressing it uses the ability **once**, as the unit's action. It's used by the unit leader if they have it (ranges are measured from them), otherwise by another soldier who does.
 - **Area attacks** (target: a spot on the ground): every soldier within the radius is attacked with the ability's weapon, friend or foe. There's no hit roll; for each soldier, keywords, damage and penetration vs armor apply as for shooting, "when damaged" triggers fire, and anyone killed is removed when the blast is over.
 
@@ -546,14 +602,16 @@ Test room terrain:
 
 ## Turns and the AI opponent — *implemented*
 
-- **Turn order:** each turn, the **player** activates their units, then presses **End turn**; then the **AI** activates all of its units; then the next turn starts.
+- **Turn order:** the **player** activates their units, then presses **End turn**; then the **AI** activates all of its units; then the player's next turn starts.
+- **Rounds of play:** a **round** starts at the start of the turn of the player who moves **first** (against the AI, the player; in multiplayer, the south player), and lasts through the other player's turn. So round 1 is the first player's first turn followed by the second player's first turn; round 2 starts when the first player's second turn does. The HUD shows the round number ("Round 3"). Each player has one turn per round.
+- **Concede:** the HUD has a **Concede** button (no hotkey), on either side's turn. It asks first (**Concede the battle?** with **Concede** and **Keep playing**; no hotkeys); confirming ends the battle at once in the other side's favour (**Defeat. You conceded.**). In multiplayer the other player is told and sees **Victory! The enemy conceded.**
 - **End turn asks first** if any of the player's units **haven't moved yet** this turn (not destroyed, and not the selected unit once it has finished its move): a box lists them, with **End turn (N or Enter)** and **Keep playing (Esc)**. If every unit has moved, the turn ends straight away. Running out of time on the turn timer doesn't ask.
 - **"Until the start of the next turn" means the caster's own next turn.** Something the player gains on their turn (Divine Sanctuary, Moved...) lasts through the AI's turn and wears off when the player's next turn starts; something the AI gains on its turn lasts through the player's turn and wears off when the AI's next turn starts. For a keyword trigger, it's the next turn of the soldier whose keyword fired.
 - The AI's turn is **watchable**, unit by unit: the camera pans to each unit, it moves, then takes its action. **Skip (Space)** resolves the rest at once. The player can't give orders during it.
 - **How the AI plays** (it uses the same rules as the player):
   - **Order:** units with auras first (e.g. a commander, so its aura is in place), then the infantry squads, then the other support units.
   - **Moving:** squads push toward the enemy, preferring spots in cover from which they can see enemies; they avoid close range, and avoid sprinting when it isn't worth the accuracy penalty. Support units (single officers and casters) stay about 5 m behind their squads, in cover where they can; casters never sprint, so they can still cast. The rest of a squad gathers into cohesion around its leader.
-  - **Acting:** heal a friendly soldier missing 2+ health if it can; otherwise cast Divine Sanctuary on the friendly unit the most enemies can see; otherwise shoot the enemy unit the most of its soldiers can target (a sniper picks a soldier: Solo soldiers and sergeants first, otherwise the closest); otherwise throw a grenade (once per battle) at the spot hitting the most enemies — never if it would hit its own soldiers.
+  - **Acting:** heal a friendly soldier missing 2+ health if it can; otherwise cast Divine Sanctuary on the friendly unit the most enemies can see; otherwise shoot the enemy unit the most of its soldiers can target (a sniper picks a soldier: Solo soldiers and sergeants first, otherwise the closest); otherwise throw a grenade at the spot hitting the most enemies — never if it would hit its own soldiers.
 
 ### Turn timer — *implemented (option)*
 
@@ -570,10 +628,10 @@ Two players can fight each other over the network instead of against the AI.
   - **Join:** type the host's IP address and press **Connect**.
 - **Setting up:** the **host chooses the battlefield**. Then **both players choose a faction and build an army** under the usual army list rules (each player sees only their own builder). When both have confirmed, the battle starts.
 - **Sides:** who deploys at the **south** edge and **moves first** is **decided at random** when the battle starts. The other player deploys at the north edge, and their view of the battlefield is turned around so their own army is at the bottom of the screen.
-- **Turns:** the same as against the AI: the south player activates all their units and ends their turn, then the north player does, then the next turn starts. The rules (including "until the start of the next turn") are unchanged.
+- **Turns:** the same as against the AI: the south player activates all their units and ends their turn, then the north player does, then the next round starts (with the south player's turn). The rules (including "until the start of the next turn") are unchanged.
 - **The other player's turn:** you watch their orders play out (the camera follows the unit they're commanding, and the log shows their volleys and abilities). You can't give orders until it's your turn.
 - **Each player's own turn timer** (the main menu option) applies to their own turns.
-- **Winning:** as usual. Each player sees **Victory** or **Defeat** from their own point of view. There's no Restart in multiplayer: **Main menu** leaves the game.
+- **Winning:** as usual (including conceding: the other player is told at once, even on your own turn). Each player sees **Victory** or **Defeat** from their own point of view. There's no Restart in multiplayer: **Main menu** leaves the game.
 - **Leaving:** if either player leaves or the connection drops, the other player is told (**Opponent disconnected**) and returns to the main menu.
 - Debug orders (kill the squad leader) aren't available in multiplayer.
 
@@ -583,6 +641,8 @@ How it works (for development): both games run the battle themselves. The host r
 
 - **A side with no soldiers left loses**, and the other side wins. If both sides lose their last soldiers at the same moment (e.g. one grenade), it's a **draw**.
 - **Objectives:** on a map with an **objective marker** (so far the Siege of Ft Solstice), the side it belongs to (the attackers) **wins as soon as one of its unit leaders stands on the marker** (within its radius, measured horizontally) when a unit finishes its move or its action. Only a living **unit leader** counts, not other soldiers, and the other side's leaders standing on it do nothing. The banner then says the objective was reached.
+- **Wiping out the enemy still wins on a map with an objective**: on the Siege of Ft Solstice the attackers also win if the defenders have no soldiers left, and the defenders win if the attackers have none left.
+- **Conceding:** a side that concedes (the HUD's **Concede** button, after confirming) loses at once, and the other side wins.
 - It's checked whenever soldiers are removed from the battlefield (at the end of a volley or blast, or when a soldier dies outside combat) and whenever a unit finishes its move or action.
 - When the battle is decided, a **Victory / Defeat / Draw** banner appears, no more orders can be given, and **Restart (R)** starts the battle again (single player only).
 

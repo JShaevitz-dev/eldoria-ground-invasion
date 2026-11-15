@@ -139,6 +139,37 @@ namespace Eldoria.Tests
             Assert.That(Victory.Describe(BattleOutcome.PlayerWins), Does.Contain("objective"));
         }
 
+        [Test]
+        public void WipingOutTheDefendersStillWinsTheBattle()
+        {
+            foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+                if (unit.Side == Side.AI)
+                    foreach (var s in unit.Soldiers) s.Kill();
+            Assert.That(Victory.Outcome, Is.EqualTo(BattleOutcome.PlayerWins), "the attackers win without reaching the objective");
+            Assert.That(Victory.ObjectiveTaken, Is.False);
+            Assert.That(Victory.Describe(BattleOutcome.PlayerWins), Does.Contain("no soldiers left"));
+        }
+
+        [Test]
+        public void WipingOutTheAttackersStillWinsTheBattle()
+        {
+            foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+                if (unit.Side == Side.Player)
+                    foreach (var s in unit.Soldiers) s.Kill();
+            Assert.That(Victory.Outcome, Is.EqualTo(BattleOutcome.AIWins), "the defenders win by wiping out the attackers");
+            Assert.That(Victory.ObjectiveTaken, Is.False);
+            Assert.That(Victory.Describe(BattleOutcome.AIWins), Does.Contain("no soldiers left"));
+        }
+
+        [Test]
+        public void ConcedingWorksOnTheFortToo()
+        {
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            controller.RequestConcede();
+            controller.Concede();
+            Assert.That(Victory.Outcome, Is.EqualTo(BattleOutcome.AIWins));
+        }
+
         [UnityTest]
         public IEnumerator TheAIPlaysOnTheFort()
         {

@@ -26,4 +26,5 @@ MonoBehaviour:
   members:
   - soldier: {fileID: 11400000, guid: c51b10c4e09a0a549870096ba85736c2, type: 2}
     count: 2
+  equipmentSwapsForWholeUnit: 0
   deploymentSpacing: 4

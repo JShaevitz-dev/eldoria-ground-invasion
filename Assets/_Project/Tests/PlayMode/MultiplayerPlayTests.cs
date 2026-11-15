@@ -90,6 +90,30 @@ namespace Eldoria.Tests
         }
 
         [UnityTest]
+        public IEnumerator APlayerCanConcedeOnTheirOpponentsTurnAndTheOpponentIsTold()
+        {
+            // North concedes during south's turn.
+            yield return StartBattle(Side.AI);
+            var c = Controller;
+            Assert.That(c.IsRemoteTurn, Is.True);
+            c.RequestConcede();
+            Assert.That(c.ConfirmingConcede, Is.True, "asks first, even on the opponent's turn");
+            c.Concede();
+            Assert.That(Victory.Outcome, Is.EqualTo(BattleOutcome.PlayerWins), "south wins");
+            var concession = MultiplayerSession.Active.Sent.Last();
+            Assert.That(concession.kind, Is.EqualTo(OrderKinds.Concede));
+
+            // South receives it: they win.
+            yield return StartBattle(Side.Player);
+            MultiplayerSession.Active.Inject(concession);
+            yield return null;
+            yield return null;
+            Assert.That(Victory.Outcome, Is.EqualTo(BattleOutcome.PlayerWins));
+            Assert.That(Victory.Conceded, Is.True);
+            Assert.That(Controller.BattleOver, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator OrdersAreSentWithTheStateAfterThem()
         {
             yield return StartBattle(Side.Player);

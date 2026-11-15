@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitCatalog
   units:
   - {fileID: 11400000, guid: aa6b3b3d34540074f817fce8461e228b, type: 2}
+  - {fileID: 11400000, guid: c1a62808fa69d424585d3714a3abbf64, type: 2}
   - {fileID: 11400000, guid: e28e88bb00b8e8b4198439902072809e, type: 2}
   - {fileID: 11400000, guid: e6a76dbc4ac60ca4ab2fc0acaddf7737, type: 2}
   - {fileID: 11400000, guid: 26030f4b03a151041a4e81d1a3cc55c3, type: 2}
@@ -32,6 +33,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6efe027a1b56add4d9218659d856211e, type: 2}
   - {fileID: 11400000, guid: 5be3f61c5d4a04d43a8e35489663dfca, type: 2}
   - {fileID: 11400000, guid: 28a98b76ca5f0b8409dedbba1cfff53d, type: 2}
+  - {fileID: 11400000, guid: 7d60fa223f8800d46885bd52398660b8, type: 2}
+  - {fileID: 11400000, guid: e10579640ad2ae446b5b1768a72cff46, type: 2}
+  - {fileID: 11400000, guid: 68a9044d18c1c3c46ac9c030f617f530, type: 2}
   factions:
   - {fileID: 11400000, guid: 4e983f98f3f1c7c408f24aacf442e65b, type: 2}
   - {fileID: 11400000, guid: 13966efe91652554da3a0664bf292433, type: 2}

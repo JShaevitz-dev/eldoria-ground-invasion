@@ -35,4 +35,5 @@ MonoBehaviour:
     alternatives:
     - {fileID: 11400000, guid: a4d460b7150f8b441943ecafe2ad55c2, type: 2}
     - {fileID: 11400000, guid: 9215d9feea2bc9b4bb52390e3d4bae87, type: 2}
+  equipmentSwaps: []
   equipmentOptions: []

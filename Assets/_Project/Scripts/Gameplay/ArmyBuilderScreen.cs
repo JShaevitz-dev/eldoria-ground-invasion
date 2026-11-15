@@ -167,14 +167,31 @@ namespace Eldoria.Gameplay
 
         // ------------------------------------------------------------------ Customizing (weapons and equipment)
 
-        /// <summary>The soldier types in a slot's unit that have weapon swaps or equipment to choose (leader first).</summary>
+        /// <summary>
+        /// The soldier types in a slot's unit with choices of their own: weapon swaps, equipment to give, or (unless the unit
+        /// swaps equipment as a whole, see <see cref="UnitEquipmentSwaps"/>) equipment swaps. Leader first.
+        /// </summary>
         public List<SoldierTemplate> CustomizableSoldiers(int slot)
         {
             if (slot < 0 || slot >= army.Count) return new List<SoldierTemplate>();
-            return army[slot].Roster().Distinct().Where(s => s != null && s.HasOptions).ToList();
+            bool wholeUnit = army[slot].equipmentSwapsForWholeUnit;
+            return army[slot].Roster().Distinct().Where(s => s != null &&
+                (s.weaponOptions.Any(o => o != null && o.IsValid) || s.equipmentOptions.Any(e => e != null)
+                 || (!wholeUnit && s.equipmentSwaps.Any(o => o != null && o.IsValid)))).ToList();
         }
 
-        public bool CanCustomize(int slot) => CustomizableSoldiers(slot).Count > 0;
+        /// <summary>
+        /// For a unit that swaps equipment as a whole (e.g. the ISF Rifle Squad): each piece of standard equipment it can swap,
+        /// with the choices, once for the unit. Empty for other units.
+        /// </summary>
+        public List<EquipmentOption> UnitEquipmentSwaps(int slot)
+        {
+            if (slot < 0 || slot >= army.Count || !army[slot].equipmentSwapsForWholeUnit) return new List<EquipmentOption>();
+            return army[slot].Roster().Distinct().Where(s => s != null).SelectMany(s => s.equipmentSwaps)
+                .Where(o => o != null && o.IsValid).GroupBy(o => o.equipment).Select(g => g.First()).ToList();
+        }
+
+        public bool CanCustomize(int slot) => CustomizableSoldiers(slot).Count > 0 || UnitEquipmentSwaps(slot).Count > 0;
 
         /// <summary>Opens the customize panel for a slot (or closes it with -1).</summary>
         public void Customize(int slot) => customizing = slot >= 0 && CanCustomize(slot) ? slot : -1;
@@ -195,6 +212,55 @@ namespace Eldoria.Gameplay
             swaps[weapon] = choice;
             problems.Clear();
             return null;
+        }
+
+        /// <summary>
+        /// Every soldier of this type in the slot's unit carries <paramref name="choice"/> instead of their standard
+        /// <paramref name="item"/> (choose the item itself to undo the swap). Null if done; otherwise why not.
+        /// </summary>
+        public string SetEquipmentSwap(int slot, SoldierTemplate soldier, Equipment item, Equipment choice)
+        {
+            if (slot < 0 || slot >= army.Count) return "No such slot";
+            if (soldier == null || !army[slot].Roster().Contains(soldier)) return "That soldier isn't in this unit";
+            var option = soldier.equipmentSwaps.FirstOrDefault(o => o != null && o.equipment == item);
+            if (option == null) return $"{soldier.displayName}'s {item?.displayName ?? "equipment"} can't be swapped";
+            if (choice != null && choice != item && !option.alternatives.Contains(choice)) return $"{item.displayName} can't be swapped for {choice.displayName}";
+            // A unit that swaps equipment as a whole: every soldier type with this swap takes the same choice.
+            var types = army[slot].equipmentSwapsForWholeUnit
+                ? army[slot].Roster().Distinct().Where(s => s != null && s.equipmentSwaps.Any(o => o != null && o.equipment == item)).ToList()
+                : new List<SoldierTemplate> { soldier };
+            foreach (var t in types)
+            {
+                var swaps = loadouts[slot].For(t).EquipmentSwaps;
+                if (choice == null || choice == item) swaps.Remove(item);
+                else if (t.equipmentSwaps.Any(o => o != null && o.equipment == item && o.alternatives.Contains(choice))) swaps[item] = choice;
+            }
+            problems.Clear();
+            return null;
+        }
+
+        /// <summary>
+        /// For a unit that swaps equipment as a whole: every soldier in it carries <paramref name="choice"/> instead of their
+        /// standard <paramref name="item"/> (choose the item itself to undo). Null if done; otherwise why not.
+        /// </summary>
+        public string SetUnitEquipmentSwap(int slot, Equipment item, Equipment choice)
+        {
+            if (slot < 0 || slot >= army.Count) return "No such slot";
+            var soldier = army[slot].Roster().FirstOrDefault(s => s != null && s.equipmentSwaps.Any(o => o != null && o.equipment == item));
+            if (soldier == null) return $"{army[slot].displayName}'s {item?.displayName ?? "equipment"} can't be swapped";
+            return SetEquipmentSwap(slot, soldier, item, choice);
+        }
+
+        /// <summary>What a slot's unit carries in place of <paramref name="item"/> (the item itself if it isn't swapped).</summary>
+        public Equipment ChosenEquipment(int slot, Equipment item)
+        {
+            if (slot < 0 || slot >= army.Count) return item;
+            foreach (var s in army[slot].Roster().Distinct())
+            {
+                var l = loadouts[slot].Get(s);
+                if (l != null && l.EquipmentSwaps.ContainsKey(item)) return l.SwapEquipment(item);
+            }
+            return item;
         }
 
         /// <summary>Gives (or takes away) a piece of equipment to every soldier of this type in the slot's unit. Null if done; otherwise why not.</summary>
@@ -298,8 +364,8 @@ namespace Eldoria.Gameplay
         }
 
         /// <summary>
-        /// The customize panel for a slot: for each soldier type with options, its weapon swaps (one button per choice, the
-        /// chosen one marked) and its equipment (toggles). Changes apply to every soldier of that type in the unit.
+        /// The customize panel for a slot: for each soldier type with options, its weapon and equipment swaps (one button per
+        /// choice, the chosen one marked) and its equipment (toggles). Changes apply to every soldier of that type in the unit.
         /// </summary>
         private void DrawCustomize(int slot)
         {
@@ -307,6 +373,26 @@ namespace Eldoria.Gameplay
             GUILayout.Label($"Customize: {unit.displayName} (slot {slot + 1})", heading);
             GUILayout.Label("Choices apply to every soldier of that type in the unit.", small);
             scroll = GUILayout.BeginScrollView(scroll);
+            var unitSwaps = UnitEquipmentSwaps(slot);
+            if (unitSwaps.Count > 0)
+            {
+                // One choice for the whole unit.
+                GUILayout.BeginVertical(GUI.skin.box);
+                GUILayout.Label($"Whole {(unit.Size > 1 ? "unit" : "soldier")} (×{unit.Size})", heading);
+                foreach (var option in unitSwaps)
+                {
+                    var chosen = ChosenEquipment(slot, option.equipment);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label($"{option.equipment.displayName}:", body, GUILayout.Width(170f));
+                    foreach (var e in new[] { option.equipment }.Concat(option.alternatives.Where(a => a != null && a != option.equipment)))
+                    {
+                        bool on = GUILayout.Toggle(chosen == e, e.displayName, button, GUILayout.Height(30f));
+                        if (on && chosen != e) SetUnitEquipmentSwap(slot, option.equipment, e);
+                    }
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.EndVertical();
+            }
             foreach (var soldier in CustomizableSoldiers(slot))
             {
                 int count = unit.Roster().Count(s => s == soldier);
@@ -322,6 +408,18 @@ namespace Eldoria.Gameplay
                     {
                         bool on = GUILayout.Toggle(chosen == w, WeaponStats.For(w, Faction).Name, button, GUILayout.Height(30f));
                         if (on && chosen != w) SetWeapon(slot, soldier, option.weapon, w);
+                    }
+                    GUILayout.EndHorizontal();
+                }
+                foreach (var option in soldier.equipmentSwaps.Where(o => o != null && o.IsValid && !unit.equipmentSwapsForWholeUnit))
+                {
+                    var chosen = current != null ? current.SwapEquipment(option.equipment) : option.equipment;
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label($"{option.equipment.displayName}:", body, GUILayout.Width(170f));
+                    foreach (var e in new[] { option.equipment }.Concat(option.alternatives.Where(a => a != null && a != option.equipment)))
+                    {
+                        bool on = GUILayout.Toggle(chosen == e, e.displayName, button, GUILayout.Height(30f));
+                        if (on && chosen != e) SetEquipmentSwap(slot, soldier, option.equipment, e);
                     }
                     GUILayout.EndHorizontal();
                 }

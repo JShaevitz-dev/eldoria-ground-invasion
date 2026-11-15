@@ -37,15 +37,16 @@ namespace Eldoria.Units
 
         public SoldierLoadout Loadout => loadout;
         /// <summary>
-        /// Equipment the soldier carries: their type's standard equipment (each copy counts, e.g. two Frag Grenades), plus any
-        /// chosen in the army builder that isn't already standard.
+        /// Equipment the soldier carries: their type's standard equipment (each copy counts, e.g. two Frag Grenades; any
+        /// swapped in the army builder replaced by the choice), plus any chosen in the army builder that isn't already carried.
         /// </summary>
         private IEnumerable<Equipment> Gear
         {
             get
             {
                 var standard = template != null && template.equipment != null
-                    ? template.equipment.Where(e => e != null).ToList() : new List<Equipment>();
+                    ? template.equipment.Where(e => e != null).Select(e => loadout != null ? loadout.SwapEquipment(e) : e).Where(e => e != null).ToList()
+                    : new List<Equipment>();
                 var chosen = loadout != null ? loadout.Equipment.Where(e => e != null && !standard.Contains(e)).Distinct() : Enumerable.Empty<Equipment>();
                 return standard.Concat(chosen);
             }
@@ -230,6 +231,11 @@ namespace Eldoria.Units
             // The primary weapon if it can be used right now; otherwise the first other weapon that can (e.g. a pistol in
             // close range, or anything but a Deployed weapon after moving); otherwise none.
             var primary = PrimaryWeapon;
+            // In close range, a Melee weapon is used rather than a pistol (e.g. the Dragonborn Exemplar's Ceremonial Blade
+            // rather than its Raptor Pistol).
+            if (Weapons.Count > 1 && Weapons.Any(w => w.Template.HasKeyword(Rules.CloseRange.MeleeKeyword)) && Rules.CloseRange.IsInCloseRange(this))
+                foreach (var w in Weapons)
+                    if (w.Template.HasKeyword(Rules.CloseRange.MeleeKeyword) && Rules.WeaponUse.CanUse(this, w)) return w;
             if (primary != null && Rules.WeaponUse.CanUse(this, primary)) return primary;
             foreach (var w in Weapons)
                 if (w != primary && Rules.WeaponUse.CanUse(this, w)) return w;

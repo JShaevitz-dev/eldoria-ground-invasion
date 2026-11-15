@@ -52,7 +52,7 @@ namespace Eldoria.Tests
             }
             Assert.That(Team.leader.displayName, Is.EqualTo("Boarding Sergeant"));
             Assert.That(Team.members.Single().soldier.displayName, Is.EqualTo("Boarding Specialist"));
-            Assert.That(r.equipment, Is.Empty, "the ISF Rifleman carries no shield");
+            Assert.That(r.equipment.Select(e => e.displayName), Does.Not.Contain("Combat Shield"), "the ISF Rifleman carries no shield");
         }
 
         [Test]

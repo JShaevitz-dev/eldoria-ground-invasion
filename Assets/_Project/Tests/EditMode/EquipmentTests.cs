@@ -16,6 +16,8 @@ namespace Eldoria.Tests
     {
         private static Equipment Shield => AssetDatabase.LoadAssetAtPath<Equipment>("Assets/_Project/Data/Equipment/CombatShield.asset");
         private static Equipment Grenade => AssetDatabase.LoadAssetAtPath<Equipment>("Assets/_Project/Data/Equipment/FragGrenade.asset");
+        private static Equipment RepairKitItem => AssetDatabase.LoadAssetAtPath<Equipment>("Assets/_Project/Data/Equipment/RepairKit.asset");
+        private static Equipment MedkitItem => AssetDatabase.LoadAssetAtPath<Equipment>("Assets/_Project/Data/Equipment/Medkit.asset");
         private static Ability GrenadeAbility => AssetDatabase.LoadAssetAtPath<Ability>("Assets/_Project/Data/Abilities/FragGrenade.asset");
 
         [Test]
@@ -45,7 +47,9 @@ namespace Eldoria.Tests
         {
             var soldiers = AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" })
                 .Select(g => AssetDatabase.LoadAssetAtPath<SoldierTemplate>(AssetDatabase.GUIDToAssetPath(g)));
-            Assert.That(soldiers.Any(s => s.equipmentOptions.Contains(Shield) || s.equipmentOptions.Contains(Grenade)), Is.False);
+            Assert.That(soldiers.Any(s => s.equipmentOptions.Contains(Shield) || s.equipmentOptions.Contains(Grenade) || s.equipmentOptions.Contains(MedkitItem) || s.equipmentOptions.Contains(RepairKitItem)), Is.False);
+            Assert.That(soldiers.Where(s => s.equipment.Contains(MedkitItem)).Select(s => s.displayName), Is.EquivalentTo(new[] { "Rask Redhand" }), "the Redhand carries a Medkit");
+            Assert.That(soldiers.Where(s => s.equipment.Contains(RepairKitItem)).Select(s => s.displayName), Is.EquivalentTo(new[] { "Kobold Mechanist", "Rask Blackhand" }), "the two engineers carry Repair Kits");
         }
 
         [Test]

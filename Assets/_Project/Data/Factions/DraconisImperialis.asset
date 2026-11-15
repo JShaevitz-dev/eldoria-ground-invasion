@@ -20,7 +20,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a883b44bf1211054db7fc341a5bfca09, type: 2}
   - {fileID: 11400000, guid: 6efe027a1b56add4d9218659d856211e, type: 2}
   - {fileID: 11400000, guid: 48602e7d5fc565d4a899d2f52730b04e, type: 2}
+  - {fileID: 11400000, guid: 7d60fa223f8800d46885bd52398660b8, type: 2}
+  - {fileID: 11400000, guid: c1a62808fa69d424585d3714a3abbf64, type: 2}
   weaponAdjustments: []
   weaponNames:
   - weapon: {fileID: 11400000, guid: 888ab10d5cd37a14897c7ebfc9ce8cef, type: 2}
     name: Fang Caster
+  - weapon: {fileID: 11400000, guid: 1538352812c5368479b7bd7373b3b47d, type: 2}
+    name: Ceremonial Blade

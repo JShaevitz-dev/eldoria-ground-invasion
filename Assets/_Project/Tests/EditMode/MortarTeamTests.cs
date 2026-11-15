@@ -10,7 +10,7 @@ namespace Eldoria.Tests
 {
     /// <summary>
     /// The ISF Mortar Team (Heavy Support): 1 ISF Mortar Specialist (the ISF Rifleman's stats; Mortar Launcher and Assault
-    /// Rifle) + 1 ISF Rifleman (the ISF Rifle Squad's: Assault Rifle, Frag Grenade).
+    /// Rifle) + 1 ISF Rifleman (the ISF Rifle Squad's: Assault Rifle, Frag Grenade, which can be swapped for a Medkit or Repair Kit).
     /// </summary>
     public class MortarTeamTests
     {
@@ -62,7 +62,7 @@ namespace Eldoria.Tests
             Assert.That(UnitInfo.SoldierLines(Team), Is.EqualTo(new[]
             {
                 "ISF Mortar Specialist \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Mortar Launcher, Assault Rifle",
-                "ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle",
+                "ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Frag Grenade",
             }));
         }
 

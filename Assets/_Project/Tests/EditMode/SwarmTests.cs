@@ -109,10 +109,10 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void OnlyTheKoboldMilitiaAndRaskRifleTeamHaveSwarmSoFar()
+        public void OnlyTheKoboldsAndTheRaskRifleTeamHaveSwarmSoFar()
         {
             var swarm = UnitCatalog.Load().Available.Where(u => u.Roster().Any(s => s.HasKeyword("Swarm"))).Select(u => u.displayName);
-            Assert.That(swarm, Is.EquivalentTo(new[] { "Kobold Militia", "Rask Rifle Team" }));
+            Assert.That(swarm, Is.EquivalentTo(new[] { "Kobold Militia", "Rask Rifle Team", "Kobold Mechanist" }), "the Mechanist has the Militiaman's keywords");
         }
     }
 }

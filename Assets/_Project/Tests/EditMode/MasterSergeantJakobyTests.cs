@@ -11,7 +11,7 @@ namespace Eldoria.Tests
 {
     /// <summary>
     /// The ISF's second Commander, Master Sergeant Jakoby: the Field Commander's stats without Lead from the front, a
-    /// Shotgun and two Frag Grenades (standard equipment), which give two uses of the Frag Grenade ability a battle.
+    /// Shotgun and two Frag Grenades (standard equipment), which give the Frag Grenade ability (no limit per battle).
     /// </summary>
     public class MasterSergeantJakobyTests
     {
@@ -61,21 +61,18 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void TwoFragGrenadesGiveTwoThrowsABattle()
+        public void HisFragGrenadesHaveNoLimitPerBattle()
         {
-            Assert.That(UnitInfo.AbilityLines(Jakoby), Is.EqualTo(new[] { "Frag Grenade (active, 2\u00d7 per battle)" }));
+            Assert.That(UnitInfo.AbilityLines(Jakoby), Is.EqualTo(new[] { "Frag Grenade (active)" }));
             var unit = ArmyDeployment.Spawn(Jakoby, Side.Player, Vector3.zero, Quaternion.identity, "Jakoby", null, Isf);
             try
             {
                 var j = unit.Leader;
-                Assert.That(j.Abilities, Is.EqualTo(new[] { Grenade }), "the ability once, with two uses");
+                Assert.That(j.Abilities, Is.EqualTo(new[] { Grenade }), "the ability once");
                 Assert.That(j.AbilitySources(Grenade), Is.EqualTo(2));
-                Assert.That(unit.UsesLeftThisBattle(Grenade), Is.EqualTo(2));
-                unit.RecordBattleUse(Grenade);
-                Assert.That(unit.UsesLeftThisBattle(Grenade), Is.EqualTo(1), "one grenade left");
-                unit.RecordBattleUse(Grenade);
-                Assert.That(unit.UsesLeftThisBattle(Grenade), Is.EqualTo(0));
-                Assert.That(ActiveAbilities.WhyCannotCast(j, Grenade), Does.Contain("already been used this battle"));
+                for (int i = 0; i < 3; i++) unit.RecordBattleUse(Grenade);
+                Assert.That(unit.UsesLeftThisBattle(Grenade), Is.EqualTo(int.MaxValue), "no limit per battle");
+                Assert.That(ActiveAbilities.WhyCannotCast(j, Grenade), Is.Null);
             }
             finally
             {
@@ -84,14 +81,14 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void AnOrdinaryGrenadeCarrierStillThrowsOnce()
+        public void AnOrdinaryGrenadeCarrierHasNoLimitEither()
         {
             var squad = Catalog.Available.Single(u => u.displayName == "ISF Rifle Squad");
-            Assert.That(UnitInfo.AbilityLines(squad), Is.EqualTo(new[] { "Frag Grenade (active, once per battle)" }));
+            Assert.That(UnitInfo.AbilityLines(squad), Is.EqualTo(new[] { "Frag Grenade (active)" }));
             var unit = ArmyDeployment.Spawn(squad, Side.Player, Vector3.zero, Quaternion.identity, "Rifles", null, Isf);
             try
             {
-                Assert.That(unit.UsesLeftThisBattle(Grenade), Is.EqualTo(1), "once per battle for the whole squad");
+                Assert.That(unit.UsesLeftThisBattle(Grenade), Is.EqualTo(int.MaxValue), "no limit per battle");
             }
             finally
             {

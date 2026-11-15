@@ -17,22 +17,43 @@ namespace Eldoria.Units
         public bool IsValid => weapon != null && alternatives.Any(a => a != null && a != weapon);
     }
 
-    /// <summary>The army builder choices for one soldier type in one unit: weapons swapped, and equipment given.</summary>
+    /// <summary>
+    /// A piece of standard equipment a soldier type can swap in the army builder, and what it can be swapped for (e.g. the
+    /// ISF Rifleman's Frag Grenade for a Medkit or a Repair Kit).
+    /// </summary>
+    [Serializable]
+    public class EquipmentOption
+    {
+        [Tooltip("The equipment the soldier normally carries (one of their standard equipment).")]
+        public Equipment equipment;
+        [Tooltip("What it can be swapped for.")]
+        public List<Equipment> alternatives = new List<Equipment>();
+
+        public bool IsValid => equipment != null && alternatives.Any(a => a != null && a != equipment);
+    }
+
+    /// <summary>The army builder choices for one soldier type in one unit: weapons and equipment swapped, and equipment given.</summary>
     public class SoldierLoadout
     {
         /// <summary>Normal weapon → the weapon chosen instead.</summary>
         public readonly Dictionary<WeaponTemplate, WeaponTemplate> Swaps = new Dictionary<WeaponTemplate, WeaponTemplate>();
+        /// <summary>Standard equipment → the equipment chosen instead.</summary>
+        public readonly Dictionary<Equipment, Equipment> EquipmentSwaps = new Dictionary<Equipment, Equipment>();
         public readonly List<Equipment> Equipment = new List<Equipment>();
 
-        public bool IsEmpty => Swaps.Count == 0 && Equipment.Count == 0;
+        public bool IsEmpty => Swaps.Count == 0 && EquipmentSwaps.Count == 0 && Equipment.Count == 0;
 
         /// <summary>The weapon carried in place of <paramref name="weapon"/> (itself if it isn't swapped).</summary>
         public WeaponTemplate Swap(WeaponTemplate weapon) => weapon != null && Swaps.TryGetValue(weapon, out var to) ? to : weapon;
+
+        /// <summary>The equipment carried in place of <paramref name="item"/> (itself if it isn't swapped).</summary>
+        public Equipment SwapEquipment(Equipment item) => item != null && EquipmentSwaps.TryGetValue(item, out var to) ? to : item;
 
         public SoldierLoadout Clone()
         {
             var c = new SoldierLoadout();
             foreach (var kv in Swaps) c.Swaps[kv.Key] = kv.Value;
+            foreach (var kv in EquipmentSwaps) c.EquipmentSwaps[kv.Key] = kv.Value;
             c.Equipment.AddRange(Equipment);
             return c;
         }
@@ -74,6 +95,7 @@ namespace Eldoria.Units
             foreach (var kv in soldiers.Where(kv => kv.Key != null && !kv.Value.IsEmpty))
             {
                 var items = kv.Value.Swaps.Values.Where(w => w != null).Select(weaponName)
+                    .Concat(kv.Value.EquipmentSwaps.Values.Where(e => e != null).Select(e => e.displayName))
                     .Concat(kv.Value.Equipment.Where(e => e != null).Select(e => e.displayName));
                 parts.Add($"{kv.Key.displayName}: {string.Join(", ", items)}");
             }

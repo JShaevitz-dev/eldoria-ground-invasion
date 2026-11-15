@@ -61,6 +61,10 @@ namespace Eldoria.Units
         [Tooltip("The rest of the unit.")]
         public List<Member> members = new List<Member>();
 
+        [Tooltip("In the army builder, a swap of standard equipment is one choice for the whole unit (every soldier type " +
+                 "with that swap takes it together), instead of a choice per soldier type.")]
+        public bool equipmentSwapsForWholeUnit;
+
         [Tooltip("Meters between soldiers in the formation they deploy in.")]
         [Min(0.5f)] public float deploymentSpacing = 2f;
 

@@ -55,8 +55,8 @@ namespace Eldoria.Tests
             Assert.That(menu.Builder.Faction, Is.Null, "a faction is chosen first");
             Assert.That(menu.Builder.Available, Is.Empty, "no units until a faction is chosen");
             Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[0]), Is.EqualTo("10 units available"));
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("5 units available"));
-            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("4 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[1]), Is.EqualTo("7 units available"));
+            Assert.That(menu.Builder.FactionStatus(menu.Builder.Factions[2]), Is.EqualTo("6 units available"));
 
             menu.Builder.ChooseFaction(Isf);
             yield return null;   // draws the unit list

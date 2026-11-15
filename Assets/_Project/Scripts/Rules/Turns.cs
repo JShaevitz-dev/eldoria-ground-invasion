@@ -15,8 +15,21 @@ namespace Eldoria.Rules
     /// </summary>
     public static class Turns
     {
-        /// <summary>The current turn number (0 before the first turn starts).</summary>
+        /// <summary>The current turn number (0 before the first turn starts). The same as <see cref="Round"/>.</summary>
         public static int Current { get; private set; }
+
+        /// <summary>
+        /// The side that moves first: <see cref="Side.Player"/> (against the AI, the player; in multiplayer, the south
+        /// player). A round of play starts at the start of this side's turn.
+        /// </summary>
+        public const Side FirstSide = Side.Player;
+
+        /// <summary>
+        /// The current round of play (0 before the first starts). A round starts at the start of the first player's turn
+        /// (<see cref="FirstSide"/>) and lasts through the other player's turn; the next round starts when the first player's
+        /// next turn does. Round 1 is the first player's first turn and the second player's first turn.
+        /// </summary>
+        public static int Round => Current;
 
         /// <summary>The side taking its turn right now (the player first, every turn).</summary>
         public static Side ActiveSide { get; private set; } = Side.Player;

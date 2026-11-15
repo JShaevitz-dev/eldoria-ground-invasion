@@ -56,6 +56,8 @@ namespace Eldoria.Network
         public string soldier;
         public List<string> swapFrom = new List<string>();
         public List<string> swapTo = new List<string>();
+        public List<string> equipSwapFrom = new List<string>();
+        public List<string> equipSwapTo = new List<string>();
         public List<string> equipment = new List<string>();
     }
 
@@ -82,6 +84,7 @@ namespace Eldoria.Network
                     if (l == null) continue;
                     var entry = new LoadoutEntry { slot = i, soldier = soldier.name };
                     foreach (var kv in l.Swaps) { entry.swapFrom.Add(kv.Key.name); entry.swapTo.Add(kv.Value.name); }
+                    foreach (var kv in l.EquipmentSwaps) { entry.equipSwapFrom.Add(kv.Key.name); entry.equipSwapTo.Add(kv.Value.name); }
                     entry.equipment.AddRange(l.Equipment.Where(e => e != null).Select(e => e.name));
                     msg.loadouts.Add(entry);
                 }
@@ -116,6 +119,13 @@ namespace Eldoria.Network
                     var to = option?.alternatives.FirstOrDefault(w => w != null && w.name == e.swapTo[i]);
                     if (to == null) { error = $"Unknown weapon swap for {soldier.name}"; return false; }
                     l.Swaps[option.weapon] = to;
+                }
+                for (int i = 0; i < e.equipSwapFrom.Count && i < e.equipSwapTo.Count; i++)
+                {
+                    var option = soldier.equipmentSwaps.FirstOrDefault(o => o != null && o.equipment != null && o.equipment.name == e.equipSwapFrom[i]);
+                    var to = option?.alternatives.FirstOrDefault(x => x != null && x.name == e.equipSwapTo[i]);
+                    if (to == null) { error = $"Unknown equipment swap for {soldier.name}"; return false; }
+                    l.EquipmentSwaps[option.equipment] = to;
                 }
                 foreach (var name in e.equipment)
                 {
@@ -152,6 +162,8 @@ namespace Eldoria.Network
         public const string Shoot = "shoot";
         public const string Ability = "ability";
         public const string EndTurn = "endTurn";
+        /// <summary>The player who sent it concedes the battle (can be sent on either player's turn).</summary>
+        public const string Concede = "concede";
     }
 
     /// <summary>

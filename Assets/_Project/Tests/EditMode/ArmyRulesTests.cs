@@ -63,17 +63,17 @@ namespace Eldoria.Tests
         {
             var catalog = UnitCatalog.Load();
             Assert.That(catalog, Is.Not.Null);
-            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Dragon Hierarch", "Field Commander", "Marshal Command Tank", "Master Sergeant Jakoby", "Rask Ultima", "Dragonborn Squad", "ISF Rifle Squad", "Kobold Militia", "Rask Rifle Team", "Heavy Weapons Team", "Intimidator Medium Robot", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "Stinger Heavy Robot", "Tyrant Hover-tank", "Dragonborn Skymaster Squad", "ISF Boarding Team", "ISF Ranger" }), "Commanders, Infantry, Heavy Support, then Specialists");
+            Assert.That(catalog.Available.Select(u => u.displayName), Is.EqualTo(new[] { "Dragon Hierarch", "Dragonborn Exemplar", "Field Commander", "Marshal Command Tank", "Master Sergeant Jakoby", "Rask Ultima", "Dragonborn Squad", "ISF Rifle Squad", "Kobold Militia", "Rask Rifle Team", "Heavy Weapons Team", "Intimidator Medium Robot", "Mortar Team", "Olympian Mech", "Sagittarius MBT", "Stinger Heavy Robot", "Tyrant Hover-tank", "Dragonborn Skymaster Squad", "ISF Boarding Team", "ISF Ranger", "Kobold Mechanist", "Rask Blackhand", "Rask Redhand" }), "Commanders, Infantry, Heavy Support, then Specialists");
             Assert.That(catalog.Factions.Select(f => f.displayName), Is.EqualTo(new[] { "International Space Force of Humanity", "Imperial Army of The Draconis Imperialis", "Most Holy Army of The Rask Divine Collective" }));
             var factions = catalog.Factions.ToList();
             Assert.That(factions[0].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Field Commander", "Master Sergeant Jakoby", "Marshal Command Tank", "ISF Rifle Squad", "Heavy Weapons Team", "Mortar Team", "Sagittarius MBT", "Olympian Mech", "ISF Ranger", "ISF Boarding Team" }));
-            Assert.That(factions[1].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Dragon Hierarch", "Dragonborn Squad", "Kobold Militia", "Dragonborn Skymaster Squad", "Tyrant Hover-tank" }), "Draconis Imperialis");
-            Assert.That(factions[2].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Rask Ultima", "Rask Rifle Team", "Stinger Heavy Robot", "Intimidator Medium Robot" }), "Rask");
+            Assert.That(factions[1].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Dragon Hierarch", "Dragonborn Squad", "Kobold Militia", "Dragonborn Skymaster Squad", "Tyrant Hover-tank", "Kobold Mechanist", "Dragonborn Exemplar" }), "Draconis Imperialis");
+            Assert.That(factions[2].Units.Select(u => u.displayName), Is.EquivalentTo(new[] { "Rask Ultima", "Rask Rifle Team", "Stinger Heavy Robot", "Intimidator Medium Robot", "Rask Blackhand", "Rask Redhand" }), "Rask");
             Assert.That(catalog.defaultArmy, Is.Empty);
             Assert.That(catalog.primaryColorMaterial, Is.Not.Null, "still there for deploying units");
             Assert.That(catalog.leaderMarker, Is.Not.Null);
-            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(19));
-            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(28));
+            Assert.That(AssetDatabase.FindAssets("t:UnitTemplate", new[] { "Assets/_Project/Data/Units" }).Length, Is.EqualTo(23));
+            Assert.That(AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" }).Length, Is.EqualTo(32));
             Assert.That(AssetDatabase.FindAssets("t:Faction", new[] { "Assets/_Project/Data/Factions" }).Length, Is.EqualTo(3));
         }
 
@@ -94,8 +94,8 @@ namespace Eldoria.Tests
             var builder = new ArmyBuilderScreen(catalog);
             Assert.That(builder.CanFieldArmies, Is.True);
             Assert.That(builder.FactionStatus(builder.Factions[0]), Is.EqualTo("10 units available"));
-            Assert.That(builder.FactionStatus(builder.Factions[1]), Is.EqualTo("5 units available"));
-            Assert.That(builder.FactionStatus(builder.Factions[2]), Is.EqualTo("4 units available"));
+            Assert.That(builder.FactionStatus(builder.Factions[1]), Is.EqualTo("7 units available"));
+            Assert.That(builder.FactionStatus(builder.Factions[2]), Is.EqualTo("6 units available"));
             Assert.That(catalog.Factions.Select(f => ArmyBuilderScreen.FactionCanFieldArmy(catalog, f)), Is.EqualTo(new[] { true, true, true }));
             Assert.That(new ArmyBuilderScreen(null).CanFieldArmies, Is.False);
             var isf = catalog.Factions.First();
@@ -113,8 +113,9 @@ namespace Eldoria.Tests
                 var army = ArmyRules.RandomArmy(catalog.UnitsFor(draconis), new System.Random(seed));
                 Assert.That(ArmyRules.Problems(army, draconis), Is.Empty, $"Draconis seed {seed}");
                 Assert.That(army.Count, Is.EqualTo(6));
-                Assert.That(army.First().displayName, Is.EqualTo("Dragon Hierarch"));
-                Assert.That(army.Skip(1).All(u => u.displayName == "Dragonborn Squad" || u.displayName == "Kobold Militia" || u.displayName == "Dragonborn Skymaster Squad" || u.displayName == "Tyrant Hover-tank"), Is.True,
+                Assert.That(new[] { "Dragon Hierarch", "Dragonborn Exemplar" }, Does.Contain(army.First().displayName));
+                Assert.That(army.Count(u => u.role == UnitRole.Commander), Is.EqualTo(1));
+                Assert.That(army.Skip(1).All(u => u.displayName == "Dragonborn Squad" || u.displayName == "Kobold Militia" || u.displayName == "Dragonborn Skymaster Squad" || u.displayName == "Tyrant Hover-tank" || u.displayName == "Kobold Mechanist"), Is.True,
                     "then Infantry (Dragonborn Squads and Kobold Militia), the Specialist Skymaster Squad and Heavy Support");
                 Assert.That(army.Count(u => u.displayName == "Dragonborn Skymaster Squad"), Is.LessThanOrEqualTo(1), "a Specialist: at most one");
             }
@@ -295,7 +296,8 @@ namespace Eldoria.Tests
             {
                 Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((5, 2, 75, 10f)), s.displayName);
                 Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Biological" }), s.displayName);
-                Assert.That(s.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Frag Grenade" }), s.displayName);
+                Assert.That(s.abilities, Is.Empty, $"{s.displayName}: the Frag Grenade is equipment now");
+                Assert.That(s.equipment.Select(e => e.displayName), Is.EqualTo(new[] { "Frag Grenade" }), s.displayName);
                 Assert.That(s.PrimaryWeapon.displayName, Is.EqualTo("Assault Rifle"), s.displayName);
                 Assert.That(s.prefab, Is.Not.Null, s.displayName);
             }
@@ -303,8 +305,8 @@ namespace Eldoria.Tests
             Assert.That(sergeant.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Assault Rifle", "Pistol" }));
             Assert.That(UnitInfo.SoldierLines(squad), Is.EqualTo(new[]
             {
-                "ISF Rifleman Sergeant \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Pistol",
-                "9\u00d7 ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle",
+                "ISF Rifleman Sergeant \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Pistol, Frag Grenade",
+                "9\u00d7 ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Frag Grenade",
             }));
         }
 
@@ -439,7 +441,7 @@ namespace Eldoria.Tests
         [Test]
         public void TheBuilderListsAbilitiesAndKeywords()
         {
-            Assert.That(UnitInfo.AbilityLines(Infantry).Single(), Is.EqualTo("Frag Grenade (active, once per battle)"));
+            Assert.That(UnitInfo.AbilityLines(Infantry).Single(), Is.EqualTo("Frag Grenade (active)"), "no limit per battle");
             Assert.That(UnitInfo.AbilityLines(Priest), Has.Some.EqualTo("Divine Healing (active, spell)"));
             Assert.That(UnitInfo.AbilityLines(Commander).Single(), Does.Contain("(passive)"));
             Assert.That(UnitInfo.SharedKeywords(Commander), Does.Contain("Officer").And.Contain("Solo"));

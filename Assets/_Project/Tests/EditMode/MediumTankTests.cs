@@ -141,7 +141,7 @@ namespace Eldoria.Tests
             Assert.That((g.kind, g.targets, g.range, g.areaRadius, g.areaWeapon, g.usesPerTurn),
                 Is.EqualTo((infantry.kind, infantry.targets, infantry.range, infantry.areaRadius, infantry.areaWeapon, infantry.usesPerTurn)), "the same grenade");
             Assert.That(g.usesPerBattle, Is.EqualTo(0), "no limit per battle");
-            Assert.That(infantry.usesPerBattle, Is.EqualTo(1), "the infantry's is still once per battle");
+            Assert.That(infantry.usesPerBattle, Is.EqualTo(0), "the infantry's has no limit either");
         }
 
         [Test]

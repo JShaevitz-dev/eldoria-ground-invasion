@@ -395,6 +395,39 @@ namespace Eldoria.Gameplay
         /// <summary>The player chose to keep playing instead of ending their turn.</summary>
         public void CancelEndTurn() => confirmingEndTurn = false;
 
+        private bool confirmingConcede;
+
+        /// <summary>The "Concede the battle?" box is open.</summary>
+        public bool ConfirmingConcede => confirmingConcede;
+
+        /// <summary>
+        /// The HUD's Concede button (no hotkey): asks first. Available whenever the battle is going on, on either side's
+        /// turn (not once it's decided, or after the other player has disconnected).
+        /// </summary>
+        public void RequestConcede()
+        {
+            if (Victory.IsOver || (IsMultiplayer && session.Lost)) return;
+            confirmingEndTurn = false;
+            confirmingConcede = true;
+        }
+
+        /// <summary>The player chose to keep playing instead of conceding.</summary>
+        public void CancelConcede() => confirmingConcede = false;
+
+        /// <summary>
+        /// The player concedes: the other side wins at once. In multiplayer the other player is told (and sees Victory).
+        /// </summary>
+        public void Concede()
+        {
+            confirmingConcede = false;
+            if (Victory.IsOver || (IsMultiplayer && session.Lost)) return;
+            shootMode = false;
+            abilityMode = null;
+            timerRunning = false;
+            Victory.Concede(playerSide);
+            Broadcast(OrderKinds.Concede);
+        }
+
         /// <summary>
         /// The player ends their turn: the AI takes its turn (watchable, unit by unit, unless <paramref name="instant"/>),
         /// then the next turn starts. Not while a unit is half-way through its move.
@@ -456,9 +489,9 @@ namespace Eldoria.Gameplay
             actedThisTurn.Clear();
             Deselect();
             if (remoteTurn) recentLog.Clear();
-            ForceFlash(remoteTurn ? $"Turn {Turns.Current}: your opponent's turn." : IsMultiplayer
-                ? $"Turn {Turns.Current}: your turn! Click one of your units (or press Tab) to command it."
-                : $"Turn {Turns.Current}: click one of your units (or press Tab) to command it.");
+            ForceFlash(remoteTurn ? $"Round {Turns.Round}: your opponent's turn." : IsMultiplayer
+                ? $"Round {Turns.Round}: your turn! Click one of your units (or press Tab) to command it."
+                : $"Round {Turns.Round}: click one of your units (or press Tab) to command it.");
         }
 
         /// <summary>No unit is being commanded (the state at the start of every turn).</summary>
@@ -643,6 +676,13 @@ namespace Eldoria.Gameplay
             }
 
             if (IsMultiplayer && session.Lost) { timerRunning = false; return; }
+
+            if (confirmingConcede)
+            {
+                // Asked whether to concede: only the box's buttons work until it's answered (no hotkeys).
+                UpdateTimedVisuals();
+                return;
+            }
 
             if (remoteTurn)
             {
@@ -1056,7 +1096,7 @@ namespace Eldoria.Gameplay
             GUI.Box(hudRect, GUIContent.none);
             GUILayout.BeginArea(new Rect(hudRect.x + 10, hudRect.y + 8, hudRect.width - 20, maxHeight - 16));
             GUILayout.BeginVertical();
-            GUI.enabled = !confirmingEndTurn;
+            GUI.enabled = !confirmingEndTurn && !confirmingConcede;
             DrawHud();
             GUI.enabled = true;
             GUILayout.EndVertical();
@@ -1066,7 +1106,33 @@ namespace Eldoria.Gameplay
 
             if (Victory.IsOver) DrawBattleOverBanner();
             else if (IsMultiplayer && session.Lost) DrawDisconnectedBanner();
+            else if (confirmingConcede) DrawConcedeQuestion();
             else if (confirmingEndTurn) DrawEndTurnQuestion();
+        }
+
+        /// <summary>Concede: are you sure? (Buttons only: no hotkeys, so it can't be done by accident.)</summary>
+        private void DrawConcedeQuestion()
+        {
+            var box = new Rect(Screen.width / 2f - 260f, Screen.height / 2f - 100f, 520f, 200f);
+            GUI.Box(box, GUIContent.none);
+            GUI.Box(box, GUIContent.none);
+            var big = new GUIStyle(GUI.skin.label) { fontSize = 24, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            var small = new GUIStyle(GUI.skin.label) { fontSize = 15, alignment = TextAnchor.MiddleCenter, wordWrap = true };
+            GUI.Label(new Rect(box.x, box.y + 12f, box.width, 40f), "Concede the battle?", big);
+            GUI.Label(new Rect(box.x + 20f, box.y + 55f, box.width - 40f, 75f),
+                IsMultiplayer ? "Your opponent wins the battle straight away. This can't be undone."
+                              : "The enemy wins the battle straight away. This can't be undone.", small);
+            if (GUI.Button(new Rect(box.x + box.width / 2f - 190f, box.y + 140f, 180f, 40f), "Concede")) Concede();
+            if (GUI.Button(new Rect(box.x + box.width / 2f + 10f, box.y + 140f, 180f, 40f), "Keep playing")) CancelConcede();
+        }
+
+        /// <summary>The HUD's Concede button, at the top right of the HUD (no hotkey).</summary>
+        private void DrawConcedeButton()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Concede", GUILayout.Width(90f))) RequestConcede();
+            GUILayout.EndHorizontal();
         }
 
         /// <summary>End turn while units can still move: are you sure?</summary>
@@ -1091,10 +1157,11 @@ namespace Eldoria.Gameplay
         {
             var wrap = new GUIStyle(GUI.skin.label) { wordWrap = true };
             var title = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = 14 };
+            if (!Victory.IsOver && !(IsMultiplayer && session.Lost)) DrawConcedeButton();
 
             if (aiTurn)
             {
-                GUILayout.Label($"ENEMY TURN  —  Turn {Turns.Current}", title);
+                GUILayout.Label($"ENEMY TURN  —  Round {Turns.Round}", title);
                 GUILayout.Label(ai.Status, wrap);
                 if (GUILayout.Button("Skip (Space)")) ai.Skip();
                 var smallLog = new GUIStyle(wrap) { fontSize = 11 };
@@ -1112,7 +1179,7 @@ namespace Eldoria.Gameplay
 
             if (remoteTurn)
             {
-                GUILayout.Label($"OPPONENT'S TURN  —  Turn {Turns.Current}", title);
+                GUILayout.Label($"OPPONENT'S TURN  —  Round {Turns.Round}", title);
                 DrawFactions(wrap);
                 GUILayout.Label(squad != null ? $"They're commanding {squad.DisplayName}." : "Waiting for your opponent's orders…", wrap);
                 if (!string.IsNullOrEmpty(message) && Time.time < messageUntil) GUILayout.Label(message, wrap);
@@ -1122,7 +1189,7 @@ namespace Eldoria.Gameplay
                 return;
             }
 
-            GUILayout.Label($"{(squad != null ? squad.DisplayName : "No unit selected")}  —  Turn {Turns.Current}{(IsMultiplayer ? "  (your turn)" : "")}", title);
+            GUILayout.Label($"{(squad != null ? squad.DisplayName : "No unit selected")}  —  Round {Turns.Round}{(IsMultiplayer ? "  (your turn)" : "")}", title);
             DrawFactions(wrap);
             if (timerRunning)
             {
@@ -1513,6 +1580,11 @@ namespace Eldoria.Gameplay
                             .Select(p => p.ability).FirstOrDefault();
                         ok = ability != null && UseAbility(ability, user, SoldierAt(target, order.targetSoldier), target,
                             order.hasPoint ? order.Point : (Vector3?)null).Used;
+                        break;
+                    case OrderKinds.Concede:
+                        // The other player conceded (on either player's turn): this player wins.
+                        Victory.Concede(playerSide == Side.Player ? Side.AI : Side.Player);
+                        ok = Victory.IsOver;
                         break;
                     case OrderKinds.EndTurn:
                         var before = (Turns.Current, Turns.ActiveSide);

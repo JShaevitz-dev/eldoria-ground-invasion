@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
   displayName: Master Sergeant Jakoby
   role: 1
-  description: "A veteran ISF Master Sergeant who leads by example rather than from behind. Unlike the Field Commander he gives no accuracy bonus to nearby troops (no Lead from the front); instead he fights: a Shotgun (10 damage, penetration 1, 10 m) and two Frag Grenades, so two grenade throws a battle. With 10 health and Armor Level 2 he can take a hit, but as a Solo unit he's a prime target. A Commander: every army needs exactly one."
+  description: "A veteran ISF Master Sergeant who leads by example rather than from behind. Unlike the Field Commander he gives no accuracy bonus to nearby troops (no Lead from the front); instead he fights: a Shotgun (10 damage, penetration 1, 10 m) and two Frag Grenades to throw as his action. With 10 health and Armor Level 2 he can take a hit, but as a Solo unit he's a prime target. A Commander: every army needs exactly one."
   leader: {fileID: 11400000, guid: ba5b0a86366132f46b4c11f43dd75792, type: 2}
   members: []
   deploymentSpacing: 2

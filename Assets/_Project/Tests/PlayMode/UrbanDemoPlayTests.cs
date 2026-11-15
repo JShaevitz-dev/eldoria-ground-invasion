@@ -369,7 +369,7 @@ namespace Eldoria.Tests
         }
 
         [Test]
-        public void AnInfantrySquadThrowsOneFragGrenadeAsItsActionOncePerBattle()
+        public void AnInfantrySquadThrowsAFragGrenadeAsItsActionAndCanThrowAgainNextTurn()
         {
             var controller = Object.FindFirstObjectByType<MovementController>();
             var squad = controller.PlayerUnits.First(u => u.DisplayName == "Infantry Squad 2");
@@ -392,8 +392,8 @@ namespace Eldoria.Tests
             controller.NextTurn();
             Assert.That(controller.SelectUnit(squad), Is.True);
             controller.BeginAbility(user, frag);
-            Assert.That(controller.UseAbility(frag, user, null, null, spot).Used, Is.False, "once per battle");
-            Assert.That(controller.HasTakenAction, Is.False, "the refused grenade cost nothing");
+            Assert.That(controller.UseAbility(frag, user, null, null, spot).Used, Is.True, "no limit per battle: another grenade next turn");
+            Assert.That(controller.HasTakenAction, Is.True, "again as the unit's action");
         }
 
         [Test]

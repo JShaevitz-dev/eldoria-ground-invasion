@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: RaskRedhand
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Rask Redhand
+  role: 3
+  description: 'A Rask field medic, named for the red gauntlets of their trade. The
+    Redhand has the Rask Ultima''s health, accuracy and move but lighter armor (10
+    health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with
+    a Solntse Laser Rifle (the Rask''s Assault Rifle: 6 damage, penetration 1, 20
+    m). Its Medkit restores 5 health to a friendly Biological soldier within 5 m,
+    such as a wounded Rask rifleman or the Ultima, as its action; it can''t be used
+    on one at full health. A Specialist: one per army.'
+  leader: {fileID: 11400000, guid: 0e97ba075d3d3304e9bbf80960616d39, type: 2}
+  members: []
+  equipmentSwapsForWholeUnit: 0
+  deploymentSpacing: 1.2

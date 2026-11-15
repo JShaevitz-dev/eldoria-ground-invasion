@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: FragGrenade
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Equipment
   displayName: Frag Grenade
-  description: 'Gives the soldier the active ability Frag Grenade: thrown once per
-    battle, a 2.5 m blast.'
+  description: "Gives the soldier the active ability Frag Grenade: a 2.5 m blast, thrown as the unit's action, with no limit per battle."
   keywords: []
   abilities:
   - {fileID: 11400000, guid: 990bc6df05bf97d4eaa6ed9d6c4621e8, type: 2}

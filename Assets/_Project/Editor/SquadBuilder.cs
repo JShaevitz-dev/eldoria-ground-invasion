@@ -60,35 +60,50 @@ namespace Eldoria.EditorTools
             var pistol = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Pistol.asset");
             var grenade = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/FragGrenade.asset");
             GameObject Model(string name) => AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/{name}.prefab");
+            EnsureEquipment();
+            var grenadeItem = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/FragGrenade.asset");
+            var medkit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/Medkit.asset");
+            var repairKit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/RepairKit.asset");
+
+            // Each soldier carries a Frag Grenade as standard equipment (rather than as an ability of their own), which the
+            // army builder lets them swap for a Medkit or a Repair Kit. Applied to older assets too, where the grenade was an
+            // ability.
+            void GrenadeAsEquipment(SoldierTemplate s)
+            {
+                s.abilities.Remove(grenade);
+                if (!s.equipment.Contains(grenadeItem)) s.equipment.Add(grenadeItem);
+                if (!s.equipmentSwaps.Any(o => o != null && o.equipment == grenadeItem))
+                    s.equipmentSwaps.Add(new EquipmentOption { equipment = grenadeItem, alternatives = new List<Equipment> { medkit, repairKit } });
+            }
 
             var rifleman = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfRifleman.asset", s =>
             {
                 s.displayName = "ISF Rifleman";
                 s.health = 5; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;
                 s.keywords = new List<Keyword> { keywords["Biological"] };
-                s.abilities = new List<Ability> { grenade };
+                s.abilities = new List<Ability>();
                 s.weapons = new List<WeaponTemplate> { rifle };
                 s.primaryWeapon = rifle;
                 s.prefab = Model("Trooper");
-            });
+            }, GrenadeAsEquipment);
             var sergeant = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/IsfRiflemanSergeant.asset", s =>
             {
                 s.displayName = "ISF Rifleman Sergeant";
                 s.health = 5; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;
                 s.keywords = new List<Keyword> { keywords["Biological"] };
-                s.abilities = new List<Ability> { grenade };
+                s.abilities = new List<Ability>();
                 s.weapons = new List<WeaponTemplate> { rifle, pistol };
                 s.primaryWeapon = rifle;
                 s.prefab = Model("Sergeant");
-            });
+            }, GrenadeAsEquipment);
             var squad = GetOrCreate<UnitTemplate>($"{DataDir}/Units/IsfRifleSquad.asset", u =>
             {
                 u.displayName = "ISF Rifle Squad";
                 u.role = UnitRole.Infantry;
-                u.description = "The backbone of the ISF: an ISF Rifleman Sergeant and nine ISF Riflemen (5 health, Armor Level 2, 75% accuracy). Every soldier carries an Assault Rifle (4 damage, penetration 1, 20 m), and the Sergeant a Pistol as well. Once a battle the squad can throw a Frag Grenade (a 2.5 m blast, thrown up to 10 m; 5 damage, penetration 0, so it only hurts lightly armored soldiers). Ten soldiers take a lot of killing, but at 10 m a move the squad is best at holding ground and trading fire. Infantry can be taken more than once.";
+                u.description = "The backbone of the ISF: an ISF Rifleman Sergeant and nine ISF Riflemen (5 health, Armor Level 2, 75% accuracy). Every soldier carries an Assault Rifle (4 damage, penetration 1, 20 m), and the Sergeant a Pistol as well. Each carries a Frag Grenade, so the squad can throw one as its action, any turn (a 2.5 m blast, thrown up to 10 m; 5 damage, penetration 0, so it only hurts lightly armored soldiers). In Customize, the whole squad can swap its Frag Grenades for Medkits (heal a Biological soldier within 5 m for 5) or Repair Kits (repair a Mechanical soldier within 5 m for 10): one choice, for every soldier. Ten soldiers take a lot of killing, but at 10 m a move the squad is best at holding ground and trading fire. Infantry can be taken more than once.";
                 u.leader = sergeant;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 9 } };
-            });
+            }, u => u.equipmentSwapsForWholeUnit = true);   // one grenade swap for the whole squad
             if (!isf.units.Contains(squad))
             {
                 isf.units.Add(squad);
@@ -254,7 +269,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Mortar Team";
                 u.role = UnitRole.HeavySupport;
-                u.description = "Two ISF soldiers with a portable mortar. The Mortar Specialist fires the Mortar Launcher (5 damage, penetration 3, 50 m, once a turn), which can't fire after moving, so set up first and shell targets from long range: penetration 3 cuts through infantry armor and still does half damage to Armor Level 4 tanks. Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can throw a Frag Grenade once a battle. With 5 health and Armor Level 2 each, keep them behind your lines. Heavy Support can be taken more than once.";
+                u.description = "Two ISF soldiers with a portable mortar. The Mortar Specialist fires the Mortar Launcher (5 damage, penetration 3, 50 m, once a turn), which can't fire after moving, so set up first and shell targets from long range: penetration 3 cuts through infantry armor and still does half damage to Armor Level 4 tanks. Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can throw a Frag Grenade as the team's action. With 5 health and Armor Level 2 each, keep them behind your lines. Heavy Support can be taken more than once.";
                 u.leader = specialist;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 1 } };
                 u.deploymentSpacing = 2f;
@@ -648,21 +663,108 @@ namespace Eldoria.EditorTools
             return unit;
         }
 
-        /// <summary>The Draconis Imperialis's names for weapons: the Assault Rifle is the "Fang Caster" (same weapon and stats).</summary>
+        /// <summary>
+        /// The Draconis Imperialis's names for weapons (same weapons and stats): the Assault Rifle is the "Fang Caster" and
+        /// the Broadsword the "Ceremonial Blade". Each is added once.
+        /// </summary>
         public static void EnsureDraconisWeaponNames(Faction draconis)
         {
-            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
-            if (draconis.weaponNames.Any(n => n != null && n.weapon == rifle)) return;
-            draconis.weaponNames.Add(new WeaponName { weapon = rifle, name = "Fang Caster" });
-            EditorUtility.SetDirty(draconis);
+            void Alias(string file, string name)
+            {
+                var weapon = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/{file}.asset");
+                if (weapon == null || draconis.weaponNames.Any(n => n != null && n.weapon == weapon)) return;
+                draconis.weaponNames.Add(new WeaponName { weapon = weapon, name = name });
+                EditorUtility.SetDirty(draconis);
+            }
+            Alias("AssaultRifle", "Fang Caster");
+            Alias("Broadsword", "Ceremonial Blade");
         }
+
+        /// <summary>
+        /// Raptor Pistol: the Twin Raptor Pistols' stats with 1 shot: Damage 4, Shots 1, Penetration 1, +0%, Range 20 m;
+        /// Pistol. Carried by the Dragonborn Exemplar.
+        /// </summary>
+        public static WeaponTemplate EnsureRaptorPistol(Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/RaptorPistol.asset", w =>
+            {
+                w.displayName = "Raptor Pistol";
+                w.baseDamage = 4; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 1;
+                w.accuracyBonus = 0;
+                w.range = 20f;
+                w.keywords = new List<Keyword> { keywords["Pistol"] };
+            });
+        }
+
+        /// <summary>
+        /// Dragonborn Exemplar (Commander, Draconis Imperialis): 1 Dragonborn Exemplar with the Dragonborn Footman's stats but
+        /// double the health and the Solo and Officer keywords (Health 20, Armor 2, Accuracy 75%, Move 10 m; Biological, Solo,
+        /// Officer); a Raptor Pistol (primary) and a Broadsword, which the Draconis call the "Ceremonial Blade"; and the
+        /// passive ability Empowering Presence (other friendly soldiers within 15 m, the range of Lead from the front, get +2
+        /// damage with their weapons). The Dragonborn model in gold armor and a crimson cape with a tall crest, holding the
+        /// blade, the pistol at the hip. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureDragonbornExemplar(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            EnsureFolder(DataDir, "Abilities");
+            var pistol = EnsureRaptorPistol(keywords);
+            var blade = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Broadsword.asset");
+            var lead = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/LeadFromTheFront.asset");
+            var presence = GetOrCreate<Ability>($"{DataDir}/Abilities/EmpoweringPresence.asset", a =>
+            {
+                a.displayName = "Empowering Presence";
+                a.description = "Passive. Other friendly soldiers within 15 m gain +2 damage with their weapons. Each soldier is checked on its own.";
+                a.kind = AbilityKind.Passive;
+                a.keywords = new List<Keyword>();
+                a.grantsNearby = keywords["Empowered"];
+                a.radius = lead != null ? lead.radius : 15f;   // the same range as Lead from the front
+                a.affects = AuraAffects.Allies;
+                a.includeSelf = false;
+            });
+            var exemplar = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/DragonbornExemplar.asset", t =>
+            {
+                t.displayName = "Dragonborn Exemplar";
+                t.health = 20; t.armorLevel = 2; t.accuracy = 75; t.movementRange = 10f;   // the Footman's, double the health
+                t.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"], keywords["Officer"] };
+                t.abilities = new List<Ability> { presence };
+                t.weapons = new List<WeaponTemplate> { pistol, blade };
+                t.primaryWeapon = pistol;
+                t.radius = 0.4f;
+                t.height = 2.2f;
+            });
+            if (exemplar.prefab == null)
+            {
+                exemplar.prefab = BuildDragonbornPrefab("DragonbornExemplar", exemplar, true, exemplar: true);
+                EditorUtility.SetDirty(exemplar);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/DragonbornExemplar.asset", u =>
+            {
+                u.displayName = "Dragonborn Exemplar";
+                u.role = UnitRole.Commander;
+                u.description = "The Dragonborn who lead the Empire's warriors in battle. The Exemplar has a Dragonborn Footman's armor, accuracy and move but twice the health (20 health, Armor Level 2, 75% accuracy, 10 m a move). It carries a Raptor Pistol (4 damage, penetration 1, 20 m) and, for when an enemy comes within 2 m, a Ceremonial Blade (5 damage, penetration 1, melee). Its Empowering Presence gives other friendly soldiers within 15 m +2 damage with their weapons, so keep it close to your Dragonborn and Kobolds. As a Solo unit it's a prime target. A Commander: every army needs exactly one.";
+                u.leader = exemplar;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
 
         /// <summary>
         /// A placeholder Kobold built from primitives, facing +z: a small (1.2 m) wingless, upright dragon with a snout and a
         /// tail, in a fabric uniform (tunic and cap in the primary colour, so the faction's colour when deployed) holding a
         /// rifle. Scales are a muted olive. The Sergeant has a gold armband and cap badge.
         /// </summary>
-        private static GameObject BuildKoboldPrefab(string name, SoldierTemplate template, bool sergeant)
+        private static GameObject BuildKoboldPrefab(string name, SoldierTemplate template, bool sergeant, bool mechanist = false)
         {
             EnsureFolder(Root, "Prefabs");
             EnsureFolder($"{Root}/Prefabs", "Units");
@@ -706,6 +808,22 @@ namespace Eldoria.EditorTools
                 Part(model, "Cap Badge", PrimitiveType.Cube, gold, new Vector3(0f, 0.81f, 0.07f), new Vector3(0.04f, 0.03f, 0.01f));
                 Part(model, "Armband", PrimitiveType.Cylinder, gold, new Vector3(-0.15f, 0.5f, 0.03f), new Vector3(0.07f, 0.015f, 0.07f), new Vector3(-50f, 0f, 0f));
             }
+            if (mechanist)
+            {
+                // The Mechanist: goggles on the cap, metal shoulder plates, a tool pack on the back and a wrench in the left hand.
+                var steel = GetOrCreateMaterial("Shield_Steel", new Color(0.6f, 0.62f, 0.66f));
+                var lens = GetOrCreateMaterial("Plasma_Glow", new Color(0.45f, 0.9f, 1f));
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    Part(model, "Goggle", PrimitiveType.Cylinder, gold, new Vector3(side * 0.035f, 0.8f, 0.07f), new Vector3(0.05f, 0.015f, 0.05f), new Vector3(70f, 0f, 0f));
+                    Part(model, "Goggle Lens", PrimitiveType.Cylinder, lens, new Vector3(side * 0.035f, 0.8f, 0.08f), new Vector3(0.04f, 0.01f, 0.04f), new Vector3(70f, 0f, 0f));
+                    Part(model, "Shoulder Plate", PrimitiveType.Cube, steel, new Vector3(side * 0.14f, 0.55f, 0f), new Vector3(0.09f, 0.03f, 0.11f), new Vector3(0f, 0f, side * -20f));
+                }
+                Part(model, "Tool Pack", PrimitiveType.Cube, metal, new Vector3(0f, 0.47f, -0.13f), new Vector3(0.18f, 0.2f, 0.08f));
+                Part(model, "Tool Pack Lid", PrimitiveType.Cube, gold, new Vector3(0f, 0.58f, -0.13f), new Vector3(0.19f, 0.02f, 0.09f));
+                Part(model, "Wrench", PrimitiveType.Cube, steel, new Vector3(-0.17f, 0.34f, 0.1f), new Vector3(0.025f, 0.2f, 0.025f), new Vector3(20f, 0f, 0f));
+                Part(model, "Wrench Head", PrimitiveType.Cube, steel, new Vector3(-0.17f, 0.25f, 0.14f), new Vector3(0.06f, 0.04f, 0.025f), new Vector3(20f, 0f, 0f));
+            }
             // The rifle, held across the body.
             Part(model, "Rifle", PrimitiveType.Cube, metal, new Vector3(0.06f, 0.44f, 0.18f), new Vector3(0.04f, 0.05f, 0.42f), new Vector3(0f, -12f, 0f));
 
@@ -713,6 +831,53 @@ namespace Eldoria.EditorTools
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
             Object.DestroyImmediate(root);
             return prefab;
+        }
+
+        /// <summary>
+        /// Kobold Mechanist (Specialist, Draconis Imperialis): 1 Kobold Mechanist with the Kobold Militiaman's stats but Armor 1
+        /// and the Solo keyword (Health 5, Accuracy 50%, Move 20 m; Biological, Swarm, Solo), an Assault Rifle (the Draconis
+        /// "Fang Caster") and a Repair Kit carried as standard equipment. The Kobold model with goggles, shoulder plates, a
+        /// tool pack and a wrench. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureKoboldMechanist(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            EnsureEquipment();
+            var repairKit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/RepairKit.asset");
+            var mechanist = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/KoboldMechanist.asset", t =>
+            {
+                t.displayName = "Kobold Mechanist";
+                t.health = 5; t.armorLevel = 1; t.accuracy = 50; t.movementRange = 20f;   // the Militiaman's, but Armor 1
+                t.keywords = new List<Keyword> { keywords["Biological"], keywords["Swarm"], keywords["Solo"] };
+                t.abilities = new List<Ability>();
+                t.weapons = new List<WeaponTemplate> { rifle };
+                t.primaryWeapon = rifle;
+                t.equipment = new List<Equipment> { repairKit };
+                t.radius = 0.33f;
+                t.height = 1.2f;
+            });
+            if (mechanist.prefab == null)
+            {
+                mechanist.prefab = BuildKoboldPrefab("KoboldMechanist", mechanist, false, mechanist: true);
+                EditorUtility.SetDirty(mechanist);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/KoboldMechanist.asset", u =>
+            {
+                u.displayName = "Kobold Mechanist";
+                u.role = UnitRole.Specialist;
+                u.description = "A Kobold engineer who keeps the Empire's war machines running. The Mechanist has the Kobold Militiaman's stats but a little armor (5 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Fang Caster (the Draconis Assault Rifle: 4 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Tyrant Hover-tank, as its action; it can't be used on one at full health. Keep it close behind your machines and out of the line of fire. A Specialist: one per army.";
+                u.leader = mechanist;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 1.2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
         }
 
         /// <summary>
@@ -1014,7 +1179,7 @@ namespace Eldoria.EditorTools
         /// shoulder plates, and a crimson cape. Skymasters have a jetpack (twin thrusters with glowing nozzles) in place of wings
         /// and hold a pistol in each hand instead of the glaive.
         /// </summary>
-        private static GameObject BuildDragonbornPrefab(string name, SoldierTemplate template, bool sergeant, bool honorguard = false, bool skymaster = false)
+        private static GameObject BuildDragonbornPrefab(string name, SoldierTemplate template, bool sergeant, bool honorguard = false, bool skymaster = false, bool exemplar = false)
         {
             EnsureFolder(Root, "Prefabs");
             EnsureFolder($"{Root}/Prefabs", "Units");
@@ -1064,7 +1229,7 @@ namespace Eldoria.EditorTools
                 foreach (float side in new[] { -1f, 1f })
                     Part(root, "Shoulder Plate", PrimitiveType.Cube, gold, new Vector3(side * 0.3f, 1.62f, 0f), new Vector3(0.2f, 0.08f, 0.26f), new Vector3(0f, 0f, side * -18f));
             }
-            if (honorguard)
+            if (honorguard || exemplar)
             {
                 var cape = GetOrCreateMaterial("Dragon_Cape", new Color(0.55f, 0.07f, 0.09f));
                 Part(root, "Breastplate", PrimitiveType.Cube, gold, new Vector3(0f, 1.36f, 0.17f), new Vector3(0.42f, 0.5f, 0.08f));
@@ -1075,7 +1240,19 @@ namespace Eldoria.EditorTools
                 Part(root, "Cape", PrimitiveType.Cube, cape, new Vector3(0f, 1.12f, -0.27f), new Vector3(0.5f, 1.05f, 0.04f), new Vector3(8f, 0f, 0f));
             }
 
-            if (skymaster)
+            if (exemplar)
+            {
+                // The Exemplar: a tall gold crest and a gold gorget over the Honorguard's armor; the Ceremonial Blade held
+                // upright in the right hand, the Raptor Pistol holstered at the left hip.
+                Part(root, "Exemplar Crest", PrimitiveType.Cube, gold, new Vector3(0f, 2.28f, -0.04f), new Vector3(0.05f, 0.26f, 0.3f));
+                Part(root, "Gorget", PrimitiveType.Cube, gold, new Vector3(0f, 1.72f, 0.1f), new Vector3(0.3f, 0.08f, 0.1f));
+                Part(root, "Blade", PrimitiveType.Cube, blade, new Vector3(0.42f, 1.75f, 0.32f), new Vector3(0.03f, 1.1f, 0.12f));
+                Part(root, "Blade Guard", PrimitiveType.Cube, gold, new Vector3(0.42f, 1.18f, 0.32f), new Vector3(0.08f, 0.04f, 0.3f));
+                Part(root, "Blade Grip", PrimitiveType.Cylinder, metal, new Vector3(0.42f, 1.06f, 0.32f), new Vector3(0.04f, 0.1f, 0.04f));
+                Part(root, "Holster", PrimitiveType.Cube, metal, new Vector3(-0.3f, 1.0f, 0.06f), new Vector3(0.07f, 0.2f, 0.12f));
+                Part(root, "Raptor Pistol", PrimitiveType.Cube, metal, new Vector3(-0.3f, 1.14f, 0.1f), new Vector3(0.06f, 0.08f, 0.2f));
+            }
+            else if (skymaster)
             {
                 var flame = GetOrCreateMaterial("Jet_Flame", new Color(1f, 0.55f, 0.12f));
                 // The jetpack: a pack on the back with a thruster on each side, nozzles glowing.
@@ -1224,12 +1401,106 @@ namespace Eldoria.EditorTools
         }
 
         /// <summary>
+        /// Rask Blackhand (Specialist, Rask): 1 Rask Blackhand with the Rask Ultima's stats but Armor 1 and without Officer
+        /// (Health 10, Accuracy 50%, Move 20 m; Biological, Solo), an Assault Rifle (the Rask "Solntse Laser Rifle", Damage 6 for them) and a
+        /// Repair Kit carried as standard equipment. The Rask model with black gauntlets, goggles, a tool pack and a wrench.
+        /// Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureRaskBlackhand(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            EnsureEquipment();
+            var repairKit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/RepairKit.asset");
+            var blackhand = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/RaskBlackhand.asset", t =>
+            {
+                t.displayName = "Rask Blackhand";
+                t.health = 10; t.armorLevel = 1; t.accuracy = 50; t.movementRange = 20f;   // the Rask Ultima's, but Armor 1
+                t.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"] };   // no Officer
+                t.abilities = new List<Ability>();
+                t.weapons = new List<WeaponTemplate> { rifle };
+                t.primaryWeapon = rifle;
+                t.equipment = new List<Equipment> { repairKit };
+                t.radius = 0.33f;
+                t.height = 1.2f;
+            });
+            if (blackhand.prefab == null)
+            {
+                blackhand.prefab = BuildRaskPrefab("RaskBlackhand", blackhand, false, blackhand: true);
+                EditorUtility.SetDirty(blackhand);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/RaskBlackhand.asset", u =>
+            {
+                u.displayName = "Rask Blackhand";
+                u.role = UnitRole.Specialist;
+                u.description = "A Rask combat engineer, named for the soot-black gauntlets of their trade. The Blackhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Repair Kit restores 10 health to a friendly Mechanical soldier within 5 m, such as a damaged Stinger or Intimidator, as its action; it can't be used on one at full health. A Specialist: one per army.";
+                u.leader = blackhand;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 1.2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Rask Redhand (Specialist, Rask): 1 Rask Redhand with the Rask Ultima's stats but Armor 1 and without Officer
+        /// (Health 10, Accuracy 50%, Move 20 m; Biological, Solo), an Assault Rifle (the Rask "Solntse Laser Rifle", Damage 6
+        /// for them) and a Medkit carried as standard equipment. The Rask model with red gauntlets and a medic's pack.
+        /// Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureRaskRedhand(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            EnsureEquipment();
+            var medkit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/Medkit.asset");
+            var redhand = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/RaskRedhand.asset", t =>
+            {
+                t.displayName = "Rask Redhand";
+                t.health = 10; t.armorLevel = 1; t.accuracy = 50; t.movementRange = 20f;   // the Ultima's, but Armor 1
+                t.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"] };   // no Officer
+                t.abilities = new List<Ability>();
+                t.weapons = new List<WeaponTemplate> { rifle };
+                t.primaryWeapon = rifle;
+                t.equipment = new List<Equipment> { medkit };
+                t.radius = 0.33f;
+                t.height = 1.2f;
+            });
+            if (redhand.prefab == null)
+            {
+                redhand.prefab = BuildRaskPrefab("RaskRedhand", redhand, false, redhand: true);
+                EditorUtility.SetDirty(redhand);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/RaskRedhand.asset", u =>
+            {
+                u.displayName = "Rask Redhand";
+                u.role = UnitRole.Specialist;
+                u.description = "A Rask field medic, named for the red gauntlets of their trade. The Redhand has the Rask Ultima's health, accuracy and move but lighter armor (10 health, Armor Level 1, 50% accuracy, 20 m a move) and fights alone (Solo), with a Solntse Laser Rifle (the Rask's Assault Rifle: 6 damage, penetration 1, 20 m). Its Medkit restores 5 health to a friendly Biological soldier within 5 m, such as a wounded Rask rifleman or the Ultima, as its action; it can't be used on one at full health. A Specialist: one per army.";
+                u.leader = redhand;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 1.2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
         /// A placeholder Rask built from primitives, facing +z: an upright, anthropomorphic rat (1.2 m) with a long pointed
         /// snout, round ears and a long thin tail, in armor (breastplate and helmet in the primary colour, so the faction's
         /// colour when deployed; grey metal pauldrons and greaves), holding a rifle. Fur is grey-brown. The Superior has a gold
         /// helmet crest and gorget.
         /// </summary>
-        private static GameObject BuildRaskPrefab(string name, SoldierTemplate template, bool superior, bool ultima = false)
+        private static GameObject BuildRaskPrefab(string name, SoldierTemplate template, bool superior, bool ultima = false, bool blackhand = false, bool redhand = false)
         {
             EnsureFolder(Root, "Prefabs");
             EnsureFolder($"{Root}/Prefabs", "Units");
@@ -1294,6 +1565,38 @@ namespace Eldoria.EditorTools
             }
             else
             {
+                if (redhand)
+                {
+                    // The Redhand: red gauntlets, a white medic's pack with a red cross on the back, and a cross on the arm.
+                    var red = GetOrCreateMaterial("Redhand_Red", new Color(0.72f, 0.06f, 0.06f));
+                    var white = GetOrCreateMaterial("Dish_White", new Color(0.88f, 0.89f, 0.9f));
+                    foreach (float side in new[] { -1f, 1f })
+                    {
+                        Part(model, "Red Hand", PrimitiveType.Sphere, red, new Vector3(side * 0.2f, 0.52f, 0.17f), new Vector3(0.08f, 0.07f, 0.09f));
+                        Part(model, "Gauntlet", PrimitiveType.Cylinder, red, new Vector3(side * 0.2f, 0.58f, 0.12f), new Vector3(0.075f, 0.05f, 0.075f), new Vector3(-50f, 0f, 0f));
+                    }
+                    Part(model, "Medic Pack", PrimitiveType.Cube, white, new Vector3(0f, 0.66f, -0.17f), new Vector3(0.22f, 0.24f, 0.09f));
+                    Part(model, "Medic Cross", PrimitiveType.Cube, red, new Vector3(0f, 0.66f, -0.22f), new Vector3(0.12f, 0.035f, 0.01f));
+                    Part(model, "Medic Cross", PrimitiveType.Cube, red, new Vector3(0f, 0.66f, -0.22f), new Vector3(0.035f, 0.12f, 0.01f));
+                    Part(model, "Armband", PrimitiveType.Cylinder, white, new Vector3(-0.2f, 0.66f, 0.04f), new Vector3(0.085f, 0.02f, 0.085f), new Vector3(-50f, 0f, 0f));
+                }
+                if (blackhand)
+                {
+                    // The Blackhand: soot-black gauntlets, goggles on the helmet, a tool pack on the back and a wrench at the belt.
+                    var black = GetOrCreateMaterial("Blackhand_Black", new Color(0.05f, 0.05f, 0.06f));
+                    var lens = GetOrCreateMaterial("Plasma_Glow", new Color(0.45f, 0.9f, 1f));
+                    foreach (float side in new[] { -1f, 1f })
+                    {
+                        Part(model, "Black Hand", PrimitiveType.Sphere, black, new Vector3(side * 0.2f, 0.52f, 0.17f), new Vector3(0.08f, 0.07f, 0.09f));
+                        Part(model, "Gauntlet", PrimitiveType.Cylinder, black, new Vector3(side * 0.2f, 0.58f, 0.12f), new Vector3(0.075f, 0.05f, 0.075f), new Vector3(-50f, 0f, 0f));
+                        Part(model, "Goggle", PrimitiveType.Cylinder, gold, new Vector3(side * 0.05f, 1.08f, 0.1f), new Vector3(0.06f, 0.015f, 0.06f), new Vector3(70f, 0f, 0f));
+                        Part(model, "Goggle Lens", PrimitiveType.Cylinder, lens, new Vector3(side * 0.05f, 1.08f, 0.11f), new Vector3(0.045f, 0.01f, 0.045f), new Vector3(70f, 0f, 0f));
+                    }
+                    Part(model, "Tool Pack", PrimitiveType.Cube, metal, new Vector3(0f, 0.66f, -0.17f), new Vector3(0.22f, 0.24f, 0.09f));
+                    Part(model, "Tool Pack Lid", PrimitiveType.Cube, black, new Vector3(0f, 0.79f, -0.17f), new Vector3(0.23f, 0.02f, 0.1f));
+                    Part(model, "Wrench", PrimitiveType.Cube, steel, new Vector3(-0.16f, 0.42f, 0.06f), new Vector3(0.025f, 0.22f, 0.025f));
+                    Part(model, "Wrench Head", PrimitiveType.Cube, steel, new Vector3(-0.16f, 0.31f, 0.06f), new Vector3(0.07f, 0.045f, 0.025f));
+                }
                 // The rifle, held across the body.
                 Part(model, "Rifle", PrimitiveType.Cube, metal, new Vector3(0.08f, 0.58f, 0.24f), new Vector3(0.05f, 0.06f, 0.56f), new Vector3(0f, -12f, 0f));
                 Part(model, "Rifle Emitter", PrimitiveType.Cylinder, gold, new Vector3(0.14f, 0.58f, 0.52f), new Vector3(0.04f, 0.02f, 0.04f), new Vector3(90f, 0f, 0f));
@@ -1676,7 +1979,7 @@ namespace Eldoria.EditorTools
         /// <summary>
         /// Master Sergeant Jakoby (Commander, ISF): 1 Master Sergeant Jakoby with the Field Commander's stats (Health 10,
         /// Armor 2, Accuracy 75%, Move 10 m; Biological, Officer, Solo) but without Lead from the front; a Shotgun, and two
-        /// Frag Grenades carried as standard equipment (two throws of the Frag Grenade ability a battle). The Field Commander
+        /// Frag Grenades carried as standard equipment (the Frag Grenade ability). The Field Commander
         /// model with a beret in place of the cap, a shotgun and two grenades on the belt. Existing assets keep their
         /// Inspector edits.
         /// </summary>
@@ -1706,7 +2009,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Master Sergeant Jakoby";
                 u.role = UnitRole.Commander;
-                u.description = "A veteran ISF Master Sergeant who leads by example rather than from behind. Unlike the Field Commander he gives no accuracy bonus to nearby troops (no Lead from the front); instead he fights: a Shotgun (10 damage, penetration 1, 10 m) and two Frag Grenades, so two grenade throws a battle. With 10 health and Armor Level 2 he can take a hit, but as a Solo unit he's a prime target. A Commander: every army needs exactly one.";
+                u.description = "A veteran ISF Master Sergeant who leads by example rather than from behind. Unlike the Field Commander he gives no accuracy bonus to nearby troops (no Lead from the front); instead he fights: a Shotgun (10 damage, penetration 1, 10 m) and two Frag Grenades to throw as his action. With 10 health and Armor Level 2 he can take a hit, but as a Solo unit he's a prime target. A Commander: every army needs exactly one.";
                 u.leader = jakoby;
                 u.members = new List<UnitTemplate.Member>();
             });
@@ -1848,7 +2151,9 @@ namespace Eldoria.EditorTools
         /// The equipment a soldier can be given in the army builder (if their soldier type lists it in Equipment Options):
         /// <list type="bullet">
         /// <item>Combat Shield: +1 Armor Level.</item>
-        /// <item>Frag Grenade: gives the active ability Frag Grenade (once per battle; 2.5 m blast).</item>
+        /// <item>Frag Grenade: gives the active ability Frag Grenade (a 2.5 m blast; no limit per battle).</item>
+        /// <item>Medkit: gives the active ability Medkit (a friendly Biological soldier within 5 m restores 5 health).</item>
+        /// <item>Repair Kit: gives the active ability Repair Kit (a friendly Mechanical soldier within 5 m restores 10 health).</item>
         /// </list>
         /// No soldier type offers them yet. Existing assets keep their Inspector edits.
         /// </summary>
@@ -1865,8 +2170,59 @@ namespace Eldoria.EditorTools
             GetOrCreate<Equipment>($"{DataDir}/Equipment/FragGrenade.asset", e =>
             {
                 e.displayName = "Frag Grenade";
-                e.description = "Gives the soldier the active ability Frag Grenade: thrown once per battle, a 2.5 m blast.";
+                e.description = "Gives the soldier the active ability Frag Grenade: a 2.5 m blast, thrown as the unit's action, with no limit per battle.";
                 e.abilities = new List<Ability> { grenade };
+            });
+
+            // Medkit: an active ability on one friendly Biological soldier within 5 m (the user too) restoring 5 health. A
+            // soldier at full health is refused (error sound, the action isn't spent), like any purely healing ability.
+            EnsureFolder(DataDir, "Abilities");
+            var biological = AssetDatabase.LoadAssetAtPath<Keyword>($"{DataDir}/Keywords/Biological.asset");
+            var medkit = GetOrCreate<Ability>($"{DataDir}/Abilities/Medkit.asset", a =>
+            {
+                a.displayName = "Medkit";
+                a.description = "Active. Choose a friendly Biological soldier within 5 m (this soldier too): they restore 5 health. Can't be used on a soldier at full health.";
+                a.kind = AbilityKind.Active;
+                a.keywords = new List<Keyword>();
+                a.targets = AbilityTarget.Soldier;
+                a.affects = AuraAffects.Allies;
+                a.includeSelf = true;
+                a.range = 5f;
+                a.targetMustHave = biological;
+                a.heal = 5;
+                a.usesPerTurn = 1;
+                a.usesPerBattle = 0;
+            });
+            GetOrCreate<Equipment>($"{DataDir}/Equipment/Medkit.asset", e =>
+            {
+                e.displayName = "Medkit";
+                e.description = "Gives the soldier the active ability Medkit: a friendly Biological soldier within 5 m restores 5 health.";
+                e.abilities = new List<Ability> { medkit };
+            });
+
+            // Repair Kit: the Medkit for machines. One friendly Mechanical soldier within 5 m (the user too, if Mechanical)
+            // restores 10 health; a soldier at full health is refused (error sound, the action isn't spent).
+            var mechanical = AssetDatabase.LoadAssetAtPath<Keyword>($"{DataDir}/Keywords/Mechanical.asset");
+            var repair = GetOrCreate<Ability>($"{DataDir}/Abilities/RepairKit.asset", a =>
+            {
+                a.displayName = "Repair Kit";
+                a.description = "Active. Choose a friendly Mechanical soldier within 5 m (this soldier too, if Mechanical): they restore 10 health. Can't be used on a soldier at full health.";
+                a.kind = AbilityKind.Active;
+                a.keywords = new List<Keyword>();
+                a.targets = AbilityTarget.Soldier;
+                a.affects = AuraAffects.Allies;
+                a.includeSelf = true;
+                a.range = 5f;
+                a.targetMustHave = mechanical;
+                a.heal = 10;
+                a.usesPerTurn = 1;
+                a.usesPerBattle = 0;
+            });
+            GetOrCreate<Equipment>($"{DataDir}/Equipment/RepairKit.asset", e =>
+            {
+                e.displayName = "Repair Kit";
+                e.description = "Gives the soldier the active ability Repair Kit: a friendly Mechanical soldier within 5 m restores 10 health.";
+                e.abilities = new List<Ability> { repair };
             });
         }
 
@@ -1893,13 +2249,17 @@ namespace Eldoria.EditorTools
             EnsureDragonbornSquad(factions[1], keywords);
             EnsureDragonbornSkymasterSquad(factions[1], keywords);
             EnsureTyrantHoverTank(factions[1], keywords);
+            EnsureKoboldMechanist(factions[1], keywords);
             EnsureKoboldMilitia(factions[1], keywords);
             EnsureDraconisWeaponNames(factions[1]);
+            EnsureDragonbornExemplar(factions[1], keywords);
             EnsureRaskUltima(factions[2], keywords);
             EnsureRaskRifleTeam(factions[2], keywords);
             EnsureRaskWeapons(factions[2]);
             EnsureStingerHeavyRobot(factions[2], keywords);
             EnsureIntimidatorMediumRobot(factions[2], keywords);
+            EnsureRaskBlackhand(factions[2], keywords);
+            EnsureRaskRedhand(factions[2], keywords);
             EnsureIsfRifleSquad(factions[0], keywords);
             EnsureHeavyWeaponsTeam(factions[0], keywords);
             EnsureIsfRanger(factions[0], keywords);
@@ -2137,6 +2497,20 @@ namespace Eldoria.EditorTools
                     }
                 };
             });
+            GetOrCreate<Keyword>($"{DataDir}/Keywords/Empowered.asset", k =>
+            {
+                k.displayName = "Empowered";
+                k.appliesTo = KeywordTarget.Soldier;
+                k.description = "Within 15 m of a friendly Dragonborn Exemplar (not the Exemplar itself): +2 damage with weapons.";
+                k.interactions = new List<KeywordInteraction>
+                {
+                    new KeywordInteraction
+                    {
+                        role = KeywordRole.WhenAttacking, condition = KeywordCondition.Always,
+                        effect = KeywordEffect.DamageBonus, amount = 2
+                    }
+                };
+            });
             GetOrCreate<Keyword>($"{DataDir}/Keywords/LedFromTheFront.asset", k =>
             {
                 k.displayName = "Led from the front";
@@ -2162,7 +2536,7 @@ namespace Eldoria.EditorTools
                 ["Large"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
-                ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status,
+                ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status, ["Empowered"] = KeywordCategory.Status,
                 ["Chromashift"] = KeywordCategory.Status,
             };
             foreach (var guid in AssetDatabase.FindAssets("t:Keyword", new[] { $"{DataDir}/Keywords" }))

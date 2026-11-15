@@ -19,7 +19,9 @@ namespace Eldoria.Rules
     ///  - A side with no soldiers left loses, and the other side wins. If both sides lose their last soldiers at the same
     ///    moment, it's a draw. Only sides that have units on the battlefield take part.
     ///  - On a map with an <see cref="ObjectiveMarker"/> (e.g. Ft Solstice): if a unit leader of the marker's capturing
-    ///    side stands on it when a unit finishes its move, that side wins (<see cref="ObjectiveTaken"/>).
+    ///    side stands on it when a unit finishes its move, that side wins (<see cref="ObjectiveTaken"/>). Wiping out the
+    ///    enemy still wins there too.
+    ///  - A side can concede (<see cref="Concede"/>): the other side wins.
     /// Checked whenever soldiers are removed from the battlefield (the end of a volley or blast, or a death outside combat)
     /// and whenever a unit finishes its move.
     /// </summary>
@@ -30,6 +32,23 @@ namespace Eldoria.Rules
 
         /// <summary>True if the battle was won by taking an objective (rather than by wiping out the enemy).</summary>
         public static bool ObjectiveTaken { get; private set; }
+
+        /// <summary>True if the battle ended because a side conceded.</summary>
+        public static bool Conceded { get; private set; }
+
+        /// <summary>
+        /// <paramref name="side"/> concedes: the other side wins. Nothing happens if the battle is already decided. Returns
+        /// the outcome.
+        /// </summary>
+        public static BattleOutcome Concede(Side side)
+        {
+            if (IsOver) return Outcome;
+            Conceded = true;
+            Outcome = side == Side.Player ? BattleOutcome.AIWins : BattleOutcome.PlayerWins;
+            Debug.Log($"[Eldoria] Battle over: the {(side == Side.Player ? "south/player" : "north/AI")} side conceded.");
+            BattleEnded?.Invoke(Outcome);
+            return Outcome;
+        }
 
         /// <summary>Raised once, when the battle is decided.</summary>
         public static event Action<BattleOutcome> BattleEnded;
@@ -70,7 +89,12 @@ namespace Eldoria.Rules
             return Outcome;
         }
 
-        public static string Describe(BattleOutcome outcome) => ObjectiveTaken ? outcome switch
+        public static string Describe(BattleOutcome outcome) => Conceded ? outcome switch
+        {
+            BattleOutcome.PlayerWins => "Victory! The enemy conceded.",
+            BattleOutcome.AIWins => "Defeat. You conceded.",
+            _ => "The battle goes on."
+        } : ObjectiveTaken ? outcome switch
         {
             BattleOutcome.PlayerWins => "Victory! Your unit leader reached the objective.",
             BattleOutcome.AIWins => "Defeat. The enemy reached the objective.",
@@ -88,6 +112,7 @@ namespace Eldoria.Rules
         {
             Outcome = BattleOutcome.InProgress;
             ObjectiveTaken = false;
+            Conceded = false;
         }
 
         private static Unit[] AllUnits() =>
