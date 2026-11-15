@@ -761,15 +761,17 @@ namespace Eldoria.EditorTools
 
         /// <summary>
         /// A placeholder Kobold built from primitives, facing +z: a small (1.2 m) wingless, upright dragon with a snout and a
-        /// tail, in a fabric uniform (tunic and cap in the primary colour, so the faction's colour when deployed) holding a
-        /// rifle. Scales are a muted olive. The Sergeant has a gold armband and cap badge.
+        /// tail, its scales in the primary colour (the faction's colour when deployed, like the Dragons' and Dragonborn's), in a
+        /// drab khaki fabric uniform (tunic and cap) holding a rifle. The Sergeant has a gold armband and cap badge.
         /// </summary>
         private static GameObject BuildKoboldPrefab(string name, SoldierTemplate template, bool sergeant, bool mechanist = false)
         {
             EnsureFolder(Root, "Prefabs");
             EnsureFolder($"{Root}/Prefabs", "Units");
-            var uniform = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
-            var scales = GetOrCreateMaterial("Kobold_Scales", new Color(0.47f, 0.5f, 0.3f));
+            // Scales in the primary colour (the faction's colour when deployed), like the Dragons' and Dragonborn's; the
+            // fabric uniform a drab khaki so the scales stand out.
+            var scales = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var uniform = GetOrCreateMaterial("Kobold_Uniform", new Color(0.4f, 0.37f, 0.28f));
             var eye = GetOrCreateMaterial("Dragon_Eye", new Color(1f, 0.6f, 0.05f));
             var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
             var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
@@ -1108,7 +1110,7 @@ namespace Eldoria.EditorTools
             var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
             var glow = GetOrCreateMaterial("Plasma_Glow", new Color(0.45f, 0.9f, 1f));
             var flame = GetOrCreateMaterial("Jet_Flame", new Color(1f, 0.55f, 0.12f));
-            var scales = GetOrCreateMaterial("Kobold_Scales", new Color(0.47f, 0.5f, 0.3f));
+            var scales = hull;   // the Kobold pilot's scales: the faction's colour, like every Kobold's
             var eye = GetOrCreateMaterial("Dragon_Eye", new Color(1f, 0.6f, 0.05f));
             var glass = GetOrCreateMaterial("Cockpit_Glass", new Color(0.3f, 0.55f, 0.6f));
 

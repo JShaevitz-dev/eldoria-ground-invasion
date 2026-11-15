@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: KoboldMechanist
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
   displayName: Kobold Mechanist
-  prefab: {fileID: 653980370851028776, guid: 6c17793b64363f0439c0dc0057c67e5e, type: 3}
+  prefab: {fileID: 591402230789202630, guid: 6c17793b64363f0439c0dc0057c67e5e, type: 3}
   health: 5
   armorLevel: 1
   accuracy: 50

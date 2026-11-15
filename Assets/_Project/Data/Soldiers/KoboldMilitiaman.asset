@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: KoboldMilitiaman
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
   displayName: Kobold Militiaman
-  prefab: {fileID: 5009257959699225619, guid: 65485c69867dc7641802f6c3889ed5c8, type: 3}
+  prefab: {fileID: 7541373038033690546, guid: 65485c69867dc7641802f6c3889ed5c8, type: 3}
   health: 5
   armorLevel: 0
   accuracy: 50
@@ -27,5 +27,7 @@ MonoBehaviour:
   primaryWeapon: {fileID: 11400000, guid: 888ab10d5cd37a14897c7ebfc9ce8cef, type: 2}
   radius: 0.33
   height: 1.2
+  equipment: []
   weaponOptions: []
+  equipmentSwaps: []
   equipmentOptions: []

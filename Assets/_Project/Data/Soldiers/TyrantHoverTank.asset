@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TyrantHoverTank
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
   displayName: Tyrant Hover-tank
-  prefab: {fileID: 6411165502194887805, guid: 7223b13faf57b934da16fc5611cde319, type: 3}
+  prefab: {fileID: 78421996594455299, guid: 7223b13faf57b934da16fc5611cde319, type: 3}
   health: 15
   armorLevel: 4
   accuracy: 100
@@ -28,5 +28,7 @@ MonoBehaviour:
   primaryWeapon: {fileID: 11400000, guid: 744f4da9975e67c4ca3dd8ce2576e32e, type: 2}
   radius: 1.8
   height: 2
+  equipment: []
   weaponOptions: []
+  equipmentSwaps: []
   equipmentOptions: []

@@ -369,7 +369,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season or the Si
 
 ### Kobold Militia
 
-*Imperial Army of The Draconis Imperialis · Infantry.* 1 **Kobold Sergeant** (leader) + 19 **Kobold Militiamen**: wingless anthropomorphic dragons standing at two-thirds the height of a human (1.2 m), in fabric uniforms and holding rifles (see [Lore.md](Lore.md), the Kobolds).
+*Imperial Army of The Draconis Imperialis · Infantry.* 1 **Kobold Sergeant** (leader) + 19 **Kobold Militiamen**: wingless anthropomorphic dragons standing at two-thirds the height of a human (1.2 m), their scales in the faction's colour (like the Dragons' and Dragonborn's), in drab khaki fabric uniforms and holding rifles (see [Lore.md](Lore.md), the Kobolds).
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
 |---|---|---|---|---|---|---|
