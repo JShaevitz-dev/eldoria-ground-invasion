@@ -41,6 +41,11 @@ namespace Eldoria.Gameplay
         public int Customizing => customizing;
         /// <summary>The units the chosen faction can take (none until a faction is chosen).</summary>
         public IReadOnlyList<UnitTemplate> Available => available;
+        /// <summary>
+        /// The units shown in the builder's list: the available ones, less those hidden until one of their required
+        /// Commanders is in the army (<see cref="UnitTemplate.onlyWithCommanders"/>).
+        /// </summary>
+        public List<UnitTemplate> Shown => available.Where(u => ArmyRules.IsUnlocked(army, u)).ToList();
         /// <summary>Why the last Confirm was refused (empty if it wasn't).</summary>
         public IReadOnlyList<string> Problems => problems;
 
@@ -137,16 +142,27 @@ namespace Eldoria.Gameplay
             return why;
         }
 
+        /// <summary>
+        /// Removes a slot's unit. Removing a Commander also removes the units that need it (those only it unlocked: see
+        /// <see cref="UnitTemplate.onlyWithCommanders"/>).
+        /// </summary>
         public void RemoveAt(int slot)
         {
             if (slot >= 0 && slot < army.Count)
             {
-                army.RemoveAt(slot);
-                loadouts.RemoveAt(slot);
-                if (customizing == slot) customizing = -1;
-                else if (customizing > slot) customizing--;
+                RemoveSlot(slot);
+                for (int i = army.Count - 1; i >= 0; i--)
+                    if (!ArmyRules.IsUnlocked(army, army[i])) RemoveSlot(i);
             }
             problems.Clear();
+        }
+
+        private void RemoveSlot(int slot)
+        {
+            army.RemoveAt(slot);
+            loadouts.RemoveAt(slot);
+            if (customizing == slot) customizing = -1;
+            else if (customizing > slot) customizing--;
         }
 
         public void Clear()
@@ -319,7 +335,7 @@ namespace Eldoria.Gameplay
             {
                 GUILayout.Label("Available units", heading);
                 scroll = GUILayout.BeginScrollView(scroll);
-                foreach (var unit in available) DrawUnitEntry(unit);
+                foreach (var unit in Shown) DrawUnitEntry(unit);
                 GUILayout.EndScrollView();
             }
             GUILayout.EndVertical();
@@ -453,6 +469,7 @@ namespace Eldoria.Gameplay
             GUILayout.Label(unit.displayName, heading);
             string unique = ArmyRules.IsUnique(unit.role) ? " · one per army" : "";
             GUILayout.Label($"{unit.role.DisplayName()}{unique} · {unit.Size} soldier{(unit.Size == 1 ? "" : "s")} · Supply Cost {unit.supplyCost}", body);
+            if (unit.NeedsCommander) GUILayout.Label($"Only with {ArmyRules.RequiredCommandersText(unit)}", warn);
             GUILayout.EndVertical();
             string why = ArmyRules.WhyCannotAdd(army, unit, Faction);
             GUI.enabled = why == null;

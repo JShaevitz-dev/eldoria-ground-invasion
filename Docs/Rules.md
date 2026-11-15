@@ -100,12 +100,13 @@ it can take, and any weapon changes and names (below). The army builder lists th
 
 ### Army lists — *implemented*
 
-Before a battle, the player chooses the **map** (Boxed in, Open Season or the Siege of Ft Solstice), then each side chooses a **faction** and builds an **army list** from that faction's units:
+Before a battle, the player chooses the **map** (Boxed in, Open Season, the Siege of Ft Solstice, Polar Nonsense or Leisure Cruise), then each side chooses a **faction** and builds an **army list** from that faction's units:
 
 - Every unit must be one the army's **faction** has access to.
 - **Supply Cap:** the Supply Costs of an army's units can add up to **no more than 750**. There's **no limit on how many units** an army has. The army builder shows the list's total against the cap ("Supply 520 / 750") and won't add a unit that would go over it.
 - It must contain **exactly 1 Commander** unit: at least one, and **only 1 Commander is allowed** in a list at a time.
 - **Only the Commander is unique** (an army has exactly one). **Infantry**, **Heavy Support** and **Specialist** units can all be taken more than once.
+- **Units only a Commander brings:** a unit can be set to need a particular Commander (or one of several: the unit's *Only With Commanders* list). It's **hidden in the army builder** until one of those Commanders is in the list, then shown with "Only with ..." under its role; it can't be added (and a list with it isn't valid) without one. **Removing the Commander also removes those units** from the list. Random armies only take them with their Commander. *(No unit uses this yet.)*
 
 **Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the catalog's demo army (keeping only units the faction has; none set yet), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
 

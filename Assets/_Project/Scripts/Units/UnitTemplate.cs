@@ -76,6 +76,16 @@ namespace Eldoria.Units
                  "(e.g. the Rask Reliquary's aura: +100). 0 for most units.")]
         public int supplyCostAdjustment;
 
+        [Tooltip("If any are set: the unit is hidden in the army builder, and can't be in an army, unless one of these " +
+                 "Commanders is in the list (e.g. a unit only a particular Commander brings). Empty: always available.")]
+        public List<UnitTemplate> onlyWithCommanders = new List<UnitTemplate>();
+
+        /// <summary>The Commanders that unlock this unit (empty if it doesn't need one).</summary>
+        public IEnumerable<UnitTemplate> RequiredCommanders => (onlyWithCommanders ?? new List<UnitTemplate>()).Where(c => c != null);
+
+        /// <summary>True if the unit can only be taken with one of <see cref="onlyWithCommanders"/> in the army.</summary>
+        public bool NeedsCommander => RequiredCommanders.Any();
+
         [Tooltip("Meters between soldiers in the formation they deploy in.")]
         [Min(0.5f)] public float deploymentSpacing = 2f;
 

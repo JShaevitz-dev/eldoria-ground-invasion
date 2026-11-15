@@ -31,4 +31,5 @@ MonoBehaviour:
   equipmentSwapsForWholeUnit: 1
   supplyCost: 110
   supplyCostAdjustment: 0
+  onlyWithCommanders: []
   deploymentSpacing: 2

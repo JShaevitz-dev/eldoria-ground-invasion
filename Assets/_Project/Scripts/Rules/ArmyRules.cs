@@ -10,7 +10,9 @@ namespace Eldoria.Rules
     ///   - the units' Supply Costs add up to no more than the Supply Cap (<see cref="SupplyCap"/>, 750); there's no
     ///     limit on how many units;
     ///   - exactly 1 Commander unit (at least one, and no more than one);
-    ///   - every other unit (Infantry, Heavy Support and Specialists) can be taken more than once.
+    ///   - every other unit (Infantry, Heavy Support and Specialists) can be taken more than once;
+    ///   - a unit with required Commanders (<see cref="UnitTemplate.onlyWithCommanders"/>) can only be taken when one of
+    ///     them is in the army (the army builder hides it until then).
     /// </summary>
     public static class ArmyRules
     {
@@ -40,7 +42,27 @@ namespace Eldoria.Rules
             if (commanders > 1) problems.Add($"Only 1 Commander unit is allowed in an army ({commanders} chosen).");
             foreach (var dupe in units.Where(u => IsUnique(u.role)).GroupBy(u => u).Where(g => g.Count() > 1))
                 problems.Add($"Only one {dupe.Key.displayName} allowed ({dupe.Key.role.DisplayName()} units can't be duplicated).");
+            foreach (var locked in units.Where(u => !IsUnlocked(units, u)).Distinct())
+                problems.Add($"{locked.displayName} can only be taken with {RequiredCommandersText(locked)} in the army.");
             return problems;
+        }
+
+        /// <summary>
+        /// True if <paramref name="unit"/> can be in <paramref name="army"/> as far as Commanders go: it needs none, or one of
+        /// its required Commanders is in the list.
+        /// </summary>
+        public static bool IsUnlocked(IEnumerable<UnitTemplate> army, UnitTemplate unit)
+        {
+            if (unit == null || !unit.NeedsCommander) return true;
+            var required = unit.RequiredCommanders.ToList();
+            return (army ?? Enumerable.Empty<UnitTemplate>()).Any(u => u != null && required.Contains(u));
+        }
+
+        /// <summary>The Commanders a unit needs, e.g. "Field Commander" or "Field Commander or Dragon Hierarch".</summary>
+        public static string RequiredCommandersText(UnitTemplate unit)
+        {
+            var names = unit.RequiredCommanders.Select(c => c.displayName).Distinct().ToList();
+            return names.Count <= 1 ? names.FirstOrDefault() ?? "" : string.Join(", ", names.Take(names.Count - 1)) + " or " + names.Last();
         }
 
         public static bool IsValid(IReadOnlyList<UnitTemplate> army, Faction faction = null) => Problems(army, faction).Count == 0;
@@ -50,6 +72,7 @@ namespace Eldoria.Rules
         {
             if (unit == null) return "No unit";
             if (faction != null && !faction.Has(unit)) return $"Not available to {faction.displayName}";
+            if (!IsUnlocked(army, unit)) return $"Needs {RequiredCommandersText(unit)} in the army";
             int supply = SupplyOf(army);
             if (supply + unit.supplyCost > SupplyCap)
                 return $"Over the Supply Cap ({supply} + {unit.supplyCost} > {SupplyCap})";
@@ -60,8 +83,8 @@ namespace Eldoria.Rules
         }
 
         /// <summary>
-        /// A random valid army from the available units: 1 Commander, then random units (never a second Commander) for as
-        /// long as another one fits under the Supply Cap.
+        /// A random valid army from the available units: 1 Commander, then random units (never a second Commander, and only
+        /// units that Commander unlocks) for as long as another one fits under the Supply Cap.
         /// </summary>
         public static List<UnitTemplate> RandomArmy(IEnumerable<UnitTemplate> available, System.Random rng)
         {

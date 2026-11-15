@@ -169,7 +169,8 @@ weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit 
 them (and add each unit to its faction's unit list). They're created in code
 (`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureIsfBoardingTeam`, `EnsureMasterSergeantJakoby`, `EnsureMarshalCommandTank`, `EnsureWorkhorseTransport`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
 `EnsureDragonbornSquad`, `EnsureDragonbornSkymasterSquad`, `EnsureDragonbornExemplar`, `EnsureTyrantHoverTank`, `EnsureKoboldMechanist`, `EnsureKoboldMilitia`, `EnsureRaskUltima`, `EnsureRaskRifleTeam`, `EnsureStingerHeavyRobot`, `EnsureIntimidatorMediumRobot`, `EnsureRaskBlackhand`, `EnsureRaskRedhand`, `EnsureRaskReliquary`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support,
-Specialist or Transport.
+Specialist or Transport. A unit can also be set to come only with a particular Commander (`onlyWithCommanders` on the
+unit): the army builder hides it until one of those Commanders is in the list.
 
 Kept as a starting kit: weapons (Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon,
 Rocket Launcher, Broadsword, Iron Claw, the new Anti-Materiel Rifle: Damage 10, Penetration X, 50 m, Deployed; and the new Mortar Launcher:
