@@ -87,7 +87,7 @@ A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
 
-**Faction colours:** a unit's **primary colour** (its soldiers' bodies and caps) is its faction's colour. Every faction uses the same models and materials: the primary-colour parts are tinted per unit when it deploys, so a new faction only needs a colour, not new textures. Other parts keep their own colours (skin, weapons, gold trim, the officer's cape, the priest's white robe, powered armor plates). Both sides can choose the same faction; the soldier labels (blue for yours, red for the enemy's) still tell them apart. The army builder shows each faction's colour.
+**Faction colours:** a unit's **primary colour** (its soldiers' bodies and caps) is its faction's colour. Every faction uses the same models and materials: the primary-colour parts are tinted per unit when it deploys, so a new faction only needs a colour, not new textures. Other parts keep their own colours (skin, weapons, gold trim, the officer's cape, the priest's white robe, powered armor plates). Both sides can choose the same faction; the soldier labels (blue for yours, red for the enemy's) still tell them apart. The army builder shows each faction's **flag** (Textures/Flags; a square of its colour for a faction without one): ISF navy and steel with the Shield Bearer's shield, Draconis crimson and gold with a crown over dragon wings, Rask ochre and brown with the Craftsman's halo, gear, hammer and chisel.
 
 **Faction weapons:** a faction can change its soldiers' weapons, without new weapons being made:
 

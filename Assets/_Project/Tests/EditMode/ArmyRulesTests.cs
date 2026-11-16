@@ -78,6 +78,20 @@ namespace Eldoria.Tests
         }
 
         [Test]
+        public void EachFactionHasItsOwnFlag()
+        {
+            var factions = UnitCatalog.Load().Factions.ToList();
+            foreach (var faction in factions)
+            {
+                Assert.That(faction.flag, Is.Not.Null, faction.displayName);
+                Assert.That(faction.flag.name, Is.EqualTo(faction.name), "Textures/Flags/<faction asset>.png");
+                Assert.That(faction.flag.width, Is.EqualTo(600), $"{faction.displayName}: kept at its own size");
+                Assert.That(faction.flag.height, Is.EqualTo(400), $"{faction.displayName}: 3:2");
+            }
+            Assert.That(factions.Select(f => f.flag).Distinct().Count(), Is.EqualTo(factions.Count));
+        }
+
+        [Test]
         public void EachFactionHasItsOwnColour()
         {
             var factions = UnitCatalog.Load().Factions.ToList();

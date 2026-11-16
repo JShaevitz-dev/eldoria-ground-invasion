@@ -29,7 +29,7 @@ namespace Eldoria.Gameplay
         private List<string> problems = new List<string>();
         private Vector2 scroll;
         private Vector2 armyScroll;
-        private GUIStyle title, heading, body, small, good, bad, warn, stat, paragraph, button, bigButton;
+        private GUIStyle title, heading, body, small, good, bad, warn, stat, paragraph, button, bigButton, factionButton;
 
         /// <summary>The chosen faction (null while the player is still choosing one).</summary>
         public Faction Faction { get; private set; }
@@ -316,8 +316,8 @@ namespace Eldoria.Gameplay
 
             GUILayout.Label("BUILD YOUR ARMY", title);
             GUILayout.BeginHorizontal();
-            GUILayout.Label("", GUILayout.Width(22f), GUILayout.Height(22f));
-            Swatch(GUILayoutUtility.GetLastRect(), Faction.color);
+            GUILayout.Label("", GUILayout.Width(36f), GUILayout.Height(24f));
+            FactionMark(GUILayoutUtility.GetLastRect(), Faction);
             GUILayout.Label(Faction.displayName, heading);
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Change faction", button, GUILayout.Width(160f), GUILayout.Height(30f))) ChangeFaction();
@@ -510,9 +510,8 @@ namespace Eldoria.Gameplay
                 GUI.enabled = false;
                 foreach (var faction in factions)
                 {
-                    GUILayout.Button($"{faction.displayName}\n<size=14>{FactionStatus(faction)}</size>", bigButton, GUILayout.Height(78f));
-                    var b = GUILayoutUtility.GetLastRect();
-                    Swatch(new Rect(b.x + 18f, b.y + 18f, b.height - 36f, b.height - 36f), faction.color);
+                    GUILayout.Button($"{faction.displayName}\n<size=14>{FactionStatus(faction)}</size>", factionButton, GUILayout.Height(78f));
+                    FactionMark(ButtonMarkRect(GUILayoutUtility.GetLastRect()), faction);
                     GUILayout.Space(8f);
                 }
                 GUI.enabled = true;
@@ -525,16 +524,42 @@ namespace Eldoria.Gameplay
             GUILayout.Space(16f);
             foreach (var faction in factions)
             {
-                if (GUILayout.Button($"{faction.displayName}\n<size=14>{FactionStatus(faction)}</size>", bigButton, GUILayout.Height(78f)))
+                if (GUILayout.Button($"{faction.displayName}\n<size=14>{FactionStatus(faction)}</size>", factionButton, GUILayout.Height(78f)))
                     ChooseFaction(faction);
-                var b = GUILayoutUtility.GetLastRect();
-                Swatch(new Rect(b.x + 18f, b.y + 18f, b.height - 36f, b.height - 36f), faction.color);
+                FactionMark(ButtonMarkRect(GUILayoutUtility.GetLastRect()), faction);
                 GUILayout.Space(8f);
             }
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Back", bigButton, GUILayout.Height(50f))) result = Result.Back;
             GUILayout.EndArea();
             return result;
+        }
+
+        /// <summary>Where a faction button shows its flag: at the left, 3:2, with a margin.</summary>
+        private static Rect ButtonMarkRect(Rect b)
+        {
+            float h = b.height - 24f;
+            return new Rect(b.x + 14f, b.y + 12f, h * 1.5f, h);
+        }
+
+        /// <summary>
+        /// The faction's flag in a 3:2 rect, framed (only drawn on Repaint). A faction without a flag shows a square of
+        /// its colour instead, centred in the rect.
+        /// </summary>
+        private static void FactionMark(Rect rect, Faction faction)
+        {
+            if (faction == null || Event.current.type != EventType.Repaint) return;
+            if (faction.flag == null)
+            {
+                Swatch(new Rect(rect.center.x - rect.height / 2f, rect.y, rect.height, rect.height), faction.color);
+                return;
+            }
+            var old = GUI.color;
+            GUI.color = new Color(0f, 0f, 0f, 0.6f);
+            GUI.DrawTexture(new Rect(rect.x - 2f, rect.y - 2f, rect.width + 4f, rect.height + 4f), Texture2D.whiteTexture);
+            GUI.color = GUI.enabled ? Color.white : new Color(1f, 1f, 1f, 0.5f); // greyed-out factions: faded
+            GUI.DrawTexture(rect, faction.flag, ScaleMode.StretchToFill);
+            GUI.color = old;
         }
 
         /// <summary>A square of the faction's colour (only drawn on Repaint, so it never disturbs the layout).</summary>
@@ -570,6 +595,9 @@ namespace Eldoria.Gameplay
             bad.normal.textColor = new Color(1f, 0.4f, 0.35f);
             button = new GUIStyle(GUI.skin.button) { fontSize = 15 };
             bigButton = new GUIStyle(GUI.skin.button) { fontSize = 22, fontStyle = FontStyle.Bold, richText = true };
+            // Faction buttons: the name is centred in the space right of the flag (see ButtonMarkRect).
+            factionButton = new GUIStyle(bigButton);
+            factionButton.padding = new RectOffset(110, 16, bigButton.padding.top, bigButton.padding.bottom);
         }
     }
 }

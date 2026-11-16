@@ -17,6 +17,10 @@ namespace Eldoria.Units
         [Tooltip("The faction's colour: the primary colour of its units on the battlefield (see PrimaryColor).")]
         public Color color = new Color(0.5f, 0.5f, 0.5f);
 
+        [Tooltip("The faction's flag (3:2), shown in the army builder. Textures/Flags/<asset name>.png is assigned when " +
+                 "the unit catalog is rebuilt. Without one, a square of the faction's colour is shown instead.")]
+        public Texture2D flag;
+
         [Tooltip("The units this faction can put in an army list.")]
         public List<UnitTemplate> units = new List<UnitTemplate>();
 

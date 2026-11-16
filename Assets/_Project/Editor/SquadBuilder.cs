@@ -41,8 +41,15 @@ namespace Eldoria.EditorTools
             {
                 a.displayName = f.name;
                 a.color = f.color;
+            }, a =>
+            {
+                // The flag (Textures/Flags/<file>.png) is assigned if the faction has none yet.
+                if (a.flag == null) a.flag = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FlagDir}/{f.file}.png");
             })).ToList();
         }
+
+        /// <summary>Where the faction flags live (one PNG per faction, named after its asset file).</summary>
+        public const string FlagDir = Root + "/Textures/Flags";
 
         // ------------------------------------------------------------------ International Space Force of Humanity
 

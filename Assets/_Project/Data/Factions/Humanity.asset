@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Faction
   displayName: International Space Force of Humanity
   color: {r: 0.6666667, g: 0.6666667, b: 0.6666667, a: 1}
+  flag: {fileID: 2800000, guid: ecb359d60411d2c45bef46edb36ad154, type: 3}
   units:
   - {fileID: 11400000, guid: 8973ea19fb8e3ad439e58d11573ad62c, type: 2}
   - {fileID: 11400000, guid: 208f3ba086dd55a4abe6a69b0eb7d465, type: 2}

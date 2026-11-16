@@ -124,15 +124,17 @@ At a glance:
 
 ### Factions
 
-| Faction | Race | Colour |
-|---|---|---|
-| **International Space Force of Humanity** | Humanity (Free Nations Alliance) | grey (#aaaaaa) |
-| **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
-| **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
+| Faction | Race | Colour | Flag |
+|---|---|---|---|
+| **International Space Force of Humanity** | Humanity (Free Nations Alliance) | grey (#aaaaaa) | navy over steel grey, a silver-rimmed shield bearing Terra in orbit under the Alliance star (humanity, the Shield Bearer) |
+| **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson | crimson with a gold border, black dragon wings spread around a gold crown and lozenge |
+| **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze | ochre with a brown hoist of three diamonds, a radiant halo around a gear, hammer and chisel (God the Craftsman) |
 
-A **faction** (Data/Factions) has a name, a colour, the units it can take and optional weapon changes. The three are
+A **faction** (Data/Factions) has a name, a colour, a flag, the units it can take and optional weapon changes. The three are
 created by **Ground Invasion > Rebuild Unit Catalog** (`SquadBuilder.FactionNames`), which keeps any edits made to them in the
-Inspector.
+Inspector. Flags are 600 × 400 PNGs in `Textures/Flags`, named after the faction's asset (e.g. `Rask.png`); the rebuild
+assigns one to any faction without a flag, and `FlagTextureImporter` keeps them at their own size. The army builder shows
+each faction's flag (a square of its colour if it has none).
 
 ### Units
 
@@ -197,6 +199,7 @@ Assets/_Project/
     Core/         battlefield scale and the shared random number generator
   Data/           ScriptableObject assets: Weapons, Keywords, Abilities, Factions, Units, Soldiers
   Editor/         builders for data, maps, scenes and the Windows build
+  Textures/Flags/ the faction flags
   Scenes/         MainMenu, UrbanDemo, Countryside, FortSolstice, Polar, Ship, CubeRoom (test room)
   Tests/          EditMode and PlayMode tests
 Docs/Rules.md     the rules
