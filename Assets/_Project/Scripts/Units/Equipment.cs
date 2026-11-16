@@ -7,7 +7,7 @@ namespace Eldoria.Units
     /// A piece of equipment a soldier can be given in the army builder (if their soldier type offers it). It can give
     /// keywords, abilities and extra weapons, and change stats (added to the soldier's own; negative values subtract).
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoria/Equipment", fileName = "NewEquipment", order = 3)]
+    [CreateAssetMenu(menuName = "Ground Invasion/Equipment", fileName = "NewEquipment", order = 3)]
     public class Equipment : ScriptableObject
     {
         public string displayName = "Equipment";

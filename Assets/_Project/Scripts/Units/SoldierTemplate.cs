@@ -9,7 +9,7 @@ namespace Eldoria.Units
     /// Template for a class of soldier (e.g. "Trooper", "Sergeant"): their stats, keywords and the weapons they carry.
     /// Unit templates say which soldier templates a unit is made of.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoria/Soldier Template", fileName = "NewSoldier", order = 1)]
+    [CreateAssetMenu(menuName = "Ground Invasion/Soldier Template", fileName = "NewSoldier", order = 1)]
     public class SoldierTemplate : ScriptableObject
     {
         public string displayName = "Soldier";

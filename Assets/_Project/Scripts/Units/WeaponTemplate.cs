@@ -8,7 +8,7 @@ namespace Eldoria.Units
     /// Template for a class of weapon (e.g. "Assault Rifle"): its stats and keywords.
     /// Soldier templates list the weapon templates their soldiers carry.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoria/Weapon Template", fileName = "NewWeapon", order = 2)]
+    [CreateAssetMenu(menuName = "Ground Invasion/Weapon Template", fileName = "NewWeapon", order = 2)]
     public class WeaponTemplate : ScriptableObject
     {
         public string displayName = "Weapon";

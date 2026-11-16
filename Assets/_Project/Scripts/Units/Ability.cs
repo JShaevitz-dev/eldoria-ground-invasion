@@ -50,7 +50,7 @@ namespace Eldoria.Units
     ///    they can restore health and/or give a keyword (e.g. Divine Sanctuary: +1 armor).
     /// All distances are horizontal, ignoring height.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoria/Ability", fileName = "NewAbility", order = 5)]
+    [CreateAssetMenu(menuName = "Ground Invasion/Ability", fileName = "NewAbility", order = 5)]
     public class Ability : ScriptableObject
     {
         public string displayName = "Ability";

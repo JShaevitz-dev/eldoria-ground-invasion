@@ -17,7 +17,7 @@ namespace Eldoria.EditorTools
     /// is also at (−x, −z), turned round). Two knolls, two ridges and two low rises whose crests block line of sight; a
     /// small polar station: the Relay Hut in the centre, and a Weather Station and a Supply Shed on each side (roofless,
     /// with doors and windows); and cover: snowbanks, fuel drums and supply crates (Half-cover), ice boulders and fuel
-    /// tanks (Full-cover). The shape comes from <see cref="PolarLayout"/>. Menu: Eldoria > Build Polar Nonsense.
+    /// tanks (Full-cover). The shape comes from <see cref="PolarLayout"/>. Menu: Ground Invasion > Build Polar Nonsense.
     /// </summary>
     public static class PolarMapBuilder
     {
@@ -28,7 +28,7 @@ namespace Eldoria.EditorTools
 
         private static Material snow, ice, panel, snowbank, drum, tank, crate;
 
-        [MenuItem("Eldoria/Build Polar Nonsense")]
+        [MenuItem("Ground Invasion/Build Polar Nonsense")]
         public static void Build()
         {
             UrbanMapBuilder.PrepareShared();

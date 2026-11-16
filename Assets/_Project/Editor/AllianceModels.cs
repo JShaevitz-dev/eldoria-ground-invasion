@@ -9,7 +9,7 @@ namespace Eldoria.EditorTools
     /// Placeholder soldier models for Alliance races from Docs/Lore.md that have no units yet: the Skael and the Sphinxians.
     /// Each is a soldier prefab (Prefabs/Units) with a Soldier component, a body collider and the primary-colour material on
     /// its gear (the faction's colour once deployed), but no soldier type: no unit uses them yet.
-    /// Menu: Eldoria > Build Alliance Models, or -executeMethod Eldoria.EditorTools.AllianceModels.Build. The unit catalog
+    /// Menu: Ground Invasion > Build Alliance Models, or -executeMethod Eldoria.EditorTools.AllianceModels.Build. The unit catalog
     /// rebuild makes them if they're missing.
     /// </summary>
     public static class AllianceModels
@@ -23,7 +23,7 @@ namespace Eldoria.EditorTools
         /// <summary>Sphinxian: human height (1.85 m).</summary>
         public const float SphinxianHeight = 1.85f, SphinxianRadius = 0.35f;
 
-        [MenuItem("Eldoria/Build Alliance Models")]
+        [MenuItem("Ground Invasion/Build Alliance Models")]
         public static void Build()
         {
             BuildSkael();

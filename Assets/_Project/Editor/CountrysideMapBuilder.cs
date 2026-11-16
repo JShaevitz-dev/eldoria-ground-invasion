@@ -18,7 +18,7 @@ namespace Eldoria.EditorTools
     /// meandering across the middle (wade at double
     /// movement cost) with a stone bridge and a shallow ford; a farmhouse, a barn and a stone shed; farm props giving
     /// half-cover (hay bales, haystacks, carts, fences, a well). The shape comes from <see cref="CountrysideLayout"/>.
-    /// Menu: Eldoria > Build Open Season.
+    /// Menu: Ground Invasion > Build Open Season.
     /// </summary>
     public static class CountrysideMapBuilder
     {
@@ -29,7 +29,7 @@ namespace Eldoria.EditorTools
 
         private static Material grass, gravel, mud, water, farmStone, barnWood, hay;
 
-        [MenuItem("Eldoria/Build Open Season")]
+        [MenuItem("Ground Invasion/Build Open Season")]
         public static void Build()
         {
             UrbanMapBuilder.PrepareShared();

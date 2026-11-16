@@ -1,16 +1,16 @@
 # Ground Invasion
 
-> **A fork of Eldoria with its first three factions, all three playable:** the International Space Force of Humanity
+> **Three factions, all playable:** the International Space Force of Humanity
 > (Field Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team), the Imperial Army of The Draconis Imperialis (Dragon
 > Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). Every game system is here (army lists and factions, movement,
-> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the three maps and the menus). The weapons,
+> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the five maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
 Ground Invasion is a space opera turn-based strategy game focused on company-level warfare across a variety of
 battlefields. Its tone sits between Star Trek and Warhammer 40k. The Free Nations Alliance (humanity, the Skael, the
 Chrome, the Sphinxians, and associates such as the Rask and the Hive) faces Draconis Imperialis, the empire of the
 Dragons and their bred Kobold and Dragonborn castes, across an uneasy cease-fire. The setting and its races are
-described in [`Docs/Lore.md`](Docs/Lore.md). This fork leaves behind the original Eldoria's WWII-inspired fantasy.
+described in [`Docs/Lore.md`](Docs/Lore.md).
 
 The goal of this project is to offer the tactical freedom of tabletop wargames with the convenience and tactical
 minutiae of a computer strategy game.
@@ -131,7 +131,7 @@ At a glance:
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
 A **faction** (Data/Factions) has a name, a colour, the units it can take and optional weapon changes. The three are
-created by **Eldoria > Rebuild Unit Catalog** (`SquadBuilder.FactionNames`), which keeps any edits made to them in the
+created by **Ground Invasion > Rebuild Unit Catalog** (`SquadBuilder.FactionNames`), which keeps any edits made to them in the
 Inspector.
 
 ### Units
@@ -142,11 +142,11 @@ Inspector.
 | **Marshal Command Tank** | International Space Force of Humanity | Commander | Marshal Command Tank (the Sagittarius MBT's stats plus Officer: Health 20, Armor 4, Move 30; 100mm Cannon; Frag Grenade every turn; the Sagittarius model with antennae and a satellite dish) |
 | **Master Sergeant Jakoby** | International Space Force of Humanity | Commander | Master Sergeant Jakoby (the Field Commander's stats without Lead from the front; Shotgun; two Frag Grenades as standard; wears a beret) |
 | **Mortar Team** | International Space Force of Humanity | Heavy Support | ISF Mortar Specialist (Mortar Launcher, Assault Rifle) + ISF Rifleman; Armor 2 |
-| **Sagittarius MBT** | International Space Force of Humanity | Heavy Support | Sagittarius MBT (the original Eldoria's Medium Tank: Health 20, Armor 4, 100mm Cannon) |
-| **Olympian Mech** | International Space Force of Humanity | Heavy Support | Olympian Mech (the original Eldoria's Stahl Colossus: Health 15, Armor 3, Machine Gun, Iron Claw, Stabilizers) |
+| **Sagittarius MBT** | International Space Force of Humanity | Heavy Support | Sagittarius MBT (Health 20, Armor 4, 100mm Cannon) |
+| **Olympian Mech** | International Space Force of Humanity | Heavy Support | Olympian Mech (Health 15, Armor 3, Machine Gun, Iron Claw, Stabilizers) |
 | **Workhorse Transport** | International Space Force of Humanity | Transport | Workhorse Transport (a six-wheeled armored truck: Health 10, Armor 3, Move 40; Transport: carries one unit of Biological soldiers; Mechanical; Stabilizers; Machine Gun) |
 | **ISF Boarding Team** | International Space Force of Humanity | Specialist | Boarding Sergeant + 4 Boarding Specialists (the ISF Rifleman's stats; Shotgun; a Combat Shield carried as standard, so Armor 3) |
-| **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (the original Eldoria's Sniper with Armor 1: Accuracy 100%, Sniper Rifle, Anti-Materiel Rifle or Shotgun, Sniper Precision; Chromashift Textiles: −25% to anyone aiming at it) |
+| **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (Armor 1, Accuracy 100%, Sniper Rifle, Anti-Materiel Rifle or Shotgun, Sniper Precision; Chromashift Textiles: −25% to anyone aiming at it) |
 | **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) + 2 Dragonborn Honorguard (the Dragonborn Footman's stats with 95% accuracy) |
 | **Rask Ultima** | Most Holy Army of The Rask Divine Collective | Commander | Rask Ultima (the Rask Rifleman's stats with Health 10 and Armor 2; Biological, Solo, Officer; Pistol) |
 | **Rask Blackhand** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Blackhand (the Rask Ultima's stats with Armor 1 and no Officer; Solntse Laser Rifle; a Repair Kit as standard) |
@@ -165,7 +165,7 @@ Inspector.
 | **Heavy Weapons Team** | International Space Force of Humanity | Heavy Support | ISF Rifleman Sergeant (Pistol) + 3 ISF Riflemen (Assault Rifles) + ISF Heavy Weapons (Machine Gun, Rocket Launcher or Flamethrower); Armor 2 |
 
 A **unit** (Data/Units) is a leader soldier plus other soldiers; each **soldier** (Data/Soldiers) has stats, keywords,
-weapons, abilities and a model. After adding them, run **Eldoria > Rebuild Unit Catalog** so the army builder lists
+weapons, abilities and a model. After adding them, run **Ground Invasion > Rebuild Unit Catalog** so the army builder lists
 them (and add each unit to its faction's unit list). They're created in code
 (`SquadBuilder.EnsureFieldCommander`, `EnsureIsfRifleSquad`, `EnsureHeavyWeaponsTeam`, `EnsureIsfRanger`, `EnsureIsfBoardingTeam`, `EnsureMasterSergeantJakoby`, `EnsureMarshalCommandTank`, `EnsureWorkhorseTransport`, `EnsureMortarTeam`, `EnsureSagittariusMbt`, `EnsureOlympianMech`, `EnsureDragonHierarch`,
 `EnsureDragonbornSquad`, `EnsureDragonbornSkymasterSquad`, `EnsureDragonbornExemplar`, `EnsureTyrantHoverTank`, `EnsureKoboldMechanist`, `EnsureKoboldMilitia`, `EnsureRaskUltima`, `EnsureRaskRifleTeam`, `EnsureStingerHeavyRobot`, `EnsureIntimidatorMediumRobot`, `EnsureRaskBlackhand`, `EnsureRaskRedhand`, `EnsureRaskReliquary`; the dragon and Dragonborn placeholder models are built from primitives the first time), keeping any Inspector edits. Every unit has a role: Commander, Infantry, Heavy Support,
@@ -181,7 +181,7 @@ Prefabs/Units.
 ## Working on the project
 
 **Requirements:** Unity **6000.3.1f1** (Unity 6.3) with the Universal Render Pipeline and the Input System package. Open
-the repo folder in Unity Hub. (The local folder may be named `Eldoria Ground Invasion`; the game is Ground Invasion. Code namespaces and the editor menu keep the name Eldoria.)
+the repo folder in Unity Hub.
 
 **Layout**
 
@@ -202,7 +202,7 @@ Assets/_Project/
 Docs/Rules.md     the rules
 ```
 
-**Editor menu (Eldoria):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Polar Nonsense, Build Leisure Cruise, Build Alliance Models (the Skael and Sphinxian soldier models, not used by any unit yet), Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
+**Editor menu (Ground Invasion):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Polar Nonsense, Build Leisure Cruise, Build Alliance Models (the Skael and Sphinxian soldier models, not used by any unit yet), Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
 `SquadBuilder` keeps the keyword library and the unit catalog (Resources/UnitCatalog) in step with the assets in Data.
 
 **Tests** build their units from test-made ScriptableObjects (`Tests/PlayMode/TestArmies.cs`: stand-ins for an infantry
@@ -219,7 +219,7 @@ Unity.exe -batchmode -projectPath . -runTests -testPlatform EditMode -testResult
 Unity.exe -batchmode -projectPath . -runTests -testPlatform PlayMode -testResults play.xml
 ```
 
-**Windows build:** use **Eldoria > Build Game (Windows)**, or run it in batch mode:
+**Windows build:** use **Ground Invasion > Build Game (Windows)**, or run it in batch mode:
 
 ```bash
 Unity.exe -batchmode -quit -projectPath . -executeMethod Eldoria.EditorTools.GameBuilder.BuildWindows
@@ -242,10 +242,13 @@ GroundInvasion.exe -batchmode -nographics -mpSmoke join -logFile join.log
 
 ## Status
 
-A fork of the Eldoria proof of concept, rebooted as Ground Invasion. Three factions are playable (the ISF, the Draconis
+Three factions are playable (the ISF, the Draconis
 Imperialis and the Rask). **Next up: the fourth faction, The Chrome Techno-democracy** (not started). Every Chrome unit is
 unique and purpose built, with no shared soldier template; they share a common look of smooth lines and insectoid shapes,
-and like the game's other machines they lean towards high Armor over large Health pools.
+and like the game's other machines they lean towards high Armor over large Health pools. **Planned after that: the
+Hive** (not started), the Chrome's inverse: light Armor and large Health pools, relying on their hivemind and insectoid
+adaptations (Iron-Chitin armor rather than carbon-ceramic) instead of technology, with a commanding brain caste and a
+warrior caste in the combat roles.
 
 ## Audience and business model
 

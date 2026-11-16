@@ -182,7 +182,7 @@ namespace Eldoria.Units
     /// Keywords interact with each other: each keyword lists its interactions, checked whenever it is
     /// involved in an attack (see Rules.KeywordRules). Each keyword is its own asset so new ones need no code.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoria/Keyword", fileName = "NewKeyword", order = 3)]
+    [CreateAssetMenu(menuName = "Ground Invasion/Keyword", fileName = "NewKeyword", order = 3)]
     public class Keyword : ScriptableObject
     {
         public string displayName = "Keyword";

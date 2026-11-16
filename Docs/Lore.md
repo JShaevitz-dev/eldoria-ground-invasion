@@ -226,6 +226,11 @@ militarily if hostilities resume.
 
 Their associate status is a deliberate political choice, not a transitional step toward full membership.
 
+**On the battlefield (planned):** the Hive are the Chrome's inverse: light Armor and large Health pools. Where others
+rely on technology, the Hive rely on their hivemind and their own insectoid adaptations, wearing grown Iron-Chitin
+armor rather than manufactured carbon-ceramic. The brain caste commands (the faction's Commanders) and the warrior
+caste fills the combat roles.
+
 ## **7. Draconis Imperialis**
 
 **Political status:** Hostile power under an indefinite cease-fire with the Free Nations Alliance.

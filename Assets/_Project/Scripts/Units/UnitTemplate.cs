@@ -40,7 +40,7 @@ namespace Eldoria.Units
     /// Template for a class of unit (e.g. "Infantry Squad"): which soldier templates it is made of, and how many.
     /// The leader leads the unit when it is deployed (see leader succession in the rules).
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoria/Unit Template", fileName = "NewUnit", order = 0)]
+    [CreateAssetMenu(menuName = "Ground Invasion/Unit Template", fileName = "NewUnit", order = 0)]
     public class UnitTemplate : ScriptableObject
     {
         [Serializable]
@@ -69,7 +69,7 @@ namespace Eldoria.Units
         public bool equipmentSwapsForWholeUnit;
 
         [Tooltip("What the unit costs in an army list. Worked out from its stats by the Supply Cost formula " +
-                 "(Rules.SupplyCost) when the unit catalog is rebuilt (Eldoria > Rebuild Unit Catalog).")]
+                 "(Rules.SupplyCost) when the unit catalog is rebuilt (Ground Invasion > Rebuild Unit Catalog).")]
         [Min(0)] public int supplyCost;
 
         [Tooltip("Added to the Supply Cost the formula gives, for a unit whose value the formula doesn't capture " +

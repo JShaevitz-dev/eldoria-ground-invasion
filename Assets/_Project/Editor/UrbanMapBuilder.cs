@@ -22,7 +22,7 @@ namespace Eldoria.EditorTools
     ///
     /// Buildings are roofless (so the camera can see in), with doorways and windows. Window sills are low objects:
     /// soldiers can see, shoot and climb through a window (it costs no extra movement), and its sill gives half-cover.
-    /// Menu: Eldoria > Build Boxed in, or -executeMethod Eldoria.EditorTools.UrbanMapBuilder.Build
+    /// Menu: Ground Invasion > Build Boxed in, or -executeMethod Eldoria.EditorTools.UrbanMapBuilder.Build
     /// </summary>
     public static class UrbanMapBuilder
     {
@@ -51,7 +51,7 @@ namespace Eldoria.EditorTools
             public static Opening Win(float offset, float width = WindowWidth) => new Opening { Offset = offset, Width = width, Window = true };
         }
 
-        [MenuItem("Eldoria/Build Boxed in")]
+        [MenuItem("Ground Invasion/Build Boxed in")]
         public static void Build()
         {
             EnsureFolder(Root, "Scenes");

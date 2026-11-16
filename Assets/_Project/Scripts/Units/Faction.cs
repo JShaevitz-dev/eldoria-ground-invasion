@@ -9,7 +9,7 @@ namespace Eldoria.Units
     /// which units (Commanders included) they can take. A faction can also change the stats of weapons its soldiers
     /// use (added to the weapon's own stats) and give weapons its own names (aliases of the same stat block).
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoria/Faction", fileName = "NewFaction", order = 1)]
+    [CreateAssetMenu(menuName = "Ground Invasion/Faction", fileName = "NewFaction", order = 1)]
     public class Faction : ScriptableObject
     {
         public string displayName = "Faction";

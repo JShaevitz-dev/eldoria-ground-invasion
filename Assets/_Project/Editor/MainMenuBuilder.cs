@@ -8,13 +8,13 @@ namespace Eldoria.EditorTools
 {
     /// <summary>
     /// Builds the main menu scene (Scenes/MainMenu): a camera and the <see cref="MainMenu"/> (Play / Quit).
-    /// Menu: Eldoria > Build Main Menu, or -executeMethod Eldoria.EditorTools.MainMenuBuilder.Build
+    /// Menu: Ground Invasion > Build Main Menu, or -executeMethod Eldoria.EditorTools.MainMenuBuilder.Build
     /// </summary>
     public static class MainMenuBuilder
     {
         public const string ScenePath = "Assets/_Project/Scenes/MainMenu.unity";
 
-        [MenuItem("Eldoria/Build Main Menu")]
+        [MenuItem("Ground Invasion/Build Main Menu")]
         public static void Build()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);

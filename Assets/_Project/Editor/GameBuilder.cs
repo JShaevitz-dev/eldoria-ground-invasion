@@ -10,7 +10,7 @@ namespace Eldoria.EditorTools
     /// <summary>
     /// Builds the playable Windows game: Builds/GroundInvasion/GroundInvasion.exe (with its GroundInvasion_Data folder next to it), opening on the
     /// main menu. Needs no Unity install to run.
-    /// Menu: Eldoria > Build Game (Windows), or -executeMethod Eldoria.EditorTools.GameBuilder.BuildWindows
+    /// Menu: Ground Invasion > Build Game (Windows), or -executeMethod Eldoria.EditorTools.GameBuilder.BuildWindows
     /// (batchmode exits with code 1 if the build fails).
     /// </summary>
     public static class GameBuilder
@@ -21,13 +21,13 @@ namespace Eldoria.EditorTools
         /// <summary>Shaders the game loads by name at runtime (so the build must keep them).</summary>
         private static readonly string[] RuntimeShaders = { "Sprites/Default", "Universal Render Pipeline/Unlit" };
 
-        [MenuItem("Eldoria/Build Game (Windows)")]
+        [MenuItem("Ground Invasion/Build Game (Windows)")]
         public static void BuildWindows()
         {
             ProjectScenes.Apply();
             var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
             if (scenes.Length == 0 || !scenes[0].EndsWith("MainMenu.unity"))
-                Fail("The main menu must be the first scene in the build (run Eldoria > Build Main Menu).");
+                Fail("The main menu must be the first scene in the build (run Ground Invasion > Build Main Menu).");
 
             EnsureShadersIncluded();
 

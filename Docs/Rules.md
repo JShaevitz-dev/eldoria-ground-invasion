@@ -128,9 +128,9 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 - **Armor tax**, once per unit, by its best-armored soldier: **+100** for **Armor 4 or higher** (Sagittarius MBT, Marshal Command Tank, Tyrant Hover-tank, Stinger Heavy Robot); **+50** for **Armor 3** (Olympian Mech, Intimidator Medium Robot, ISF Boarding Team, Workhorse Transport). It discourages tank spam without limiting how many tanks an army takes.
 - The weights are constants in one place (`Rules.SupplyCost`), so they can be tuned.
 - **Adjustments:** a unit can carry a fixed surcharge on top of the formula (`UnitTemplate.supplyCostAdjustment`) for value the formula doesn't capture. Only the Rask Reliquary has one: +100 for its aura.
-- It's recalculated whenever the unit catalog is rebuilt (**Eldoria > Rebuild Unit Catalog**), so it follows any change to a unit.
+- It's recalculated whenever the unit catalog is rebuilt (**Ground Invasion > Rebuild Unit Catalog**), so it follows any change to a unit.
 
-**A faction can only field an army once it has a Commander unit.** While **no faction** has one, the army builder says so (*"No faction has a Commander yet, so a battle can't be started"*) instead of the faction choice, listing the factions greyed out with how far along each is (*"2 units · no Commander yet"*, *"no units yet"*), with a **Back** button, and the main menu notes it under the title (*"No Commanders yet"*). Starting a battle (or sending a multiplayer army) is refused with the same message. Once some faction has a Commander, the faction choice works as usual and each faction shows its units (*"3 units available"*, or *"· no Commander yet"* for one that can't field an army). Add Unit and Soldier template assets under Data, put each unit in its faction's unit list, then run **Eldoria > Rebuild Unit Catalog** so the army builder lists them.
+**A faction can only field an army once it has a Commander unit.** While **no faction** has one, the army builder says so (*"No faction has a Commander yet, so a battle can't be started"*) instead of the faction choice, listing the factions greyed out with how far along each is (*"2 units · no Commander yet"*, *"no units yet"*), with a **Back** button, and the main menu notes it under the title (*"No Commanders yet"*). Starting a battle (or sending a multiplayer army) is refused with the same message. Once some faction has a Commander, the faction choice works as usual and each faction shows its units (*"3 units available"*, or *"· no Commander yet"* for one that can't field an army). Add Unit and Soldier template assets under Data, put each unit in its faction's unit list, then run **Ground Invasion > Rebuild Unit Catalog** so the army builder lists them.
 
 **Weapons and equipment (customizing a unit):** a soldier type can offer **weapon swaps** (a weapon it carries, and what it can be swapped for, e.g. *Assault Rifle → SMG*) and **equipment** it can be given. A unit in your list whose soldiers have any options gets a **Customize** button, which opens a panel listing each of those soldier types with its weapon choices and equipment.
 - Choices apply to **every soldier of that type in the unit** (e.g. all the Troopers); the Sergeant is set separately. Each unit in the list has its own choices, even two of the same unit.
@@ -732,7 +732,7 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
 
 ## Maps
 
-### Open Season — *built (Scenes/Countryside, Eldoria > Build Open Season)*
+### Open Season — *built (Scenes/Countryside, Ground Invasion > Build Open Season)*
 
 - **100 × 100 m**, **not symmetrical**: open, gently rolling English farmland. Its shape is defined in `CountrysideLayout`.
 - **Deployment zones:** the player sets up in the southern **10 m** of the map, the AI in the northern 10 m. Both strips are flat.
@@ -757,7 +757,7 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
 
 - When the scene is opened directly in the editor, there are no armies on it.
 
-### Boxed in — *built (Scenes/UrbanDemo, Eldoria > Build Boxed in)*
+### Boxed in — *built (Scenes/UrbanDemo, Ground Invasion > Build Boxed in)*
 
 - **80 × 60 m**, with **180° rotational symmetry**: every feature in the south half has a twin at the opposite point, turned round, so both sides face the same choices.
 - **Deployment zones:** the player sets up in the southern **8 m** of the map, the AI in the northern 8 m.
@@ -767,7 +767,7 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
 - **Buildings** are roofless, with doorways (2 m) and **windows**. A window can be **seen and shot through**, its sill gives **Half-cover**, and soldiers can **climb through** it (mantle: no extra movement cost).
 - *Proposed:* cars, sandbags, crates, planters, low walls, rubble and furniture have **Half-cover**. Cars block movement but can be climbed onto. The container and the statue have **Full-cover**.
 
-### Siege of Ft Solstice — *built (Scenes/FortSolstice, Eldoria > Build Ft Solstice)*
+### Siege of Ft Solstice — *built (Scenes/FortSolstice, Ground Invasion > Build Ft Solstice)*
 
 - **100 m wide × 130 m deep** of flat **desert**, **asymmetrical**: one side attacks, the other defends a massive fortress in the north.
 - **The attackers** are the **south** side (in single player, you): they deploy on the open sand along the south edge (90 × 8 m), **42 m** from the fortress's outer wall. Two bands of sandstone rocks (Half-cover) and five boulders (Full-cover) dot the approach.
@@ -781,7 +781,7 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
   - **Wall walks** (manning the walls): platforms **2.5 m deep** behind the outer wall (its south, west and east faces and the short north stretches) and the middle wall (its south, west and east faces), **0.8 m below the wall top** (4.2 m up behind the outer wall, 3.2 m behind the middle wall), so a soldier on them sees, and shoots, over the wall. **Battlements** (0.5 m) along those wall tops are **Half-cover**: −25% to hit a soldier within 5 m of them when they're between shooter and target. **Ramps** lead up from the ground: two in each lane behind the outer wall (the lane walls are taller than the walk and split it) and one from each side of the outer wall; two from behind the middle wall's south face and one from each of its sides. Each stretch of wall between gates has its own walk (no bridges over the gates); walks meet at the corners. Vehicles and other large soldiers don't fit. On the ground right behind a wall, nobody sees over it.
 - **Objective:** a gold marker (2.5 m radius) in the centre of the keep. **The attackers win by getting a unit leader onto it** (see Winning). The defenders win by wiping out the attackers.
 
-### Polar Nonsense — *built (Scenes/Polar, Eldoria > Build Polar Nonsense)*
+### Polar Nonsense — *built (Scenes/Polar, Ground Invasion > Build Polar Nonsense)*
 
 - **100 m × 100 m** of snow, **symmetrical**: laid out with **180° symmetry** (everything at (x, z) is also at (−x, −z), turned round), so neither side has the better half. The shape is in `Terrain.PolarLayout`.
 - **Deployment zones:** the player sets up in the southern **10 m** of the map, the AI in the northern 10 m. Both strips are flat.
@@ -792,7 +792,7 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
   - **Full-cover:** **ice boulders** (2.6 m) and the station's two **fuel tanks** (2.5 m, 3 m across); both block movement.
   - The Relay Hut's two **radio masts** are thin poles: no cover.
 
-### Leisure Cruise — *built (Scenes/Ship, Eldoria > Build Leisure Cruise)*
+### Leisure Cruise — *built (Scenes/Ship, Ground Invasion > Build Leisure Cruise)*
 
 - **50 m × 150 m**: the cluttered inside of a ship, laid out with **180° symmetry** (everything at (x, z) is also at (−x, −z), turned round). The shape is in `Terrain.ShipLayout`.
 - **Deployment zones:** a **hangar bay** at each end; the player sets up in the southern **10 m**, the AI in the northern 10 m.

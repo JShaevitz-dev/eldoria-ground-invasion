@@ -29,7 +29,7 @@ namespace Eldoria.EditorTools
     ///
     /// Win condition: an attacker's unit leader ending a move on the objective marker (see <see cref="ObjectiveMarker"/>),
     /// besides wiping out the enemy. Walls are structure terrain (they block movement and sight); gates are wide enough
-    /// for a tank. Menu: Eldoria > Build Ft Solstice, or -executeMethod Eldoria.EditorTools.FortSolsticeMapBuilder.Build
+    /// for a tank. Menu: Ground Invasion > Build Ft Solstice, or -executeMethod Eldoria.EditorTools.FortSolsticeMapBuilder.Build
     /// </summary>
     public static class FortSolsticeMapBuilder
     {
@@ -64,7 +64,7 @@ namespace Eldoria.EditorTools
 
         private static Material sand, wallStone, keepStone, rock, sandbagMat, crateMat, marker;
 
-        [MenuItem("Eldoria/Build Ft Solstice")]
+        [MenuItem("Ground Invasion/Build Ft Solstice")]
         public static void Build()
         {
             UrbanMapBuilder.PrepareShared();

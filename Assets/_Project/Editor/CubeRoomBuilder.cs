@@ -10,7 +10,7 @@ namespace Eldoria.EditorTools
     /// <summary>
     /// Generates the "cube room" test scene: a 60m x 44m battlefield (with test terrain) enclosed by
     /// four walls (open top so the tactical camera can see in), lighting and a camera rig.
-    /// Menu: Eldoria > Build Cube Room. Also callable from the command line via
+    /// Menu: Ground Invasion > Build Cube Room. Also callable from the command line via
     /// -executeMethod Eldoria.EditorTools.CubeRoomBuilder.Build
     /// </summary>
     public static class CubeRoomBuilder
@@ -22,7 +22,7 @@ namespace Eldoria.EditorTools
         private const float WallHeight = 4f;
         private const float WallThickness = 0.5f;
 
-        [MenuItem("Eldoria/Build Cube Room")]
+        [MenuItem("Ground Invasion/Build Cube Room")]
         public static void Build()
         {
             EnsureFolder(Root, "Scenes");

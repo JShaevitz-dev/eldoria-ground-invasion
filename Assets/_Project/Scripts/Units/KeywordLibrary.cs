@@ -8,7 +8,7 @@ namespace Eldoria.Units
     /// Every keyword asset in the game, so rules can find the ones they hand out (e.g. "Moved") by name.
     /// Lives at Resources/KeywordLibrary. If a keyword isn't in the library, a stand-in with that name is made.
     /// </summary>
-    [CreateAssetMenu(menuName = "Eldoria/Keyword Library", fileName = "KeywordLibrary", order = 4)]
+    [CreateAssetMenu(menuName = "Ground Invasion/Keyword Library", fileName = "KeywordLibrary", order = 4)]
     public class KeywordLibrary : ScriptableObject
     {
         public const string ResourcePath = "KeywordLibrary";

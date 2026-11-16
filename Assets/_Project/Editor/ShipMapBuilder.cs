@@ -19,7 +19,7 @@ namespace Eldoria.EditorTools
     /// with doors and viewing windows, crossed by two cross corridors; and a cargo hold in the middle. Bulkheads are
     /// structure (they block line of sight); clutter is strewn everywhere: crates, coolant drums, debris, consoles, bunks
     /// (Half-cover), cargo containers, lockers and reactor housings (Full-cover). The shape comes from
-    /// <see cref="ShipLayout"/>. Menu: Eldoria > Build Leisure Cruise.
+    /// <see cref="ShipLayout"/>. Menu: Ground Invasion > Build Leisure Cruise.
     /// </summary>
     public static class ShipMapBuilder
     {
@@ -30,7 +30,7 @@ namespace Eldoria.EditorTools
         private static Material deck, bulkhead, hull, hazard, roomFloor, holdFloor, hangarFloor;
         private static Material crate, drum, debris, container, locker, console, bunk, reactor;
 
-        [MenuItem("Eldoria/Build Leisure Cruise")]
+        [MenuItem("Ground Invasion/Build Leisure Cruise")]
         public static void Build()
         {
             UrbanMapBuilder.PrepareShared();

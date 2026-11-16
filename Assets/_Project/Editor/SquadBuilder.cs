@@ -13,7 +13,7 @@ namespace Eldoria.EditorTools
     ///   Factions: the game's factions (Data/Factions), created if missing (see FactionNames)
     ///   SpawnUnit: places a unit from a template in the open scene
     /// There are no units yet: add UnitTemplate assets (with their SoldierTemplates in Data/Soldiers) to Data/Units and
-    /// to their factions' unit lists, then run Eldoria > Rebuild Unit Catalog so the army builder lists them.
+    /// to their factions' unit lists, then run Ground Invasion > Rebuild Unit Catalog so the army builder lists them.
     /// </summary>
     public static class SquadBuilder
     {
@@ -2580,7 +2580,7 @@ namespace Eldoria.EditorTools
             go.GetComponent<Renderer>().sharedMaterial = mat;
         }
 
-        [MenuItem("Eldoria/Rebuild Unit Catalog")]
+        [MenuItem("Ground Invasion/Rebuild Unit Catalog")]
         public static void RebuildUnitCatalog()
         {
             var keywords = EnsureKeywords();
