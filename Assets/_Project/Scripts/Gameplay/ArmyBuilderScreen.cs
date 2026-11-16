@@ -29,7 +29,18 @@ namespace Eldoria.Gameplay
         private List<string> problems = new List<string>();
         private Vector2 scroll;
         private Vector2 armyScroll;
-        private GUIStyle title, heading, body, small, good, bad, warn, stat, paragraph, button, bigButton, factionButton;
+        private GUIStyle title, heading, body, small, good, bad, warn, stat, paragraph, button, bigButton, factionButton, textField;
+
+        /// <summary>The Save or Load panel, if open.</summary>
+        public enum FilePanel { None, Save, Load }
+        public FilePanel OpenPanel { get; private set; }
+        /// <summary>The name the army is saved under (the last one saved or loaded, by default).</summary>
+        public string SaveName = "";
+        /// <summary>What the last save, load or delete said (null if it worked, or nothing has been done).</summary>
+        public string FileMessage { get; private set; }
+        private List<SavedArmy> savedArmies = new List<SavedArmy>();
+        private string confirmDelete;
+        private Vector2 fileScroll;
 
         /// <summary>The chosen faction (null while the player is still choosing one).</summary>
         public Faction Faction { get; private set; }
@@ -182,6 +193,66 @@ namespace Eldoria.Gameplay
             problems.Clear();
         }
 
+        // ------------------------------------------------------------------ Saving and loading (army files)
+
+        /// <summary>
+        /// Saves the list as an army file named <paramref name="name"/> (replacing one of that name; see <see cref="ArmyFiles"/>).
+        /// Returns null if saved; otherwise why not.
+        /// </summary>
+        public string SaveArmy(string name)
+        {
+            FileMessage = ArmyFiles.Save(name, Faction, army, loadouts);
+            if (FileMessage == null) SaveName = ArmyFiles.CleanName(name);
+            return FileMessage;
+        }
+
+        /// <summary>
+        /// Replaces the list with a saved army, switching to its faction. Returns null if loaded; otherwise why not (the list
+        /// is left as it was). The loaded list is checked, so <see cref="Problems"/> says if it no longer fits the rules
+        /// (e.g. after a unit's Supply Cost changed).
+        /// </summary>
+        public string LoadArmy(string path)
+        {
+            if (!ArmyFiles.TryLoad(path, catalog, out var faction, out var units, out var unitLoadouts, out var error))
+                return FileMessage = error;
+            if (!factions.Contains(faction)) return FileMessage = $"{faction.displayName} isn't in this game";
+            var missing = units.FirstOrDefault(u => !faction.Has(u));
+            if (missing != null) return FileMessage = $"{missing.displayName} isn't available to {faction.displayName}";
+            Faction = faction;
+            available = catalog.UnitsFor(faction).ToList();
+            ClearList();
+            army.AddRange(units);
+            loadouts.AddRange(unitLoadouts);
+            problems = ArmyRules.Problems(army, Faction);
+            SaveName = ArmyFiles.Read(path, out _)?.name ?? SaveName;
+            FileMessage = null;
+            return null;
+        }
+
+        /// <summary>Deletes a saved army file. Returns null if deleted; otherwise why not.</summary>
+        public string DeleteSavedArmy(string path)
+        {
+            FileMessage = ArmyFiles.Delete(path);
+            RefreshSavedArmies();
+            return FileMessage;
+        }
+
+        /// <summary>Opens the Save or Load panel (or closes it, with None).</summary>
+        public void OpenFilePanel(FilePanel panel)
+        {
+            OpenPanel = panel;
+            FileMessage = null;
+            confirmDelete = null;
+            if (panel == FilePanel.Save && ArmyFiles.CleanName(SaveName).Length == 0)
+                SaveName = Faction != null ? $"{Faction.displayName} army" : "My army";
+            if (panel == FilePanel.Load) RefreshSavedArmies();
+        }
+
+        /// <summary>The saved armies, as the Load panel lists them (most recent first).</summary>
+        public IReadOnlyList<SavedArmy> SavedArmies => savedArmies;
+
+        private void RefreshSavedArmies() => savedArmies = ArmyFiles.List(catalog);
+
         // ------------------------------------------------------------------ Customizing (weapons and equipment)
 
         /// <summary>
@@ -308,6 +379,29 @@ namespace Eldoria.Gameplay
         public Result Draw()
         {
             InitStyles();
+            bool panelOpen = OpenPanel != FilePanel.None;
+            var result = DrawScreen();
+            if (OpenPanel != FilePanel.None)
+            {
+                float w = Mathf.Min(620f, Screen.width - 40f), h = Mathf.Min(OpenPanel == FilePanel.Save ? 300f : 560f, Screen.height - 40f);
+                var rect = new Rect((Screen.width - w) / 2f, (Screen.height - h) / 2f, w, h);
+                if (Event.current.type == EventType.Repaint)
+                {
+                    // The builder dimmed behind the panel, and a solid panel (the default window is see-through).
+                    var old = GUI.color;
+                    GUI.color = new Color(0f, 0f, 0f, 0.65f);
+                    GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
+                    GUI.color = new Color(0.09f, 0.1f, 0.12f, 1f);
+                    GUI.DrawTexture(rect, Texture2D.whiteTexture);
+                    GUI.color = old;
+                }
+                GUI.ModalWindow(0x4152, rect, DrawFilePanel, OpenPanel == FilePanel.Save ? "Save army" : "Load army");
+            }
+            return panelOpen ? Result.None : result;
+        }
+
+        private Result DrawScreen()
+        {
             if (Faction == null) return DrawFactionChoice();
             var result = Result.None;
             float w = Mathf.Min(1280f, Screen.width - 40f), h = Mathf.Min(820f, Screen.height - 40f);
@@ -372,6 +466,12 @@ namespace Eldoria.Gameplay
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Clear", button, GUILayout.Height(36f))) Clear();
             if (GUILayout.Button("Random", button, GUILayout.Height(36f))) Randomize(Core.GameRandom.Shared);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUI.enabled = army.Count > 0;
+            if (GUILayout.Button("Save army", button, GUILayout.Height(36f))) OpenFilePanel(FilePanel.Save);
+            GUI.enabled = true;
+            if (GUILayout.Button("Load army", button, GUILayout.Height(36f))) OpenFilePanel(FilePanel.Load);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Back", bigButton, GUILayout.Height(50f))) result = Result.Back;
@@ -530,9 +630,71 @@ namespace Eldoria.Gameplay
                 GUILayout.Space(8f);
             }
             GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Load a saved army", button, GUILayout.Height(40f))) OpenFilePanel(FilePanel.Load);
+            GUILayout.Space(8f);
             if (GUILayout.Button("Back", bigButton, GUILayout.Height(50f))) result = Result.Back;
             GUILayout.EndArea();
             return result;
+        }
+
+        /// <summary>The Save panel (a name, Save, Cancel) or the Load panel (the saved armies: Load or Delete each).</summary>
+        private void DrawFilePanel(int id)
+        {
+            GUILayout.Space(6f);
+            if (OpenPanel == FilePanel.Save)
+            {
+                GUILayout.Label("Name", heading);
+                SaveName = GUILayout.TextField(SaveName ?? "", ArmyFiles.MaxNameLength, textField, GUILayout.Height(32f));
+                string clean = ArmyFiles.CleanName(SaveName);
+                if (clean.Length > 0 && ArmyFiles.Exists(clean)) GUILayout.Label($"An army called \"{clean}\" is already saved: saving replaces it.", warn);
+                GUILayout.Label($"{army.Count} unit{(army.Count == 1 ? "" : "s")} · Supply {SupplyTotal} / {ArmyRules.SupplyCap} · {Faction?.displayName}", small);
+                if (FileMessage != null) GUILayout.Label(FileMessage, bad);
+                GUILayout.FlexibleSpace();
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Cancel", button, GUILayout.Height(40f))) OpenFilePanel(FilePanel.None);
+                GUI.enabled = clean.Length > 0;
+                bool enter = Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter);
+                if ((GUILayout.Button(ArmyFiles.Exists(clean) ? "Replace" : "Save", bigButton, GUILayout.Height(40f)) || (enter && clean.Length > 0))
+                    && SaveArmy(clean) == null) OpenFilePanel(FilePanel.None);
+                GUI.enabled = true;
+                GUILayout.EndHorizontal();
+                return;
+            }
+
+            GUILayout.Label($"Saved armies are kept in {ArmyFiles.Folder}. Army files can be shared: copy one into that folder to load it.", small);
+            fileScroll = GUILayout.BeginScrollView(fileScroll);
+            if (savedArmies.Count == 0) GUILayout.Label("No saved armies yet. Build an army and press Save army.", small);
+            foreach (var saved in savedArmies)
+            {
+                GUILayout.BeginHorizontal(GUI.skin.box);
+                GUILayout.BeginVertical();
+                GUILayout.Label(saved.Name, heading);
+                if (saved.Error != null) GUILayout.Label(saved.Error, bad);
+                else GUILayout.Label($"{saved.FactionName} · {saved.UnitCount} unit{(saved.UnitCount == 1 ? "" : "s")} · saved {saved.Saved:d MMM yyyy HH:mm}", small);
+                GUILayout.EndVertical();
+                GUILayout.FlexibleSpace();
+                GUI.enabled = saved.Error == null;
+                if (GUILayout.Button("Load", button, GUILayout.Width(90f), GUILayout.Height(34f)) && LoadArmy(saved.Path) == null)
+                    OpenFilePanel(FilePanel.None);
+                GUI.enabled = true;
+                bool confirming = confirmDelete == saved.Path;
+                if (GUILayout.Button(confirming ? "Really?" : "Delete", button, GUILayout.Width(90f), GUILayout.Height(34f)))
+                {
+                    if (confirming) { DeleteSavedArmy(saved.Path); confirmDelete = null; GUILayout.EndHorizontal(); break; }
+                    confirmDelete = saved.Path;
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndScrollView();
+            if (FileMessage != null) GUILayout.Label(FileMessage, bad);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Open folder", button, GUILayout.Height(40f)))
+            {
+                try { System.IO.Directory.CreateDirectory(ArmyFiles.Folder); Application.OpenURL("file:///" + ArmyFiles.Folder.Replace('\\', '/')); }
+                catch (System.Exception e) { FileMessage = $"Couldn't open the folder: {e.Message}"; }
+            }
+            if (GUILayout.Button("Close", bigButton, GUILayout.Height(40f))) OpenFilePanel(FilePanel.None);
+            GUILayout.EndHorizontal();
         }
 
         /// <summary>Where a faction button shows its flag: at the left, 3:2, with a margin.</summary>
@@ -596,6 +758,7 @@ namespace Eldoria.Gameplay
             button = new GUIStyle(GUI.skin.button) { fontSize = 15 };
             bigButton = new GUIStyle(GUI.skin.button) { fontSize = 22, fontStyle = FontStyle.Bold, richText = true };
             // Faction buttons: the name is centred in the space right of the flag (see ButtonMarkRect).
+            textField = new GUIStyle(GUI.skin.textField) { fontSize = 18, alignment = TextAnchor.MiddleLeft };
             factionButton = new GUIStyle(bigButton);
             factionButton.padding = new RectOffset(110, 16, bigButton.padding.top, bigButton.padding.bottom);
         }

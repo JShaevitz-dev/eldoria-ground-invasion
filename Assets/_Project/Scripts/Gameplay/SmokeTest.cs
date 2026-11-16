@@ -83,6 +83,20 @@ namespace Eldoria.Gameplay
             foreach (var name in new[] { "Field Commander", "ISF Rifle Squad", "Olympian Mech", "Mortar Team", "Sagittarius MBT", "ISF Ranger" })
                 Check(menu.Builder?.Add(Unit(name)) == null, $"{name} is added");
             Check(menu.Builder != null && menu.Builder.Confirm(), "the army is valid");
+            // Save the army to a file and load it back (in a scratch folder, not the player's saved armies).
+            ArmyFiles.Folder = System.IO.Path.Combine(Application.temporaryCachePath, "SmokeTestArmies");
+            Check(menu.Builder?.SaveArmy("Smoke Test") == null, $"the army is saved to a file ({menu.Builder?.FileMessage})");
+            menu.Builder?.OpenFilePanel(ArmyBuilderScreen.FilePanel.Save);
+            yield return Screenshot("save.png");
+            menu.Builder?.OpenFilePanel(ArmyBuilderScreen.FilePanel.Load);
+            yield return Screenshot("load.png");
+            var before = menu.Builder != null ? menu.Builder.Army.ToList() : null;
+            menu.Builder?.Clear();
+            Check(menu.Builder?.LoadArmy(ArmyFiles.PathFor("Smoke Test")) == null && before != null && menu.Builder.Army.SequenceEqual(before),
+                $"the saved army loads back ({menu.Builder?.FileMessage})");
+            menu.Builder?.OpenFilePanel(ArmyBuilderScreen.FilePanel.None);
+            try { System.IO.Directory.Delete(ArmyFiles.Folder, true); } catch (System.Exception) { }
+            ArmyFiles.Folder = null;
             var army = menu.Builder != null ? menu.Builder.Army.ToList() : new System.Collections.Generic.List<Eldoria.Units.UnitTemplate>();
             Check(MainMenu.StartBattle(isf, army).Count == 0, "the battle starts");
             for (int i = 0; i < 10 && SceneManager.GetActiveScene().name != Battlefields.EnglishCountryside.Scene; i++) yield return null;

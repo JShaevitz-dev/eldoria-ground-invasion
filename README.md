@@ -32,7 +32,10 @@ After **Play**, you'll:
 1. **Choose a battlefield:** the Boxed in, the Open Season, the Siege of Ft Solstice, Polar Nonsense or Leisure Cruise.
 2. **Choose your faction**, which decides which units and commanders you can take.
 3. **Build your army:** units whose Supply Costs add up to no more than 750, with exactly 1 Commander (any other unit can be taken more than once). Units whose soldiers
-   have weapon or equipment options can be customized. Then press **Confirm army**.
+   have weapon or equipment options can be customized. Then press **Confirm army**. **Save army** keeps the list (units
+   and loadouts) in a file under a name of your choice; **Load army** (also on the faction choice) brings a saved one
+   back. Army files live in `%USERPROFILE%\AppData\LocalLow\Ground Invasion\Ground Invasion\Armies` (**Open folder**
+   in the Load panel opens it) and can be shared: copy one into that folder to load it.
 
 The five maps:
 
@@ -134,7 +137,9 @@ A **faction** (Data/Factions) has a name, a colour, a flag, the units it can tak
 created by **Ground Invasion > Rebuild Unit Catalog** (`SquadBuilder.FactionNames`), which keeps any edits made to them in the
 Inspector. Flags are 600 × 400 PNGs in `Textures/Flags`, named after the faction's asset (e.g. `Rask.png`); the rebuild
 assigns one to any faction without a flag, and `FlagTextureImporter` keeps them at their own size. The army builder shows
-each faction's flag (a square of its colour if it has none).
+each faction's flag (a square of its colour if it has none). Flags for the planned factions are ready too, for when
+their assets exist: `Chrome.png` (polished chrome with teal arcs, a teal roundel bearing a white equilateral triangle) and `Hive.png` (Iron-Chitin honeycomb, six amber warrior-caste cells joined by psionic
+threads to the brain caste's eye).
 
 ### Units
 
