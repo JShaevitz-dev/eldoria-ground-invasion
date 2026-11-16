@@ -331,7 +331,7 @@ namespace Eldoria.Gameplay
             }
 
             float cx = Screen.width / 2f, cy = Screen.height / 2f;
-            GUI.Label(new Rect(cx - 400f, cy - 220f, 800f, 100f), "ELDORIA", titleStyle);
+            GUI.Label(new Rect(cx - 500f, cy - 220f, 1000f, 100f), "GROUND INVASION", titleStyle);
             GUI.Label(new Rect(cx - 400f, cy - 125f, 800f, 30f), "Turn-based tactics", subtitleStyle);
             if (!ArmyBuilderScreen.CatalogCanFieldArmies(UnitCatalog.Load()))
                 GUI.Label(new Rect(cx - 400f, cy - 95f, 800f, 30f), "No Commanders yet: battles can't be started.", subtitleStyle);

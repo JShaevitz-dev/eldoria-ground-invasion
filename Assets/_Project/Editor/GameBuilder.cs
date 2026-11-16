@@ -8,15 +8,15 @@ using UnityEditor.Build;
 namespace Eldoria.EditorTools
 {
     /// <summary>
-    /// Builds the playable Windows game: Builds/Eldoria/Eldoria.exe (with its Eldoria_Data folder next to it), opening on the
+    /// Builds the playable Windows game: Builds/GroundInvasion/GroundInvasion.exe (with its GroundInvasion_Data folder next to it), opening on the
     /// main menu. Needs no Unity install to run.
     /// Menu: Eldoria > Build Game (Windows), or -executeMethod Eldoria.EditorTools.GameBuilder.BuildWindows
     /// (batchmode exits with code 1 if the build fails).
     /// </summary>
     public static class GameBuilder
     {
-        public const string OutputDir = "Builds/Eldoria";
-        public const string ExeName = "Eldoria.exe";
+        public const string OutputDir = "Builds/GroundInvasion";
+        public const string ExeName = "GroundInvasion.exe";
 
         /// <summary>Shaders the game loads by name at runtime (so the build must keep them).</summary>
         private static readonly string[] RuntimeShaders = { "Sprites/Default", "Universal Render Pipeline/Unlit" };
@@ -31,8 +31,8 @@ namespace Eldoria.EditorTools
 
             EnsureShadersIncluded();
 
-            PlayerSettings.companyName = "Eldoria";
-            PlayerSettings.productName = "Eldoria";
+            PlayerSettings.companyName = "Ground Invasion";
+            PlayerSettings.productName = "Ground Invasion";
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;

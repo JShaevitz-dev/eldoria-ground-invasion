@@ -11,7 +11,7 @@ namespace Eldoria.Gameplay
     /// from the main menu it chooses the Open Season, builds an ISF army and starts a game, selects a unit and previews a
     /// move, lets the AI play three turns, checks the runtime shaders and sounds, then quits with exit code 0 (passed) or 1
     /// (an error was logged or a check failed).
-    /// Usage: Eldoria.exe -batchmode -nographics -smokeTest -logFile smoke.log
+    /// Usage: GroundInvasion.exe -batchmode -nographics -smokeTest -logFile smoke.log
     /// With a window (no -batchmode) and <c>-smokeScreenshots folder</c>, it also saves screenshots of the main menu and
     /// the game (HUD and labels included) into that folder.
     /// </summary>

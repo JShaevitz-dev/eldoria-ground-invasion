@@ -1,4 +1,4 @@
-# Eldoria Ground Invasion: Setting and Lore
+# Ground Invasion: Setting and Lore
 
 A space opera whose tone sits between Star Trek and Warhammer 40k. It replaces the WWII-inspired fantasy setting of the
 original Eldoria. The game rules live in [Rules.md](Rules.md); this document is the setting they serve.
@@ -108,6 +108,10 @@ depicting the cover of the voyage record.
 
 **Strategic distinction:** The Chrome possess a planetary weapon capable of using nanotechnology to kill animal life
 across an entire planet and resurrect it as zombies.
+
+**On the battlefield (The Chrome Techno-democracy, planned):** the Chrome have no standard soldier: each Chrome's body
+is built for its purpose, so every Chrome unit is unique. What they share is an aesthetic of smooth lines and insectoid
+shapes. Like the game's other machines, Chrome units trend towards high Armor rather than large Health pools.
 
 ## **4. The Rask**
 

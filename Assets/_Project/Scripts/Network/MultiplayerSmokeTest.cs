@@ -14,8 +14,8 @@ namespace Eldoria.Network
     /// each other (move toward the enemy, shoot what they can, end the turn) until turn 4 or the end of the battle.
     /// Passes (exit code 0) if nothing went wrong and every replayed order gave the same state in both games.
     /// Usage (start the host first):
-    ///   Eldoria.exe -batchmode -nographics -mpSmoke host -logFile host.log
-    ///   Eldoria.exe -batchmode -nographics -mpSmoke join -logFile join.log
+    ///   GroundInvasion.exe -batchmode -nographics -mpSmoke host -logFile host.log
+    ///   GroundInvasion.exe -batchmode -nographics -mpSmoke join -logFile join.log
     /// </summary>
     public class MultiplayerSmokeTest : MonoBehaviour
     {

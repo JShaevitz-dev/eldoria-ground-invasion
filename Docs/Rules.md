@@ -1,8 +1,8 @@
-# Eldoria — Game Rules
+# Ground Invasion — Game Rules
 
 Living record of the rules decided so far. **Status** shows what the code does today.
 
-> **This fork (Eldoria Ground Invasion) has its first three factions, and all three can field armies:** the ISF (Field
+> **This fork (Ground Invasion, of Eldoria) has its first three factions, and all three can field armies:** the ISF (Field
 > Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, Workhorse Transport), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,

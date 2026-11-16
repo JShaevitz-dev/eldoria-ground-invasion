@@ -1,4 +1,4 @@
-# Eldoria Ground Invasion
+# Ground Invasion
 
 > **A fork of Eldoria with its first three factions, all three playable:** the International Space Force of Humanity
 > (Field Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team), the Imperial Army of The Draconis Imperialis (Dragon
@@ -6,7 +6,7 @@
 > terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the three maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
-Eldoria Ground Invasion is a space opera turn-based strategy game focused on company-level warfare across a variety of
+Ground Invasion is a space opera turn-based strategy game focused on company-level warfare across a variety of
 battlefields. Its tone sits between Star Trek and Warhammer 40k. The Free Nations Alliance (humanity, the Skael, the
 Chrome, the Sphinxians, and associates such as the Rask and the Hive) faces Draconis Imperialis, the empire of the
 Dragons and their bred Kobold and Dragonborn castes, across an uneasy cease-fire. The setting and its races are
@@ -21,10 +21,10 @@ getting the rules right.
 
 ## Play it
 
-1. Download [`Eldoria-Ground-Invasion-Windows.zip`](Eldoria-Ground-Invasion-Windows.zip) from this repo.
-2. Unzip it anywhere and run `Eldoria/Eldoria.exe` (Windows 64-bit).
+1. Download [`Ground-Invasion-Windows.zip`](Ground-Invasion-Windows.zip) from this repo.
+2. Unzip it anywhere and run `Ground Invasion/GroundInvasion.exe` (Windows 64-bit).
 
-Or build the game yourself (see **Windows build** below) and run `Builds/Eldoria/Eldoria.exe`. The main menu has **Play**,
+Or build the game yourself (see **Windows build** below) and run `Builds/GroundInvasion/GroundInvasion.exe`. The main menu has **Play**,
 **Multiplayer**, **Quit** and the turn timer option (off by default, 10 minutes per turn).
 
 After **Play**, you'll:
@@ -68,7 +68,7 @@ Two players can play each other over a network. On the main menu, pick **Multipl
 
 Things to check:
 
-- **Firewall:** the first time you host, Windows asks whether to let Eldoria through the firewall. Allow it, at least on
+- **Firewall:** the first time you host, Windows asks whether to let Ground Invasion through the firewall. Allow it, at least on
   private networks.
 - **Same network (LAN):** use the address the host's game shows (usually `192.168.x.x` or `10.x.x.x`).
 - **Over the internet:** the host's router must forward **TCP port 7777** to the host's computer, and the other player
@@ -181,7 +181,7 @@ Prefabs/Units.
 ## Working on the project
 
 **Requirements:** Unity **6000.3.1f1** (Unity 6.3) with the Universal Render Pipeline and the Input System package. Open
-the repo folder in Unity Hub. (The local folder may be named `Eldoira`; the project is Eldoria.)
+the repo folder in Unity Hub. (The local folder may be named `Eldoria Ground Invasion`; the game is Ground Invasion. Code namespaces and the editor menu keep the name Eldoria.)
 
 **Layout**
 
@@ -225,7 +225,7 @@ Unity.exe -batchmode -projectPath . -runTests -testPlatform PlayMode -testResult
 Unity.exe -batchmode -quit -projectPath . -executeMethod Eldoria.EditorTools.GameBuilder.BuildWindows
 ```
 
-The game is written to `Builds/Eldoria/`. Run `Eldoria.exe -smokeTest` to have it build an ISF army, start a battle on the
+The game is written to `Builds/GroundInvasion/`. Run `GroundInvasion.exe -smokeTest` to have it build an ISF army, start a battle on the
 Open Season, play a few AI turns on its own and report whether everything loaded.
 
 To test multiplayer, run two copies on one computer, starting the host first. They connect over `127.0.0.1` and the
@@ -233,20 +233,23 @@ host's map choice reaches the other game; they play three turns against each oth
 the battle after every order:
 
 ```bash
-Eldoria.exe -batchmode -nographics -mpSmoke host -logFile host.log
+GroundInvasion.exe -batchmode -nographics -mpSmoke host -logFile host.log
 ```
 
 ```bash
-Eldoria.exe -batchmode -nographics -mpSmoke join -logFile join.log
+GroundInvasion.exe -batchmode -nographics -mpSmoke join -logFile join.log
 ```
 
 ## Status
 
-A fork of the Eldoria proof of concept with its factions and units removed. Its first three factions are in; next up: their units.
+A fork of the Eldoria proof of concept, rebooted as Ground Invasion. Three factions are playable (the ISF, the Draconis
+Imperialis and the Rask). **Next up: the fourth faction, The Chrome Techno-democracy** (not started). Every Chrome unit is
+unique and purpose built, with no shared soldier template; they share a common look of smooth lines and insectoid shapes,
+and like the game's other machines they lean towards high Armor over large Health pools.
 
 ## Audience and business model
 
-Eldoria is aimed at players aged 16 to 40, mostly male, who play strategy games competitively. The pitch to them:
+Ground Invasion is aimed at players aged 16 to 40, mostly male, who play strategy games competitively. The pitch to them:
 *"With this game you can play more matches of our strategy game in a night than you could play physically in a year."*
 
 There are three planned revenue streams:
