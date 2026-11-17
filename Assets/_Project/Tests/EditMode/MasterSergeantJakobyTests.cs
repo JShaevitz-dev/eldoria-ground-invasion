@@ -42,7 +42,8 @@ namespace Eldoria.Tests
             var f = FieldCommander;
             Assert.That(j.displayName, Is.EqualTo("Master Sergeant Jakoby"));
             Assert.That((j.health, j.armorLevel, j.accuracy, j.movementRange, j.radius, j.height), Is.EqualTo((f.health, f.armorLevel, f.accuracy, f.movementRange, f.radius, f.height)));
-            Assert.That(j.keywords, Is.EqualTo(f.keywords));
+            Assert.That(j.keywords.Where(k => k.displayName != "Unique"), Is.EqualTo(f.keywords), "the Field Commander's keywords, plus Unique");
+            Assert.That(j.keywords.Select(k => k.displayName), Does.Contain("Unique"));
             Assert.That(f.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Lead from the front" }), "the Field Commander keeps it");
             Assert.That(j.abilities, Is.Empty, "Jakoby doesn't have it");
             Assert.That(j.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Shotgun" }));

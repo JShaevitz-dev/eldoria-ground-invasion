@@ -56,7 +56,7 @@ namespace Eldoria.Tests
             Assert.That(new[] { 0, 2, 3, 4, 5 }.Select(SupplyCost.ArmorTaxFor), Is.EqualTo(new[] { 0, 0, 50, 100, 100 }));
             string Taxed(int tax) => string.Join(", ", Catalog.Available.Where(u => SupplyCost.Breakdown(u, FactionOf(u)).ArmorTax == tax)
                 .Select(u => u.displayName).OrderBy(n => n, System.StringComparer.Ordinal));
-            Assert.That(Taxed(100), Is.EqualTo("Marshal Command Tank, Sagittarius MBT, Stinger Heavy Robot, Tyrant Hover-tank"));
+            Assert.That(Taxed(100), Is.EqualTo("Fist of Mars, Marshal Command Tank, Sagittarius MBT, Stinger Heavy Robot, Tyrant Hover-tank"));
             Assert.That(Taxed(50), Is.EqualTo("ISF Boarding Team, Intimidator Medium Robot, Olympian Mech, Workhorse Transport"));
         }
 

@@ -26,6 +26,19 @@ namespace Eldoria.Rules
         /// <summary>Only one of each unit with this role per army (only Commanders: an army has exactly one).</summary>
         public static bool IsUnique(UnitRole role) => role == UnitRole.Commander;
 
+        /// <summary>Soldier keyword: only one of a unit with it may appear in an army list.</summary>
+        public const string UniqueKeyword = "Unique";
+
+        /// <summary>A unit with the Unique keyword (on any of its soldiers): only one of it per army, whatever its role.</summary>
+        public static bool HasUniqueKeyword(UnitTemplate unit) =>
+            unit != null && unit.Roster().Any(s => s != null && s.keywords.Any(k => k != null && k.displayName == UniqueKeyword));
+
+        /// <summary>Only one of this unit per army: a Commander, or a unit with the Unique keyword.</summary>
+        public static bool IsUnique(UnitTemplate unit) => unit != null && (IsUnique(unit.role) || HasUniqueKeyword(unit));
+
+        private static string WhyUnique(UnitTemplate unit) =>
+            HasUniqueKeyword(unit) ? "Unique" : $"{unit.role.DisplayName()} units can't be duplicated";
+
         /// <summary>Why the list isn't valid (empty if it is).</summary>
         /// <param name="faction">The army's faction: every unit must be one it has access to (null: not checked).</param>
         public static List<string> Problems(IReadOnlyList<UnitTemplate> army, Faction faction = null)
@@ -40,8 +53,8 @@ namespace Eldoria.Rules
             int commanders = units.Count(u => u.role == UnitRole.Commander);
             if (commanders == 0) problems.Add("An army needs at least 1 Commander unit.");
             if (commanders > 1) problems.Add($"Only 1 Commander unit is allowed in an army ({commanders} chosen).");
-            foreach (var dupe in units.Where(u => IsUnique(u.role)).GroupBy(u => u).Where(g => g.Count() > 1))
-                problems.Add($"Only one {dupe.Key.displayName} allowed ({dupe.Key.role.DisplayName()} units can't be duplicated).");
+            foreach (var dupe in units.Where(IsUnique).GroupBy(u => u).Where(g => g.Count() > 1))
+                problems.Add($"Only one {dupe.Key.displayName} allowed ({WhyUnique(dupe.Key)}).");
             foreach (var locked in units.Where(u => !IsUnlocked(units, u)).Distinct())
                 problems.Add($"{locked.displayName} can only be taken with {RequiredCommandersText(locked)} in the army.");
             return problems;
@@ -76,7 +89,8 @@ namespace Eldoria.Rules
             int supply = SupplyOf(army);
             if (supply + unit.supplyCost > SupplyCap)
                 return $"Over the Supply Cap ({supply} + {unit.supplyCost} > {SupplyCap})";
-            if (IsUnique(unit.role) && army.Contains(unit)) return $"Already in the army ({unit.role.DisplayName()} units are unique)";
+            if (IsUnique(unit) && army.Contains(unit))
+                return HasUniqueKeyword(unit) ? "Already in the army (Unique: only one per army)" : $"Already in the army ({unit.role.DisplayName()} units are unique)";
             if (unit.role == UnitRole.Commander && army.Any(u => u != null && u.role == UnitRole.Commander))
                 return "The army already has its Commander (only 1 allowed)";
             return null;

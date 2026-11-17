@@ -578,7 +578,7 @@ namespace Eldoria.Gameplay
             GUILayout.BeginHorizontal();
             GUILayout.BeginVertical();
             GUILayout.Label(unit.displayName, heading);
-            string unique = ArmyRules.IsUnique(unit.role) ? " · one per army" : "";
+            string unique = ArmyRules.IsUnique(unit) ? " · one per army" : "";
             GUILayout.Label($"{unit.role.DisplayName()}{unique} · {unit.Size} soldier{(unit.Size == 1 ? "" : "s")} · Supply Cost {unit.supplyCost}", body);
             if (unit.NeedsCommander) GUILayout.Label($"Only with {ArmyRules.RequiredCommandersText(unit)}", warn);
             GUILayout.EndVertical();

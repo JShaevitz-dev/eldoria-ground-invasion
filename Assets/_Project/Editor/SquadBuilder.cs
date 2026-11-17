@@ -823,7 +823,8 @@ namespace Eldoria.EditorTools
         /// tail, its scales in the primary colour (the faction's colour when deployed, like the Dragons' and Dragonborn's), in a
         /// drab khaki fabric uniform (tunic and cap) holding a rifle. The Sergeant has a gold armband and cap badge.
         /// </summary>
-        private static GameObject BuildKoboldPrefab(string name, SoldierTemplate template, bool sergeant, bool mechanist = false)
+        private static GameObject BuildKoboldPrefab(string name, SoldierTemplate template, bool sergeant, bool mechanist = false,
+            bool heartstrike = false)
         {
             EnsureFolder(Root, "Prefabs");
             EnsureFolder($"{Root}/Prefabs", "Units");
@@ -885,14 +886,106 @@ namespace Eldoria.EditorTools
                 Part(model, "Wrench", PrimitiveType.Cube, steel, new Vector3(-0.17f, 0.34f, 0.1f), new Vector3(0.025f, 0.2f, 0.025f), new Vector3(20f, 0f, 0f));
                 Part(model, "Wrench Head", PrimitiveType.Cube, steel, new Vector3(-0.17f, 0.25f, 0.14f), new Vector3(0.06f, 0.04f, 0.025f), new Vector3(20f, 0f, 0f));
             }
-            // The rifle, held across the body.
-            Part(model, "Rifle", PrimitiveType.Cube, metal, new Vector3(0.06f, 0.44f, 0.18f), new Vector3(0.04f, 0.05f, 0.42f), new Vector3(0f, -12f, 0f));
+            if (heartstrike)
+            {
+                // The Heartstrike Spear: an anti-tank mine grafted onto the end of a long rod, held in the right hand and
+                // levelled forward and up. The rod runs along `dir` from the hand; the mine is a flat disc at its tip.
+                var wood = GetOrCreateMaterial("Spear_Shaft", new Color(0.36f, 0.27f, 0.16f));
+                var mine = GetOrCreateMaterial("Kobold_Mine", new Color(0.27f, 0.31f, 0.2f));
+                var warning = GetOrCreateMaterial("Mine_Warning", new Color(0.9f, 0.72f, 0.1f));
+                var tilt = new Vector3(55f, 0f, 0f);   // the rod's long axis: forward and up
+                var dir = Quaternion.Euler(tilt) * Vector3.up;
+                var hand = new Vector3(0.15f, 0.42f, 0.1f);
+                const float length = 1.1f;
+                Part(model, "Spear Shaft", PrimitiveType.Cylinder, wood, hand + dir * (length * 0.35f), new Vector3(0.025f, length / 2f, 0.025f), tilt);
+                var tip = hand + dir * (length * 0.85f);
+                Part(model, "Spear Binding", PrimitiveType.Cylinder, metal, tip - dir * 0.05f, new Vector3(0.045f, 0.04f, 0.045f), tilt);
+                Part(model, "Anti-tank Mine", PrimitiveType.Cylinder, mine, tip + dir * 0.02f, new Vector3(0.2f, 0.035f, 0.2f), tilt);
+                Part(model, "Mine Band", PrimitiveType.Cylinder, warning, tip + dir * 0.025f, new Vector3(0.205f, 0.012f, 0.205f), tilt);
+                Part(model, "Mine Fuze", PrimitiveType.Cylinder, metal, tip + dir * 0.065f, new Vector3(0.05f, 0.02f, 0.05f), tilt);
+            }
+            else
+            {
+                // The rifle, held across the body.
+                Part(model, "Rifle", PrimitiveType.Cube, metal, new Vector3(0.06f, 0.44f, 0.18f), new Vector3(0.04f, 0.05f, 0.42f), new Vector3(0f, -12f, 0f));
+            }
 
             Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
             Object.DestroyImmediate(root);
             return prefab;
         }
+
+        /// <summary>
+        /// Heartstrike Spear: an anti-tank mine on a rod. Damage 5, Shots 1, Penetration 6, +0% accuracy, Range 30 m; no
+        /// keywords. Carried by the Kobold Heartstrike Spear Team.
+        /// </summary>
+        public static WeaponTemplate EnsureHeartstrikeSpear()
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/HeartstrikeSpear.asset", w =>
+            {
+                w.displayName = "Heartstrike Spear";
+                w.baseDamage = 5; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 6;
+                w.accuracyBonus = 0;
+                w.range = 30f;
+                w.keywords = new List<Keyword>();
+            });
+        }
+
+        /// <summary>
+        /// Kobold Heartstrike Spear Team (Specialist, Draconis Imperialis): 1 Kobold Sergeant (leader) + 4 Kobold Riflemen, with
+        /// the Kobold Militiaman's stats (Health 5, Armor 0, Accuracy 50%, Move 20 m; Biological, Swarm), each carrying only a
+        /// Heartstrike Spear. The Kobold model holding an anti-tank mine on a rod. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureKoboldHeartstrikeSpearTeam(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var spear = EnsureHeartstrikeSpear();
+
+            SoldierTemplate Kobold(string file, string name, bool sergeant)
+            {
+                var t = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", k =>
+                {
+                    k.displayName = name;
+                    k.health = 5; k.armorLevel = 0; k.accuracy = 50; k.movementRange = 20f;   // the Kobold Militiaman's
+                    k.keywords = new List<Keyword> { keywords["Biological"], keywords["Swarm"] };
+                    k.abilities = new List<Ability>();
+                    k.weapons = new List<WeaponTemplate> { spear };
+                    k.primaryWeapon = spear;
+                    k.radius = 0.33f;
+                    k.height = 1.2f;
+                });
+                if (t.prefab == null || t.prefab.transform.Find("Model/Anti-tank Mine") == null)
+                {
+                    t.prefab = BuildKoboldPrefab(file, t, sergeant, heartstrike: true);
+                    EditorUtility.SetDirty(t);
+                }
+                return t;
+            }
+
+            var sergeant = Kobold("KoboldSpearSergeant", "Kobold Sergeant", true);
+            var rifleman = Kobold("KoboldSpearRifleman", "Kobold Rifleman", false);
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/KoboldHeartstrikeSpearTeam.asset", u =>
+            {
+                u.displayName = "Kobold Heartstrike Spear Team";
+                u.role = UnitRole.Specialist;
+                u.description = HeartstrikeDescription;
+                u.leader = sergeant;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 4 } };
+                u.deploymentSpacing = 1.2f;
+            }, u => { if (!u.description.Contains("Specialist")) u.description = HeartstrikeDescription; });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        private const string HeartstrikeDescription = "An anti-tank squad of kobolds conditioned for suicidal bravery. While this team can clear almost any tank in the galaxy their frail nature makes them vulnerable to any infantry coordinating with armor. Each of the five kobolds carries a Heartstrike Spear (5 damage, penetration 6, 30 m), enough to do 7 damage to any tank, but with 5 health and no armor they fall to rifle fire. A Specialist, so you can field more than one.";
 
         /// <summary>
         /// Kobold Mechanist (Specialist, Draconis Imperialis): 1 Kobold Mechanist with the Kobold Militiaman's stats but Armor 1
@@ -2714,6 +2807,111 @@ namespace Eldoria.EditorTools
             return unit;
         }
 
+        /// <summary>
+        /// Fist of Mars (Specialist, ISF): 1 Fist of Mars, a Sagittarius MBT with the Sagittarius' stats (Health 20, Armor 4,
+        /// Move 30 m; Mechanical, Tank, Unstable, Large; 100mm Cannon; Frag Grenade every turn, 50 m) but Accuracy 125%, and
+        /// the Unique keyword (only one per army). The Sagittarius model with a red Symbol of Mars on each side of the turret.
+        /// Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureFistOfMars(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var mbt = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/SagittariusMbt.asset");
+            var tank = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/FistOfMars.asset", s =>
+            {
+                s.displayName = "Fist of Mars";
+                s.health = mbt.health; s.armorLevel = mbt.armorLevel; s.movementRange = mbt.movementRange;
+                s.accuracy = 125;
+                s.keywords = new List<Keyword>(mbt.keywords);
+                s.abilities = new List<Ability>(mbt.abilities);
+                s.weapons = new List<WeaponTemplate>(mbt.weapons);
+                s.primaryWeapon = mbt.primaryWeapon;
+                s.radius = mbt.radius;
+                s.height = mbt.height;
+            }, s =>
+            {
+                if (!s.keywords.Contains(keywords["Unique"])) s.keywords.Add(keywords["Unique"]);
+            });
+            if (tank.prefab == null || tank.prefab.transform.Find("Mars Ring") == null)
+            {
+                tank.prefab = BuildFistOfMarsPrefab("FistOfMars", tank);
+                EditorUtility.SetDirty(tank);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/FistOfMars.asset", u =>
+            {
+                u.displayName = "Fist of Mars";
+                u.role = UnitRole.Specialist;
+                u.description = "A Sagittarius main battle tank crewed by the ISF's finest tank aces, the red Symbol of Mars painted on both sides of its turret. It has the Sagittarius' 20 health and Armor Level 4, its 100mm Cannon (10 damage, penetration 4, 50 m, once a turn) and a Frag Grenade thrown up to 50 m every turn, but aims at 125%: it never misses, and has a 25% chance to crit. It moves 30 m but, being Mechanical, can't sprint, and when destroyed it has a 10% chance to explode (Unstable). Large: friendly Biological soldiers within 5 m can shelter behind it (half-cover). Unique: only one per army. A Specialist.";
+                u.leader = tank;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 2f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// The Fist of Mars' model: a copy of the Sagittarius MBT (MediumTank) model with a red Symbol of Mars (a ring with
+        /// an arrow pointing up and forward out of it) painted on the left and right sides of the turret.
+        /// </summary>
+        private static GameObject BuildFistOfMarsPrefab(string name, SoldierTemplate template)
+        {
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/MediumTank.prefab");
+            var red = GetOrCreateMaterial("Mars_Red", new Color(0.78f, 0.07f, 0.05f));
+
+            var root = Object.Instantiate(source);
+            root.transform.position = Vector3.zero;
+            root.transform.rotation = Quaternion.identity;
+            root.name = name;
+            var sso = new SerializedObject(root.GetComponent<Soldier>());
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = true;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+
+            // The turret's sides, from its own bounds (the model is scaled), and its paint (tinted with the faction's colour).
+            var turret = root.GetComponentsInChildren<Renderer>().First(c => c.name == "Turret");
+            var paint = turret.sharedMaterial;
+            var b = turret.bounds;
+            float r = b.size.y * 0.4f;   // the ring's outer radius
+            foreach (float side in new[] { -1f, 1f })
+            {
+                float x = b.center.x + side * (b.extents.x + 0.012f);
+                var centre = new Vector3(x, b.center.y - r * 0.15f, b.center.z - r * 0.35f);
+                var flat = new Vector3(0f, 0f, 90f);   // cylinders lying on their side, facing out of the turret
+                Part(root, "Mars Ring", PrimitiveType.Cylinder, red, centre, new Vector3(r * 2f, 0.008f, r * 2f), flat);
+                Part(root, "Mars Ring Hole", PrimitiveType.Cylinder, paint, centre + new Vector3(side * 0.004f, 0f, 0f),
+                    new Vector3(r * 1.3f, 0.008f, r * 1.3f), flat);
+                // The arrow: up and towards the front of the turret, out of the ring at 45 degrees, with a two-stroke head.
+                var dir = new Vector3(0f, 1f, 1f).normalized;
+                float shaft = r * 1.1f, w = r * 0.3f;
+                var start = centre + dir * r * 0.85f;
+                var head = start + dir * shaft;
+                Part(root, "Mars Arrow", PrimitiveType.Cube, red, start + dir * shaft / 2f, new Vector3(0.012f, w, shaft + w), new Vector3(-45f, 0f, 0f));
+                Part(root, "Mars Arrowhead", PrimitiveType.Cube, red, head + new Vector3(0f, 0f, -r * 0.3f), new Vector3(0.012f, w, r * 0.75f));
+                Part(root, "Mars Arrowhead", PrimitiveType.Cube, red, head + new Vector3(0f, -r * 0.3f, 0f), new Vector3(0.012f, r * 0.75f, w));
+            }
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        /// <summary>The Unique keyword on units that must be one per army: Master Sergeant Jakoby (and the Fist of Mars).</summary>
+        public static void EnsureUniqueUnits(Dictionary<string, Keyword> keywords)
+        {
+            var jakoby = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/MasterSergeantJakoby.asset");
+            if (jakoby != null && !jakoby.keywords.Contains(keywords["Unique"]))
+            {
+                jakoby.keywords.Add(keywords["Unique"]);
+                EditorUtility.SetDirty(jakoby);
+            }
+        }
+
         [MenuItem("Ground Invasion/Rebuild Unit Catalog")]
         public static void RebuildUnitCatalog()
         {
@@ -2726,6 +2924,7 @@ namespace Eldoria.EditorTools
             EnsureTyrantHoverTank(factions[1], keywords);
             EnsureKoboldMechanist(factions[1], keywords);
             EnsureKoboldMilitia(factions[1], keywords);
+            EnsureKoboldHeartstrikeSpearTeam(factions[1], keywords);
             EnsureDraconisWeaponNames(factions[1]);
             EnsureDragonbornExemplar(factions[1], keywords);
             EnsureRaskUltima(factions[2], keywords);
@@ -2753,6 +2952,8 @@ namespace Eldoria.EditorTools
             EnsureEquipment();
             EnsureLargeMachines(keywords);
             EnsureLongTankGrenade();
+            EnsureFistOfMars(factions[0], keywords);   // after the Sagittarius MBT (Large, 50 m grenade): it copies its stats
+            EnsureUniqueUnits(keywords);
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
             AllianceModels.EnsureBuilt();   // models for races with no units yet (Skael, Sphinxians)
@@ -2961,6 +3162,7 @@ namespace Eldoria.EditorTools
             Kw("Deployed", "Deployed", KeywordTarget.Weapon, "This weapon can't be used in a volley if the soldier holding it has moved this turn.");
             Kw("Swarm", "Swarm", KeywordTarget.Soldier,
                 "Expands the unit's cohesion radius to 10 m (normally 5 m): if the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader.");
+            Kw("Unique", "Unique", KeywordTarget.Soldier, "Only one of this unit may appear in an army list.");
             Kw("Large", "Large", KeywordTarget.Soldier, "A very large creature. No effect on its own yet; other rules can check for it.");
             Kw("JumpPack", "Jump Pack", KeywordTarget.Soldier,
                 "Able to climb up objects without movement cost: climbing onto an object costs this soldier 0 m (normally 10 m).");
@@ -3064,7 +3266,7 @@ namespace Eldoria.EditorTools
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
                 ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait,
                 ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Melee"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait,
-                ["Large"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Transport"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Large"] = KeywordCategory.Trait, ["Unique"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Transport"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
                 ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status, ["Empowered"] = KeywordCategory.Status, ["Sanctified"] = KeywordCategory.Status,

@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: FistOfMars
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Fist of Mars
+  role: 3
+  description: 'A Sagittarius main battle tank crewed by the ISF''s finest tank aces,
+    the red Symbol of Mars painted on both sides of its turret. It has the Sagittarius''
+    20 health and Armor Level 4, its 100mm Cannon (10 damage, penetration 4, 50 m,
+    once a turn) and a Frag Grenade thrown up to 50 m every turn, but aims at 125%:
+    it never misses, and has a 25% chance to crit. It moves 30 m but, being Mechanical,
+    can''t sprint, and when destroyed it has a 10% chance to explode (Unstable).
+    Large: friendly Biological soldiers within 5 m can shelter behind it (half-cover).
+    Unique: only one per army. A Specialist.'
+  leader: {fileID: 11400000, guid: 87be28d26c84ed14d95112cd938e854a, type: 2}
+  members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 180
+  supplyCostAdjustment: 0
+  onlyWithCommanders: []
+  deploymentSpacing: 2

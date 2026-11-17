@@ -1,8 +1,8 @@
 # Ground Invasion
 
 > **Three factions, all playable:** the International Space Force of Humanity
-> (Field Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Workhorse Transport), the Imperial Army of The Draconis Imperialis (Dragon
-> Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). Every game system is here (army lists and factions, movement,
+> (Field Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Fist of Mars, Workhorse Transport), the Imperial Army of The Draconis Imperialis (Dragon
+> Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist, Kobold Heartstrike Spear Team) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). Every game system is here (army lists and factions, movement,
 > terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the five maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
@@ -151,7 +151,7 @@ threads to the brain caste's eye).
 |---|---|---|---|
 | **Field Commander** | International Space Force of Humanity | Commander | Field Commander (Health 10, Armor 2, Pistol, Lead from the front) |
 | **Marshal Command Tank** | International Space Force of Humanity | Commander | Marshal Command Tank (the Sagittarius MBT's stats plus Officer: Health 20, Armor 4, Move 30; 100mm Cannon; Frag Grenade every turn, thrown up to 50 m; Large; the Sagittarius model with antennae and a satellite dish) |
-| **Master Sergeant Jakoby** | International Space Force of Humanity | Commander | Master Sergeant Jakoby (the Field Commander's stats without Lead from the front; Shotgun; two Frag Grenades as standard; wears a beret) |
+| **Master Sergeant Jakoby** | International Space Force of Humanity | Commander | Master Sergeant Jakoby (Unique; the Field Commander's stats without Lead from the front; Shotgun; two Frag Grenades as standard; wears a beret) |
 | **Mortar Team** | International Space Force of Humanity | Heavy Support | ISF Mortar Specialist (Mortar Launcher, Assault Rifle) + ISF Rifleman (Assault Rifle; Anti-infantry Mortar: the Frag Grenade fired up to 50 m); Armor 2 |
 | **Sagittarius MBT** | International Space Force of Humanity | Heavy Support | Sagittarius MBT (Health 20, Armor 4, 100mm Cannon; Frag Grenade every turn, thrown up to 50 m; Large) |
 | **Olympian Mech** | International Space Force of Humanity | Heavy Support | Olympian Mech (Health 15, Armor 3, Machine Gun, Iron Claw, Stabilizers) |
@@ -160,6 +160,7 @@ threads to the brain caste's eye).
 | **ISF Ranger** | International Space Force of Humanity | Specialist | ISF Ranger (Armor 1, Accuracy 100%, Sniper Rifle, Anti-Materiel Rifle or Shotgun, Sniper Precision; Chromashift Textiles: −25% to anyone aiming at it) |
 | **ISF Combat Engineer** | International Space Force of Humanity | Specialist | ISF Combat Engineer (the ISF Rifleman's stats; Solo; Assault Rifle; Repair Kit: repairs a friendly Mechanical soldier within 5 m for 10) |
 | **ISF Combat Medic** | International Space Force of Humanity | Specialist | ISF Combat Medic (the ISF Rifleman's stats; Solo; Assault Rifle; Medkit: heals a friendly Biological soldier within 5 m for 5) |
+| **Fist of Mars** | International Space Force of Humanity | Specialist | Fist of Mars (the Sagittarius MBT's stats with Accuracy 125% and Unique: only one per army; the Sagittarius model with a red Symbol of Mars on both sides of the turret) |
 | **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) + 2 Dragonborn Honorguard (the Dragonborn Footman's stats with 95% accuracy) |
 | **Rask Ultima** | Most Holy Army of The Rask Divine Collective | Commander | Rask Ultima (the Rask Rifleman's stats with Health 10 and Armor 2; Biological, Solo, Officer; Pistol) |
 | **Rask Blackhand** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Blackhand (the Rask Ultima's stats with Armor 1 and no Officer; Solntse Laser Rifle; a Repair Kit as standard) |
@@ -172,6 +173,7 @@ threads to the brain caste's eye).
 | **Dragonborn Exemplar** | Imperial Army of The Draconis Imperialis | Commander | Dragonborn Exemplar (the Dragonborn Footman's stats with double the health, Solo and Officer; Raptor Pistol and Ceremonial Blade, the Draconis Broadsword; Empowering Presence: other friendly soldiers within 15 m get +2 damage) |
 | **Dragonborn Skymaster Squad** | Imperial Army of The Draconis Imperialis | Specialist | Dragonborn Skylord + 4 Dragonborn Skymasters (the Dragonborn Footman's stats with Move 40 and Jump Pack: climbing costs no movement; Twin Raptor Pistols: Damage 4, 2 shots, Penetration 1, 20 m, Pistol) |
 | **Kobold Mechanist** | Imperial Army of The Draconis Imperialis | Specialist | Kobold Mechanist (the Kobold Militiaman's stats with Armor 1 and Solo; Fang Caster; a Repair Kit as standard) |
+| **Kobold Heartstrike Spear Team** | Imperial Army of The Draconis Imperialis | Specialist | Kobold Sergeant + 4 Kobold Riflemen (the Kobold Militiaman's stats; anti-tank mines on rods; Heartstrike Spear: Damage 5, Penetration 6, 30 m) |
 | **Tyrant Hover-tank** | Imperial Army of The Draconis Imperialis | Heavy Support | Tyrant Hover-tank (a dagger-shaped hover-tank with a Kobold pilot: Health 15, Armor 4, Accuracy 100%, Move 30; Mechanical, Unstable, Large, Hover: terrain can't reduce its movement; Tyrant Railgun: Damage 5, Penetration 7, 50 m, Manual Load) |
 | **Dragonborn Squad** | Imperial Army of The Draconis Imperialis | Infantry | Dragonborn Sergeant + 4 Dragonborn Footmen (Health 10, Armor 2; Dragon Glaive: a 20 m rifle and a 2 m Melee blade) |
 | **ISF Rifle Squad** | International Space Force of Humanity | Infantry | ISF Rifleman Sergeant + 9 ISF Riflemen (Armor 2, Assault Rifles, Frag Grenades, each swappable for a Medkit or Repair Kit) |
@@ -257,8 +259,8 @@ GroundInvasion.exe -batchmode -nographics -mpSmoke join -logFile join.log
 ## Status
 
 Three factions are playable (the ISF, the Draconis
-Imperialis and the Rask). **TODO: an anti-tank unit for the Rask and one for the Draconis Imperialis** (the ISF have
-the Rocket Launcher and the Sagittarius' cannon). **Next up: the fourth faction, The Chrome Techno-democracy** (not started). Every Chrome unit is
+Imperialis and the Rask). **TODO: an anti-tank unit for the Rask** (the ISF have the Rocket Launcher and the
+Sagittarius' cannon; the Draconis now have the Kobold Heartstrike Spear Team). **Next up: the fourth faction, The Chrome Techno-democracy** (not started). Every Chrome unit is
 unique and purpose built, with no shared soldier template; they share a common look of smooth lines and insectoid shapes,
 and like the game's other machines they lean towards high Armor over large Health pools. **Planned after that: the
 Hive** (not started), the Chrome's inverse: light Armor and large Health pools, relying on their hivemind and insectoid
