@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: CrownPrincessXtara
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: Crown Princess X'tara
+  role: 1
+  description: 'The war crazed 1st daughter of The Emperor of Draconis Imperialis
+    who abdicated her claim on the throne to pursue a military career. A white dragon
+    in golden armor with the Dragon Hierarch''s 15 health and Armor Level 2, but
+    100% accuracy. Her Imperial Igniter (a Flamethrower: 5 shots of 10 damage whatever
+    the armor, 10 m) burns out living soldiers, and her Dragon Claw (5 damage, penetration
+    1, 2 m) takes over when an enemy is within 2 m. Imperial Mandate: friendly Biological
+    soldiers within 15 m get +1 penetration. She moves 30 m (60 m sprinting). Unique.
+    A Commander: every army needs exactly one.'
+  leader: {fileID: 11400000, guid: f7659299c77ca9543a59752811c53323, type: 2}
+  members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 170
+  supplyCostAdjustment: 0
+  onlyWithCommanders: []
+  deploymentSpacing: 4

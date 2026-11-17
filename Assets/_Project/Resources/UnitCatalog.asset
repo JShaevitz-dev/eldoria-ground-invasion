@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: UnitCatalog
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitCatalog
   units:
+  - {fileID: 11400000, guid: a7ddef30038951d499bdefff9d0ef744, type: 2}
   - {fileID: 11400000, guid: aa6b3b3d34540074f817fce8461e228b, type: 2}
   - {fileID: 11400000, guid: c1a62808fa69d424585d3714a3abbf64, type: 2}
   - {fileID: 11400000, guid: e28e88bb00b8e8b4198439902072809e, type: 2}
@@ -30,6 +31,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 93d5a17332351344d82a35b9e1b489b4, type: 2}
   - {fileID: 11400000, guid: 490a1f2c654a73d46bfe964c7c991593, type: 2}
   - {fileID: 11400000, guid: 48602e7d5fc565d4a899d2f52730b04e, type: 2}
+  - {fileID: 11400000, guid: 036b06e391fe76c4093359af25f70ac2, type: 2}
   - {fileID: 11400000, guid: 6efe027a1b56add4d9218659d856211e, type: 2}
   - {fileID: 11400000, guid: ff73f8e66b3d387418b377a927fb6e3e, type: 2}
   - {fileID: 11400000, guid: 5be3f61c5d4a04d43a8e35489663dfca, type: 2}

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acfb139d20d848147a999647b1e7934f, type: 3}
+  m_Name: UnderImperialMandate
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
+  displayName: Under Imperial Mandate
+  category: 2
+  description: 'Within 15 m of Crown Princess X''tara (friendly Biological soldiers,
+    not X''tara herself): +1 penetration with weapons that have a penetration value.'
+  appliesTo: 1
+  interactions:
+  - role: 0
+    party: 2
+    condition: 2
+    keyword: {fileID: 0}
+    effect: 12
+    amount: 1
+    onlyIfSourceIsBetween: 0
+  triggers: []
+  grantsAbilities: []
+  grantsNearby: {fileID: 0}
+  grantRadius: 5
+  grantsWhenBetween: 0
+  sparkles: 0
+  sparkleColor: {r: 1, g: 0.82, b: 0.25, a: 1}

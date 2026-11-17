@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c831d2daf4333a42b1b9b15f92f56c6, type: 3}
+  m_Name: RaskRider
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.SoldierTemplate
+  displayName: Rask Rider
+  prefab: {fileID: 3510909303741427050, guid: a7f8c0918c4c0db41b564ff59d9211c5, type: 3}
+  health: 5
+  armorLevel: 1
+  accuracy: 75
+  movementRange: 40
+  keywords:
+  - {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+  - {fileID: 11400000, guid: f6d4e5cb48d2ef8449b89ff1548f48ff, type: 2}
+  - {fileID: 11400000, guid: 39ba7bd0903b4a44ca49715b7e374032, type: 2}
+  abilities: []
+  weapons:
+  - {fileID: 11400000, guid: c8b50d2e44a3069418193d97d4e6b692, type: 2}
+  primaryWeapon: {fileID: 11400000, guid: c8b50d2e44a3069418193d97d4e6b692, type: 2}
+  radius: 0.6
+  height: 1.6
+  equipment: []
+  weaponOptions: []
+  equipmentSwaps: []
+  equipmentOptions: []

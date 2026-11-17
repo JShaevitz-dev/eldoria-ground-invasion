@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d19a61d1a0328e040abadba0dd86f72a, type: 3}
+  m_Name: ImperialMandate
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
+  displayName: Imperial Mandate
+  description: 'Passive. Friendly Biological soldiers within 15 m (not X''tara herself)
+    are Under Imperial Mandate: +1 penetration with their weapons. Weapons with no
+    penetration value (full damage whatever the armor) are unchanged.'
+  kind: 0
+  keywords: []
+  affects: 0
+  includeSelf: 0
+  grantsNearby: {fileID: 11400000, guid: 9e248e5962d5481469d9070e221a3ce3, type: 2}
+  radius: 15
+  auraMustHave: {fileID: 11400000, guid: c01a98b6c27aa3e43a9643e77709b2b7, type: 2}
+  targets: 0
+  range: 25
+  targetMustHave: {fileID: 0}
+  heal: 0
+  grantsKeyword: {fileID: 0}
+  grantUntilNextTurn: 1
+  usesPerTurn: 1
+  usesPerBattle: 0
+  areaRadius: 2.5
+  areaWeapon: {fileID: 0}
+  castSound: {fileID: 0}
+  attackWeapon: {fileID: 0}
+  nullifiesKeyword: {fileID: 0}
+  transport: 0

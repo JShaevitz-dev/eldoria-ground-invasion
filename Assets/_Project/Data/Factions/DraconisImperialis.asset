@@ -24,9 +24,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7d60fa223f8800d46885bd52398660b8, type: 2}
   - {fileID: 11400000, guid: c1a62808fa69d424585d3714a3abbf64, type: 2}
   - {fileID: 11400000, guid: a53a3c44449b2c9449152301140dd00d, type: 2}
-  weaponAdjustments: []
+  - {fileID: 11400000, guid: a7ddef30038951d499bdefff9d0ef744, type: 2}
+  weaponAdjustments:
+  - weapon: {fileID: 11400000, guid: 0518825b83c05864594c9f5974756a56, type: 2}
+    damage: 0
+    shots: 2
+    penetration: 0
+    accuracyBonus: 0
+    range: 0
   weaponNames:
   - weapon: {fileID: 11400000, guid: 888ab10d5cd37a14897c7ebfc9ce8cef, type: 2}
     name: Fang Caster
   - weapon: {fileID: 11400000, guid: 1538352812c5368479b7bd7373b3b47d, type: 2}
     name: Ceremonial Blade
+  - weapon: {fileID: 11400000, guid: 0518825b83c05864594c9f5974756a56, type: 2}
+    name: Imperial Igniter

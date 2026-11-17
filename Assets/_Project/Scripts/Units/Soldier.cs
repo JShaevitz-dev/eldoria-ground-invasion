@@ -125,7 +125,7 @@ namespace Eldoria.Units
         /// <summary>Movement range in meters (a normal move).</summary>
         public float Move => template != null ? Mathf.Max(0f, template.movementRange + Gear.Sum(e => e.movement)) : 0f;
         /// <summary>Can this soldier sprint? Mechanical soldiers can't.</summary>
-        public bool CanSprint => !HasKeyword(Rules.MovementRules.MechanicalKeyword);
+        public bool CanSprint => !HasKeyword(Rules.MovementRules.MechanicalKeyword) && !HasKeyword(Rules.MovementRules.CavalryKeyword);
         /// <summary>Sprinting move in meters (just the normal move for a soldier who can't sprint).</summary>
         public float Sprint => CanSprint ? Move * Rules.MovementRules.SprintMultiplier : Move;
 

@@ -2,7 +2,7 @@
 
 > **Three factions, all playable:** the International Space Force of Humanity
 > (Field Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Fist of Mars, Workhorse Transport), the Imperial Army of The Draconis Imperialis (Dragon
-> Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist, Kobold Heartstrike Spear Team) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). Every game system is here (army lists and factions, movement,
+> Hierarch, Crown Princess X'tara, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist, Kobold Heartstrike Spear Team) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary, Beasthunter Cavalry). Every game system is here (army lists and factions, movement,
 > terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the five maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
@@ -162,10 +162,12 @@ threads to the brain caste's eye).
 | **ISF Combat Medic** | International Space Force of Humanity | Specialist | ISF Combat Medic (the ISF Rifleman's stats; Solo; Assault Rifle; Medkit: heals a friendly Biological soldier within 5 m for 5) |
 | **Fist of Mars** | International Space Force of Humanity | Specialist | Fist of Mars (the Sagittarius MBT's stats with Accuracy 125% and Unique: only one per army; the Sagittarius model with a red Symbol of Mars on both sides of the turret) |
 | **Dragon Hierarch** | Imperial Army of The Draconis Imperialis | Commander | Dragon Hierarch (Health 15, Armor 2, Accuracy 50%, Move 30 m, Large; Dragon Claw, a 2 m melee weapon) + 2 Dragonborn Honorguard (the Dragonborn Footman's stats with 95% accuracy) |
+| **Crown Princess X'tara** | Imperial Army of The Draconis Imperialis | Commander | Crown Princess X'tara (a white dragon with red eyes, golden armor and a braced right foreleg; the Dragon Hierarch's stats with Accuracy 100% and Unique; Imperial Igniter: the Flamethrower with 5 shots; Dragon Claw; Imperial Mandate: +1 penetration for friendly Biological soldiers within 15 m) |
 | **Rask Ultima** | Most Holy Army of The Rask Divine Collective | Commander | Rask Ultima (the Rask Rifleman's stats with Health 10 and Armor 2; Biological, Solo, Officer; Pistol) |
 | **Rask Blackhand** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Blackhand (the Rask Ultima's stats with Armor 1 and no Officer; Solntse Laser Rifle; a Repair Kit as standard) |
 | **Rask Redhand** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Redhand (the Rask Ultima's stats with Armor 1 and no Officer; Solntse Laser Rifle; a Medkit as standard) |
 | **Rask Reliquary** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Reliquary (a shrine on tracks: Health 10, Armor 2, Move 20; Mechanical, Large; no weapon; Sanctifying Presence: other friendly Biological soldiers within 20 m get +2 damage and +20% accuracy; Supply Cost 120, the formula + 100) |
+| **Beasthunter Cavalry** | Most Holy Army of The Rask Divine Collective | Specialist | Rask Superior Rider + 2 Rask Riders on motorcycles (the Rask Rifleman's stats but Move 40 m and Cavalry: can't sprint; wrist-mounted Mag-grenade Launcher: Damage 5, Penetration 5, 20 m) |
 | **Rask Rifle Team** | Most Holy Army of The Rask Divine Collective | Infantry | Rask Superior + 19 Rask Riflemen (the Kobold Militiaman's stats with Armor 1 and 75% accuracy; Solntse Laser Rifles: the Rask name for the Assault Rifle, Damage 6) |
 | **Intimidator Medium Robot** | Most Holy Army of The Rask Divine Collective | Heavy Support | Intimidator Medium Robot (a gorilla-like four-legged robot: Health 10, Armor 3, Accuracy 75%, Move 30; Mechanical, Robotic, Large; Stabilizers; Twin Intimidator Machine Guns: the Machine Gun with 10 shots, one on each shoulder) |
 | **Stinger Heavy Robot** | Most Holy Army of The Rask Divine Collective | Heavy Support | Stinger Heavy Robot (a six-legged beetle robot: Health 25, Armor 5, Accuracy 75%, Move 30; Mechanical, Heavy, Robotic, Large; Stabilizers; Plasma Mortar: an area attack once a turn, a 2.5 m blast up to 50 m away with the Mortar Launcher's stats) |
@@ -259,8 +261,8 @@ GroundInvasion.exe -batchmode -nographics -mpSmoke join -logFile join.log
 ## Status
 
 Three factions are playable (the ISF, the Draconis
-Imperialis and the Rask). **TODO: an anti-tank unit for the Rask** (the ISF have the Rocket Launcher and the
-Sagittarius' cannon; the Draconis now have the Kobold Heartstrike Spear Team). **Next up: the fourth faction, The Chrome Techno-democracy** (not started). Every Chrome unit is
+Imperialis and the Rask). Every faction now has a dedicated anti-tank unit (the ISF's Rocket Launcher and tanks, the Draconis' Kobold Heartstrike
+Spear Team, the Rask's Beasthunter Cavalry). **Next up: the fourth faction, The Chrome Techno-democracy** (not started). Every Chrome unit is
 unique and purpose built, with no shared soldier template; they share a common look of smooth lines and insectoid shapes,
 and like the game's other machines they lean towards high Armor over large Health pools. **Planned after that: the
 Hive** (not started), the Chrome's inverse: light Armor and large Health pools, relying on their hivemind and insectoid

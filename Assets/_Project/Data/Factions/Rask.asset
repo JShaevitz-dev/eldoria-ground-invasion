@@ -23,6 +23,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e10579640ad2ae446b5b1768a72cff46, type: 2}
   - {fileID: 11400000, guid: 68a9044d18c1c3c46ac9c030f617f530, type: 2}
   - {fileID: 11400000, guid: 0e974e8ba35554141bb005c7ac37a739, type: 2}
+  - {fileID: 11400000, guid: 036b06e391fe76c4093359af25f70ac2, type: 2}
   weaponAdjustments:
   - weapon: {fileID: 11400000, guid: 888ab10d5cd37a14897c7ebfc9ce8cef, type: 2}
     damage: 2

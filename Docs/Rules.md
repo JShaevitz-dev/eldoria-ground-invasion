@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Ground Invasion, of Eldoria) has its first three factions, and all three can field armies:** the ISF (Field
-> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Fist of Mars, Workhorse Transport), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist, Kobold Heartstrike Spear Team) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). The game
+> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Fist of Mars, Workhorse Transport), the Draconis Imperialis (Dragon Hierarch, Crown Princess X'tara, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist, Kobold Heartstrike Spear Team) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary, Beasthunter Cavalry). The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -61,9 +61,9 @@ role) or **Transport**. It's shown in the HUD when the unit is selected, and the
 | Role | Units |
 |---|---|
 | **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia, Rask Rifle Team |
-| **Commander** | Field Commander, Master Sergeant Jakoby, Marshal Command Tank, Dragon Hierarch, Dragonborn Exemplar, Rask Ultima |
+| **Commander** | Field Commander, Master Sergeant Jakoby, Marshal Command Tank, Dragon Hierarch, Crown Princess X'tara, Dragonborn Exemplar, Rask Ultima |
 | **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, Stinger Heavy Robot, Tyrant Hover-tank, Intimidator Medium Robot |
-| **Specialist** | ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Fist of Mars, Dragonborn Skymaster Squad, Kobold Mechanist, Kobold Heartstrike Spear Team, Rask Blackhand, Rask Redhand, Rask Reliquary |
+| **Specialist** | ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Fist of Mars, Dragonborn Skymaster Squad, Kobold Mechanist, Kobold Heartstrike Spear Team, Rask Blackhand, Rask Redhand, Rask Reliquary, Beasthunter Cavalry |
 | **Transport** | Workhorse Transport. Like every role but Commander, an army can take more than one. |
 
 **The role ecosystem** (design intent, used when designing and balancing units; not a rule in itself):
@@ -82,7 +82,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger, the ISF Boarding Team, the ISF Combat Engineer, the ISF Combat Medic, the Fist of Mars and the Workhorse Transport, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank, the Kobold Mechanist and the Kobold Heartstrike Spear Team, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand, the Rask Redhand and the Rask Reliquary, so all three can field armies (the AI picks one of them).
+So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger, the ISF Boarding Team, the ISF Combat Engineer, the ISF Combat Medic, the Fist of Mars and the Workhorse Transport, and the Draconis Imperialis has the Dragon Hierarch, Crown Princess X'tara, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank, the Kobold Mechanist and the Kobold Heartstrike Spear Team, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand, the Rask Redhand, the Rask Reliquary and the Beasthunter Cavalry, so all three can field armies (the AI picks one of them).
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -105,7 +105,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 - Every unit must be one the army's **faction** has access to.
 - **Supply Cap:** the Supply Costs of an army's units can add up to **no more than 750**. There's **no limit on how many units** an army has. The army builder shows the list's total against the cap ("Supply 520 / 750") and won't add a unit that would go over it.
 - It must contain **exactly 1 Commander** unit: at least one, and **only 1 Commander is allowed** in a list at a time.
-- **Only the Commander is unique** (an army has exactly one), **and units with the Unique keyword**: only one of each may appear in an army list (the **Fist of Mars**; Master Sergeant Jakoby, a Commander, has it too). Other **Infantry**, **Heavy Support** and **Specialist** units can all be taken more than once. The army builder greys out a second one (*"Already in the army (Unique: only one per army)"*).
+- **Only the Commander is unique** (an army has exactly one), **and units with the Unique keyword**: only one of each may appear in an army list (the **Fist of Mars**; Master Sergeant Jakoby and Crown Princess X'tara, Commanders, have it too). Other **Infantry**, **Heavy Support** and **Specialist** units can all be taken more than once. The army builder greys out a second one (*"Already in the army (Unique: only one per army)"*).
 - **Units only a Commander brings:** a unit can be set to need a particular Commander (or one of several: the unit's *Only With Commanders* list). It's **hidden in the army builder** until one of those Commanders is in the list, then shown with "Only with ..." under its role; it can't be added (and a list with it isn't valid) without one. **Removing the Commander also removes those units** from the list. Random armies only take them with their Commander. *(No unit uses this yet.)*
 
 **Map choice, then army builder:** pressing **Play** first asks which **battlefield** to fight on (each with a short description); **Back** in the army builder returns to it. Choosing one opens the army builder on the **faction choice**; **Change faction** goes back to it (and empties the list). It then lists every unit the faction can take with an **Add** button and its details: role and size; **stats** for each soldier type (health, armor, accuracy, move, weapons), each **weapon** (damage, penetration, accuracy bonus, range, keywords), its **abilities** and **keywords**, all read from the game data; and a short **description** of how the unit plays and what it does in an army. The Add button is greyed out with the reason when the unit can't be added; your list shows the 6 slots with **Remove** buttons. It starts with the catalog's demo army (keeping only units the faction has; none set yet), or your last confirmed army if you choose the same faction again. **Random** builds a random valid army; **Clear** empties the list. **Save army** saves the list (its faction, units and each unit's weapon and equipment choices) as a file under a name you give it (saving under a name that's taken replaces that army); **Load army**, in the builder or on the faction choice, lists the saved armies (most recent first, with faction, unit count and date) to **Load** or **Delete** (click twice). Loading replaces the list and switches to the army's faction; a file the game can't read, or one naming units, factions or loadout choices it doesn't have (or units its faction can't take), is refused with the reason and the list is left as it was. A loaded army is checked against the rules, so one that no longer fits (e.g. after a Supply Cost changed) says why. Army files are JSON (`<name>.army.json`) in the Armies folder of the game's save data, and can be copied between players. **Confirm army** checks the list against the rules: if it isn't valid, it says why and you stay in the builder; if it is, you go to the battlefield.
@@ -259,6 +259,19 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 - The ISF Rifleman's stats, with a **Medkit** (standard equipment) instead of a Frag Grenade: as its action, once a turn, a friendly **Biological** soldier within 5 m (the medic too) restores **5 health** (refused, with no action spent, on one at full health).
 - A Specialist and a Solo unit (an army can take more than one).
 
+### Crown Princess X'tara
+
+*Imperial Army of The Draconis Imperialis · Commander.* One soldier: a white dragon with red eyes, golden armor and a brace on her right foreleg. *The war crazed 1st daughter of The Emperor of Draconis Imperialis who abdicated her claim on the throne to pursue a military career.* The Dragon Hierarch's stats, but **Accuracy 100%** and **Unique** (and no Honorguard).
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
+|---|---|---|---|---|---|---|---|
+| Crown Princess X'tara | 15 | 2 | **100%** | 30 m (sprint 60 m) | Biological, Large, Unique | Imperial Igniter (primary), Dragon Claw | Imperial Mandate (passive) |
+
+- **Imperial Igniter:** the Draconis name for the Flamethrower, which they fire with **5 shots** (the faction adds 2): Damage 10, Shots 5, no penetration value (full damage whatever the armor), Range 10 m, Incendiary, Unstable. Any Draconis soldier with a Flamethrower would get the same.
+- **Dragon Claw:** Damage 5, Penetration 1, Range 2 m, Melee: used instead when an enemy is within 2 m.
+- **Imperial Mandate** (passive aura): **other friendly Biological soldiers within 15 m** are **Under Imperial Mandate**: **+1 penetration** with their weapons (a new keyword effect). Machines aren't affected, nor is X'tara herself; weapons with no penetration value are unchanged.
+- A Commander and Unique: a Draconis army takes her, the Dragon Hierarch or the Dragonborn Exemplar.
+
 ### Dragon Hierarch
 
 *Imperial Army of The Draconis Imperialis · Commander.* 1 **Dragon Hierarch** (leader): a large quadrupedal dragon with wings and golden armor, of the Dragons, the Empire's ruling caste (see [Lore.md](Lore.md)); escorted by 2 **Dragonborn Honorguard** in gold armor and crimson capes.
@@ -353,6 +366,19 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 - **Sanctifying Presence** (passive aura): **other friendly Biological soldiers within 20 m** gain the status **Sanctified**: **+2 damage** and **+20% accuracy** with their weapons. Mechanical soldiers (vehicles and robots) and the Reliquary itself don't get it, and each soldier is checked on its own.
 - **Supply Cost 120:** the formula gives 20 (it doesn't count what an aura is worth), plus a **+100 surcharge** set on this unit.
 - **Mechanical:** can't sprint and is never in close range. Radius 1.4 m.
+- A Specialist (an army can take more than one).
+
+### Beasthunter Cavalry
+
+*Most Holy Army of The Rask Divine Collective · Specialist.* 1 **Rask Superior Rider** (leader) + 2 **Rask Riders**: a trio of Rask on motorcycles with wrist-mounted grenade launchers. *Using techniques originally developed for hunting megafauna this anti-tank cavalry has the firepower to crack armor and the mobility to stay alive.*
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
+|---|---|---|---|---|---|---|
+| Rask Superior Rider | 5 | 1 | 75% | **40 m (can't sprint)** | Biological, Swarm, **Cavalry** | Mag-grenade Launcher |
+| Rask Rider (×2) | 5 | 1 | 75% | **40 m (can't sprint)** | Biological, Swarm, **Cavalry** | Mag-grenade Launcher |
+
+- The Rask Rifleman's stats, but **Move 40 m** and **Cavalry**.
+- **Mag-grenade Launcher:** Damage 5, Shots 1, **Penetration 5**, +0% accuracy, Range 20 m, no keywords: 7 damage to an Armor 4 tank (150%), 5 to the Stinger's Armor 5.
 - A Specialist (an army can take more than one).
 
 ### Rask Rifle Team
@@ -562,7 +588,7 @@ Keywords are properties on weapons and soldiers that **interact with each other*
 
 > **If** the *attacker / weapon / target* **has / lacks** keyword *X* → *effect*
 
-Effects: **no effect** (the attack does nothing — no damage, no bonus effects), **damage bonus/penalty**, **accuracy bonus/penalty**, **always hits**, **always misses**, **can't be targeted**, **ignores line of sight**, **ignores accuracy modifiers**.
+Effects: **no effect** (the attack does nothing — no damage, no bonus effects), **damage bonus/penalty**, **accuracy bonus/penalty**, **always hits**, **always misses**, **can't be targeted**, **ignores line of sight**, **ignores accuracy modifiers**, **armor bonus/penalty**, **penetration bonus** (adds to the weapon's Penetration for the attack; a weapon with no penetration value is unchanged).
 
 - Weapon keywords apply whenever the weapon attacks. A soldier's keyword interactions are marked as applying **when attacking** or **when defending**.
 - Example: every living soldier has **Biological**. **Toxic** (weapon): *if the target lacks Biological → no effect*. So a Toxic weapon harms soldiers but does nothing to a tank.
@@ -570,8 +596,9 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 
 #### Keyword categories
 
+- **Cavalry** (soldier, Trait): mounted (e.g. on motorcycles): **this unit cannot sprint**, like a Mechanical one. The Beasthunter Cavalry have it.
 - **Swarm** (soldier, Trait): **expands the unit's cohesion radius to 10 m** (normally 5 m). If the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader; the green cohesion ring and the gather order use 10 m. The Kobold Militia and the Rask Rifle Team have it.
-- **Unique** (soldier, Trait): **only one of this unit may appear in an army list** (see Army lists). The Fist of Mars and Master Sergeant Jakoby have it.
+- **Unique** (soldier, Trait): **only one of this unit may appear in an army list** (see Army lists). The Fist of Mars, Master Sergeant Jakoby and Crown Princess X'tara have it.
 - **Large** (soldier, Trait): a very large creature or machine: the Dragon Hierarch, the Sagittarius MBT, the Marshal Command Tank, the Tyrant Hover-tank, the Stinger Heavy Robot, the Intimidator Medium Robot and the Rask Reliquary. **It gives half-cover to friendly Biological soldiers hiding behind it:** a friendly Biological soldier within **5 m** of its edge is **In half-cover**, exactly as near a Half-cover object: attacks against them take **−25% accuracy** when the Large soldier is between them and the attacker (the line of fire passes through its footprint, seen from above). Enemies, and machines, don't shelter behind it.
 - **Jump Pack** (soldier, Trait): **able to climb up objects without movement cost**: climbing onto an object costs the soldier 0 m instead of 10 m. The Dragonborn Skymaster Squad has it.
 - **Hover** (soldier, Trait): **terrain cannot reduce the movement of this soldier**: a move costs only its flat (horizontal) distance, with no climbing cost, no wading penalty and nothing extra for slopes. The Tyrant Hover-tank has it.

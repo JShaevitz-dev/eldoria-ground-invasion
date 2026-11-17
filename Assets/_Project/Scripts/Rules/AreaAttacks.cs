@@ -67,7 +67,7 @@ namespace Eldoria.Rules
                     }
                     int finalDamage = Attack.FinalDamage(weapon.BaseDamage, keywords);
                     int armor = Attack.ArmorAgainst(s, keywords);
-                    var pen = ArmorPenetration.Resolve(finalDamage, weapon.PenetrationValue, armor);
+                    var pen = ArmorPenetration.Resolve(finalDamage, Attack.PenetrationFor(weapon.PenetrationValue, keywords), armor);
                     result.Hits.Add((s, pen.Damage));
                     if (pen.Damage > 0)
                     {

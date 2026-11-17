@@ -20,6 +20,8 @@ namespace Eldoria.Rules
         public bool IgnoresAccuracyModifiers;
         /// <summary>Change to the target's Armor Level for this attack (e.g. +1 from Divine Sanctuary).</summary>
         public int ArmorModifier;
+        /// <summary>Added to the weapon's Penetration for this attack (e.g. +1 from Under Imperial Mandate).</summary>
+        public int PenetrationBonus;
         public int DamageBonus;
         public int DamagePenalty;
         public readonly List<AccuracyModifier> AccuracyModifiers = new List<AccuracyModifier>();
@@ -128,6 +130,7 @@ namespace Eldoria.Rules
                         case KeywordEffect.IgnoresAccuracyModifiers: outcome.IgnoresAccuracyModifiers = true; break;
                         case KeywordEffect.ArmorBonus: outcome.ArmorModifier += i.amount; break;
                         case KeywordEffect.ArmorPenalty: outcome.ArmorModifier -= i.amount; break;
+                        case KeywordEffect.PenetrationBonus: outcome.PenetrationBonus += i.amount; break;
                         case KeywordEffect.DamageBonus: outcome.DamageBonus += i.amount; break;
                         case KeywordEffect.DamagePenalty: outcome.DamagePenalty += i.amount; break;
                         case KeywordEffect.AccuracyBonus: outcome.AccuracyModifiers.Add(AccuracyModifier.Bonus(source, i.amount)); break;

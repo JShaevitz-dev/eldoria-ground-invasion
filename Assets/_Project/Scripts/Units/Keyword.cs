@@ -76,7 +76,9 @@ namespace Eldoria.Units
         /// <summary>Adds to the target's Armor Level for this attack (e.g. Divine Sanctuary: +1).</summary>
         ArmorBonus,
         /// <summary>Subtracts from the target's Armor Level for this attack (not below 0).</summary>
-        ArmorPenalty
+        ArmorPenalty,
+        /// <summary>Adds to the weapon's Penetration for this attack (e.g. Under Imperial Mandate: +1). No effect on a weapon with no penetration value.</summary>
+        PenetrationBonus
     }
 
     /// <summary>
@@ -116,6 +118,7 @@ namespace Eldoria.Units
                 KeywordEffect.IgnoresAccuracyModifiers => "ignores accuracy modifiers",
                 KeywordEffect.ArmorBonus => $"+{amount} armor",
                 KeywordEffect.ArmorPenalty => $"−{amount} armor",
+                KeywordEffect.PenetrationBonus => $"+{amount} penetration",
                 _ => "always misses"
             };
             if (condition == KeywordCondition.Always) return $"{owner.displayName}: {what}{between}";

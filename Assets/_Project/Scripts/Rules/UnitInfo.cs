@@ -30,7 +30,7 @@ namespace Eldoria.Rules
                     .Concat(gear.SelectMany(e => e.weapons).Where(w => w != null).Select(w => WeaponStats.For(w, faction).Name))
                     .Concat(gear.Select(e => e.displayName)));
                 lines.Add($"{who} — Health {health} · Armor {armor} · Accuracy {accuracy}% · " +
-                          $"Move {move:0.#} m " + (s.HasKeyword(MovementRules.MechanicalKeyword) ? "(can't sprint)"
+                          $"Move {move:0.#} m " + (s.HasKeyword(MovementRules.MechanicalKeyword) || s.HasKeyword(MovementRules.CavalryKeyword) ? "(can't sprint)"
                               : $"(sprint {move * MovementRules.SprintMultiplier:0.#} m)") + (weapons.Length > 0 ? $" · {weapons}" : ""));
             }
             return lines;

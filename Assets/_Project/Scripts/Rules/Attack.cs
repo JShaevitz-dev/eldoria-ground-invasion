@@ -70,7 +70,7 @@ namespace Eldoria.Rules
 
             // 9. Armor penetration (against the target's Armor Level, adjusted by keywords such as Divine Sanctuary).
             result.TargetArmor = ArmorAgainst(target, result.Keywords);
-            var penetration = ArmorPenetration.Resolve(result.FinalDamage, weapon.PenetrationValue, result.TargetArmor);
+            var penetration = ArmorPenetration.Resolve(result.FinalDamage, PenetrationFor(weapon.PenetrationValue, result.Keywords), result.TargetArmor);
 
             // 10. Accuracy and hit roll.
             result.Accuracy = Rules.Accuracy.ForAttack(attacker, weapon, attackerSprinted, result.Keywords.AccuracyModifiers,
@@ -110,7 +110,7 @@ namespace Eldoria.Rules
             if (weapon == null || target == null) return 0;
             var keywords = KeywordRules.Evaluate(attacker, weapon, target);
             if (keywords.NoEffect) return 0;
-            return ArmorPenetration.Resolve(FinalDamage(weapon.BaseDamage, keywords), weapon.PenetrationValue, ArmorAgainst(target, keywords)).Damage;
+            return ArmorPenetration.Resolve(FinalDamage(weapon.BaseDamage, keywords), PenetrationFor(weapon.PenetrationValue, keywords), ArmorAgainst(target, keywords)).Damage;
         }
 
         /// <summary>Could a hit from this weapon damage the target at all (see <see cref="MaxDamage"/>)?</summary>
@@ -130,6 +130,13 @@ namespace Eldoria.Rules
             if (!keywords.IgnoresLineOfSight && !LineOfSight.CanSee(attacker, target)) return "No line of sight";
             return null;
         }
+
+        /// <summary>
+        /// The weapon's Penetration for this attack: its own plus keyword bonuses (e.g. Under Imperial Mandate). A weapon with no
+        /// penetration value (full damage whatever the armor) stays without one.
+        /// </summary>
+        public static int? PenetrationFor(int? weaponPenetration, KeywordOutcome keywords) =>
+            weaponPenetration.HasValue ? weaponPenetration.Value + (keywords?.PenetrationBonus ?? 0) : (int?)null;
 
         /// <summary>The target's Armor Level for this attack: their stat plus keyword armor bonuses/penalties (not below 0).</summary>
         public static int ArmorAgainst(Soldier target, KeywordOutcome keywords) => Mathf.Max(0, target.ArmorLevel + keywords.ArmorModifier);

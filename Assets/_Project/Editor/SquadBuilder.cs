@@ -603,18 +603,103 @@ namespace Eldoria.EditorTools
         }
 
         /// <summary>
+        /// Crown Princess X'tara (Commander, Draconis Imperialis): 1 Crown Princess X'tara with the Dragon Hierarch's stats but
+        /// Accuracy 100% (Health 15, Armor 2, Move 30 m; Biological, Large, Unique); Dragon Claw and a Flamethrower, which the
+        /// Draconis call the "Imperial Igniter" and fire with 5 shots (see <see cref="EnsureImperialIgniter"/>); passive Imperial
+        /// Mandate (+1 penetration for friendly Biological soldiers within 15 m). A white dragon with red eyes, a brace on the
+        /// right foreleg and golden armor. Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureCrownPrincessXtara(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            EnsureFolder(DataDir, "Abilities");
+            var hierarch = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/DragonHierarch.asset");
+            var claw = EnsureDragonClaw(keywords);
+            var igniter = EnsureImperialIgniter(faction);
+            var mandate = GetOrCreate<Ability>($"{DataDir}/Abilities/ImperialMandate.asset", a =>
+            {
+                a.displayName = "Imperial Mandate";
+                a.description = "Passive. Friendly Biological soldiers within 15 m (not X'tara herself) are Under Imperial Mandate: +1 penetration with their weapons. Weapons with no penetration value (full damage whatever the armor) are unchanged.";
+                a.kind = AbilityKind.Passive;
+                a.keywords = new List<Keyword>();
+                a.grantsNearby = AssetDatabase.LoadAssetAtPath<Keyword>($"{DataDir}/Keywords/UnderImperialMandate.asset");
+                a.radius = 15f;
+                a.auraMustHave = keywords["Biological"];
+                a.affects = AuraAffects.Allies;
+                a.includeSelf = false;
+            });
+            var princess = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/CrownPrincessXtara.asset", s =>
+            {
+                s.displayName = "Crown Princess X'tara";
+                s.health = hierarch.health; s.armorLevel = hierarch.armorLevel; s.movementRange = hierarch.movementRange;
+                s.accuracy = 100;
+                s.keywords = new List<Keyword>(hierarch.keywords) { keywords["Unique"] };
+                s.abilities = new List<Ability> { mandate };
+                s.weapons = new List<WeaponTemplate> { igniter, claw };
+                s.primaryWeapon = igniter;   // the Dragon Claw (Melee) takes over in close range
+                s.radius = hierarch.radius;
+                s.height = hierarch.height;
+            });
+            if (princess.prefab == null)
+            {
+                princess.prefab = BuildDragonPrefab("CrownPrincessXtara", princess, princess: true);
+                EditorUtility.SetDirty(princess);
+            }
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/CrownPrincessXtara.asset", u =>
+            {
+                u.displayName = "Crown Princess X'tara";
+                u.role = UnitRole.Commander;
+                u.description = "The war crazed 1st daughter of The Emperor of Draconis Imperialis who abdicated her claim on the throne to pursue a military career. A white dragon in golden armor with the Dragon Hierarch's 15 health and Armor Level 2, but 100% accuracy. Her Imperial Igniter (a Flamethrower: 5 shots of 10 damage whatever the armor, 10 m) burns out living soldiers, and her Dragon Claw (5 damage, penetration 1, 2 m) takes over when an enemy is within 2 m. Imperial Mandate: friendly Biological soldiers within 15 m get +1 penetration. She moves 30 m (60 m sprinting). Unique. A Commander: every army needs exactly one.";
+                u.leader = princess;
+                u.members = new List<UnitTemplate.Member>();
+                u.deploymentSpacing = 4f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// The Flamethrower, which the Draconis Imperialis call the "Imperial Igniter" and fire with 2 more shots (5, not 3):
+        /// a faction name and a faction change to the shots, like the Rask's Solntse Laser Rifle. Each is added once.
+        /// </summary>
+        public static WeaponTemplate EnsureImperialIgniter(Faction draconis)
+        {
+            var flamer = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/Flamethrower.asset");
+            if (!draconis.weaponNames.Any(n => n != null && n.weapon == flamer))
+            {
+                draconis.weaponNames.Add(new WeaponName { weapon = flamer, name = "Imperial Igniter" });
+                EditorUtility.SetDirty(draconis);
+            }
+            if (!draconis.weaponAdjustments.Any(a => a != null && a.weapon == flamer))
+            {
+                draconis.weaponAdjustments.Add(new WeaponAdjustment { weapon = flamer, shots = 2 });
+                EditorUtility.SetDirty(draconis);
+            }
+            return flamer;
+        }
+
+        /// <summary>
         /// A placeholder dragon built from primitives, facing +z: a quadrupedal body with a long neck and tail, four legs,
         /// two raised wings and golden armor plates. Body and wings use the primary colour material (tinted with the
         /// faction's colour when deployed); the armor is gold.
         /// </summary>
-        private static GameObject BuildDragonPrefab(string name, SoldierTemplate template)
+        /// <param name="princess">Crown Princess X'tara: white scales (not the faction's colour), red eyes and a brace on the
+        /// right foreleg.</param>
+        private static GameObject BuildDragonPrefab(string name, SoldierTemplate template, bool princess = false)
         {
             EnsureFolder(Root, "Prefabs");
             EnsureFolder($"{Root}/Prefabs", "Units");
-            var hide = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var hide = princess ? GetOrCreateMaterial("Dragon_White", new Color(0.93f, 0.93f, 0.95f))
+                                : GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
             var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
             var horn = GetOrCreateMaterial("Dragon_Horn", new Color(0.86f, 0.82f, 0.7f));
-            var eye = GetOrCreateMaterial("Dragon_Eye", new Color(1f, 0.6f, 0.05f));
+            var eye = princess ? GetOrCreateMaterial("Dragon_Red_Eye", new Color(0.9f, 0.05f, 0.05f))
+                               : GetOrCreateMaterial("Dragon_Eye", new Color(1f, 0.6f, 0.05f));
             float h = template.height;
 
             var root = new GameObject(name);
@@ -657,6 +742,17 @@ namespace Eldoria.EditorTools
             {
                 Part(root, "Horn", PrimitiveType.Cube, horn, new Vector3(side * 0.22f, 3.55f, 1.85f), new Vector3(0.08f, 0.45f, 0.08f), new Vector3(-40f, 0f, side * 12f));
                 Part(root, "Eye", PrimitiveType.Cube, eye, new Vector3(side * 0.31f, 3.2f, 2.45f), new Vector3(0.03f, 0.08f, 0.14f));
+            }
+            if (princess)
+            {
+                // A brace on the right foreleg: steel bands and two splints around the leg, below the greave.
+                var steel = GetOrCreateMaterial("Shield_Steel", new Color(0.6f, 0.62f, 0.66f));
+                var strap = GetOrCreateMaterial("Brace_Strap", new Color(0.2f, 0.15f, 0.12f));
+                var leg = new Vector3(0.55f, 0f, 0.95f);
+                foreach (float y in new[] { 0.35f, 0.62f })
+                    Part(root, "Leg Brace Band", PrimitiveType.Cube, strap, leg + new Vector3(0f, y, 0f), new Vector3(0.48f, 0.08f, 0.53f));
+                foreach (float x in new[] { -0.23f, 0.23f })
+                    Part(root, "Leg Brace", PrimitiveType.Cube, steel, leg + new Vector3(x, 0.48f, 0f), new Vector3(0.05f, 0.62f, 0.12f));
             }
             // Tail, tapering behind.
             Part(root, "Tail", PrimitiveType.Capsule, hide, new Vector3(0f, 1.5f, -2.0f), new Vector3(0.45f, 0.9f, 0.45f), new Vector3(-70f, 0f, 0f));
@@ -2912,6 +3008,166 @@ namespace Eldoria.EditorTools
             }
         }
 
+        /// <summary>
+        /// Mag-grenade Launcher: Damage 5, Shots 1, Penetration 5, +0% accuracy, Range 20 m; no keywords. Wrist-mounted, carried
+        /// by the Rask's Beasthunter Cavalry.
+        /// </summary>
+        public static WeaponTemplate EnsureMagGrenadeLauncher()
+        {
+            EnsureFolder(DataDir, "Weapons");
+            return GetOrCreate<WeaponTemplate>($"{DataDir}/Weapons/MagGrenadeLauncher.asset", w =>
+            {
+                w.displayName = "Mag-grenade Launcher";
+                w.baseDamage = 5; w.shots = 1;
+                w.hasPenetration = true; w.penetration = 5;
+                w.accuracyBonus = 0;
+                w.range = 20f;
+                w.keywords = new List<Keyword>();
+            });
+        }
+
+        /// <summary>
+        /// Beasthunter Cavalry (Specialist, Rask): 1 Rask Superior Rider (leader) + 2 Rask Riders, with the Rask Rifleman's stats
+        /// but Move 40 m and the Cavalry keyword (can't sprint): Health 5, Armor 1, Accuracy 75%; Biological, Swarm, Cavalry;
+        /// a Mag-grenade Launcher each. Rask on motorcycles with wrist-mounted grenade launchers. Existing assets keep their
+        /// Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureBeasthunterCavalry(Faction faction, Dictionary<string, Keyword> keywords)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            var launcher = EnsureMagGrenadeLauncher();
+            var rifleman = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/RaskRifleman.asset");
+
+            SoldierTemplate Rider(string file, string name, bool superior)
+            {
+                var t = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", s =>
+                {
+                    s.displayName = name;
+                    s.health = rifleman.health; s.armorLevel = rifleman.armorLevel; s.accuracy = rifleman.accuracy;
+                    s.movementRange = 40f;
+                    s.keywords = new List<Keyword>(rifleman.keywords) { keywords["Cavalry"] };
+                    s.abilities = new List<Ability>();
+                    s.weapons = new List<WeaponTemplate> { launcher };
+                    s.primaryWeapon = launcher;
+                    s.radius = 0.6f;    // a rat on a motorcycle
+                    s.height = 1.6f;
+                });
+                if (t.prefab == null)
+                {
+                    t.prefab = BuildRaskRiderPrefab(file, t, superior);
+                    EditorUtility.SetDirty(t);
+                }
+                return t;
+            }
+
+            var leader = Rider("RaskSuperiorRider", "Rask Superior Rider", true);
+            var rider = Rider("RaskRider", "Rask Rider", false);
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/BeasthunterCavalry.asset", u =>
+            {
+                u.displayName = "Beasthunter Cavalry";
+                u.role = UnitRole.Specialist;
+                u.description = "Using techniques originally developed for hunting megafauna this anti-tank cavalry has the firepower to crack armor and the mobility to stay alive. Three Rask on motorcycles (a Rask Superior Rider and two Rask Riders), each with a wrist-mounted Mag-grenade Launcher (5 damage, penetration 5, 20 m), which does 7 damage to an Armor 4 tank and 5 to the Stinger's Armor 5. They have the Rask Rifleman's 5 health, Armor Level 1 and 75% accuracy, but ride 40 m a turn; as Cavalry they can't sprint. A Specialist, so you can field more than one.";
+                u.leader = leader;
+                u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rider, count = 2 } };
+                u.deploymentSpacing = 2.5f;
+            });
+            if (!faction.units.Contains(unit))
+            {
+                faction.units.Add(unit);
+                EditorUtility.SetDirty(faction);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// A Rask on a motorcycle, facing +z: two wheels, an armored body and tank in the primary colour (the faction's colour
+        /// when deployed), a seat, handlebars and a headlight; the rat leans forward on the seat, hands on the bars, with a
+        /// grenade launcher strapped to its right wrist. A Superior has a gold helmet crest and gorget.
+        /// </summary>
+        private static GameObject BuildRaskRiderPrefab(string name, SoldierTemplate template, bool superior)
+        {
+            EnsureFolder(Root, "Prefabs");
+            EnsureFolder($"{Root}/Prefabs", "Units");
+            var armor = GetOrCreateMaterial("Player_Armor", new Color(0.18f, 0.32f, 0.62f));
+            var fur = GetOrCreateMaterial("Rask_Fur", new Color(0.45f, 0.4f, 0.36f));
+            var skin = GetOrCreateMaterial("Rask_Skin", new Color(0.86f, 0.62f, 0.6f));
+            var steel = GetOrCreateMaterial("Rask_Steel", new Color(0.52f, 0.53f, 0.56f));
+            var eye = GetOrCreateMaterial("Rask_Eye", new Color(0.08f, 0.06f, 0.06f));
+            var gold = GetOrCreateMaterial("Dragon_Gold", new Color(0.93f, 0.71f, 0.22f));
+            var metal = GetOrCreateMaterial("Weapon", new Color(0.22f, 0.22f, 0.24f));
+            var tire = GetOrCreateMaterial("Tire_Black", new Color(0.08f, 0.08f, 0.09f));
+            var lamp = GetOrCreateMaterial("Headlight", new Color(1f, 0.95f, 0.7f));
+
+            var root = new GameObject(name);
+            var soldier = root.AddComponent<Soldier>();
+            var sso = new SerializedObject(soldier);
+            sso.FindProperty("template").objectReferenceValue = template;
+            sso.FindProperty("isSergeant").boolValue = superior;
+            sso.ApplyModifiedPropertiesWithoutUndo();
+            var col = root.AddComponent<CapsuleCollider>();
+            col.radius = template.radius;
+            col.height = template.height;
+            col.center = new Vector3(0f, template.height / 2f, 0f);
+            var model = new GameObject("Model");
+            model.transform.SetParent(root.transform, false);
+
+            // The motorcycle (meters): wheels 0.64 m across, 1.5 m apart.
+            var wheel = new Vector3(0f, 0f, 90f);
+            foreach (float z in new[] { 0.75f, -0.7f })
+            {
+                Part(model, "Wheel", PrimitiveType.Cylinder, tire, new Vector3(0f, 0.32f, z), new Vector3(0.64f, 0.06f, 0.64f), wheel);
+                Part(model, "Hub", PrimitiveType.Cylinder, steel, new Vector3(0f, 0.32f, z), new Vector3(0.26f, 0.08f, 0.26f), wheel);
+            }
+            Part(model, "Frame", PrimitiveType.Cube, metal, new Vector3(0f, 0.5f, 0f), new Vector3(0.16f, 0.16f, 1.3f));
+            Part(model, "Bike Body", PrimitiveType.Cube, armor, new Vector3(0f, 0.68f, 0.05f), new Vector3(0.34f, 0.28f, 0.8f));
+            Part(model, "Fuel Tank", PrimitiveType.Capsule, armor, new Vector3(0f, 0.86f, 0.25f), new Vector3(0.3f, 0.22f, 0.3f), new Vector3(90f, 0f, 0f));
+            Part(model, "Seat", PrimitiveType.Cube, metal, new Vector3(0f, 0.86f, -0.25f), new Vector3(0.28f, 0.08f, 0.5f));
+            Part(model, "Rear Fender", PrimitiveType.Cube, armor, new Vector3(0f, 0.7f, -0.72f), new Vector3(0.22f, 0.05f, 0.5f), new Vector3(-15f, 0f, 0f));
+            foreach (float side in new[] { -1f, 1f })
+                Part(model, "Fork", PrimitiveType.Cube, steel, new Vector3(side * 0.08f, 0.62f, 0.68f), new Vector3(0.04f, 0.6f, 0.04f), new Vector3(-20f, 0f, 0f));
+            Part(model, "Handlebar", PrimitiveType.Cylinder, steel, new Vector3(0f, 1.0f, 0.55f), new Vector3(0.04f, 0.32f, 0.04f), wheel);
+            Part(model, "Headlight", PrimitiveType.Sphere, lamp, new Vector3(0f, 0.86f, 0.78f), new Vector3(0.16f, 0.16f, 0.1f));
+            Part(model, "Exhaust", PrimitiveType.Cylinder, steel, new Vector3(0.2f, 0.42f, -0.45f), new Vector3(0.08f, 0.3f, 0.08f), new Vector3(80f, 0f, 0f));
+
+            // The rider, sitting forward on the seat.
+            Part(model, "Body", PrimitiveType.Capsule, fur, new Vector3(0f, 1.12f, -0.18f), new Vector3(0.3f, 0.24f, 0.24f), new Vector3(25f, 0f, 0f));
+            Part(model, "Breastplate", PrimitiveType.Cube, armor, new Vector3(0f, 1.16f, -0.07f), new Vector3(0.28f, 0.3f, 0.08f), new Vector3(25f, 0f, 0f));
+            Part(model, "Head", PrimitiveType.Sphere, fur, new Vector3(0f, 1.42f, 0.02f), new Vector3(0.18f, 0.17f, 0.2f));
+            Part(model, "Snout", PrimitiveType.Capsule, fur, new Vector3(0f, 1.39f, 0.15f), new Vector3(0.08f, 0.08f, 0.08f), new Vector3(90f, 0f, 0f));
+            Part(model, "Nose", PrimitiveType.Sphere, skin, new Vector3(0f, 1.39f, 0.23f), Vector3.one * 0.03f);
+            Part(model, "Helmet", PrimitiveType.Sphere, armor, new Vector3(0f, 1.49f, 0f), new Vector3(0.2f, 0.1f, 0.2f));
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Part(model, "Ear", PrimitiveType.Cylinder, skin, new Vector3(side * 0.09f, 1.56f, -0.01f), new Vector3(0.09f, 0.01f, 0.09f), new Vector3(90f, 0f, side * 20f));
+                Part(model, "Eye", PrimitiveType.Sphere, eye, new Vector3(side * 0.06f, 1.44f, 0.1f), Vector3.one * 0.035f);
+                Part(model, "Pauldron", PrimitiveType.Sphere, steel, new Vector3(side * 0.19f, 1.26f, -0.08f), new Vector3(0.14f, 0.09f, 0.16f));
+                // Arms reaching forward to the handlebars.
+                Part(model, "Arm", PrimitiveType.Capsule, fur, new Vector3(side * 0.22f, 1.12f, 0.22f), new Vector3(0.08f, 0.2f, 0.08f), new Vector3(70f, 0f, 0f));
+                Part(model, "Hand", PrimitiveType.Sphere, skin, new Vector3(side * 0.24f, 1.02f, 0.5f), Vector3.one * 0.07f);
+                // Legs along the bike, feet on the pegs.
+                Part(model, "Thigh", PrimitiveType.Capsule, fur, new Vector3(side * 0.16f, 0.9f, -0.05f), new Vector3(0.11f, 0.17f, 0.11f), new Vector3(80f, 0f, 0f));
+                Part(model, "Shin", PrimitiveType.Capsule, fur, new Vector3(side * 0.18f, 0.7f, 0.1f), new Vector3(0.09f, 0.14f, 0.09f), new Vector3(-20f, 0f, 0f));
+                Part(model, "Foot", PrimitiveType.Cube, skin, new Vector3(side * 0.19f, 0.56f, 0.14f), new Vector3(0.09f, 0.05f, 0.18f));
+            }
+            // The wrist-mounted Mag-grenade Launcher on the right forearm: a drum and a short, wide barrel pointing forward.
+            Part(model, "Launcher Drum", PrimitiveType.Cylinder, metal, new Vector3(0.3f, 1.1f, 0.38f), new Vector3(0.12f, 0.06f, 0.12f), wheel);
+            Part(model, "Launcher Barrel", PrimitiveType.Cylinder, metal, new Vector3(0.3f, 1.1f, 0.52f), new Vector3(0.08f, 0.12f, 0.08f), new Vector3(90f, 0f, 0f));
+            Part(model, "Launcher Strap", PrimitiveType.Cube, steel, new Vector3(0.27f, 1.08f, 0.4f), new Vector3(0.1f, 0.03f, 0.08f));
+            // A long, thin tail trailing behind.
+            Part(model, "Tail", PrimitiveType.Capsule, skin, new Vector3(0f, 0.9f, -0.62f), new Vector3(0.035f, 0.28f, 0.035f), new Vector3(-80f, 0f, 0f));
+            if (superior)
+            {
+                Part(model, "Helmet Crest", PrimitiveType.Cube, gold, new Vector3(0f, 1.56f, 0f), new Vector3(0.03f, 0.06f, 0.2f));
+                Part(model, "Gorget", PrimitiveType.Cube, gold, new Vector3(0f, 1.28f, 0.02f), new Vector3(0.16f, 0.05f, 0.04f));
+            }
+
+            Eldoria.Terrain.TerrainLayers.SetLayerRecursively(root, Eldoria.Terrain.TerrainLayers.Soldier);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, $"{Root}/Prefabs/Units/{name}.prefab");
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
         [MenuItem("Ground Invasion/Rebuild Unit Catalog")]
         public static void RebuildUnitCatalog()
         {
@@ -2952,7 +3208,9 @@ namespace Eldoria.EditorTools
             EnsureEquipment();
             EnsureLargeMachines(keywords);
             EnsureLongTankGrenade();
-            EnsureFistOfMars(factions[0], keywords);   // after the Sagittarius MBT (Large, 50 m grenade): it copies its stats
+            EnsureFistOfMars(factions[0], keywords);
+            EnsureCrownPrincessXtara(factions[1], keywords);
+            EnsureBeasthunterCavalry(factions[2], keywords);   // after the Sagittarius MBT (Large, 50 m grenade): it copies its stats
             EnsureUniqueUnits(keywords);
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
@@ -3160,6 +3418,7 @@ namespace Eldoria.EditorTools
             Kw("SniperPrecision", "Sniper Precision", KeywordTarget.Soldier,
                 "When this soldier shoots, the player picks the specific enemy soldier they target instead of the closest one.");
             Kw("Deployed", "Deployed", KeywordTarget.Weapon, "This weapon can't be used in a volley if the soldier holding it has moved this turn.");
+            Kw("Cavalry", "Cavalry", KeywordTarget.Soldier, "Mounted (e.g. on motorcycles): this unit cannot sprint.");
             Kw("Swarm", "Swarm", KeywordTarget.Soldier,
                 "Expands the unit's cohesion radius to 10 m (normally 5 m): if the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader.");
             Kw("Unique", "Unique", KeywordTarget.Soldier, "Only one of this unit may appear in an army list.");
@@ -3230,6 +3489,16 @@ namespace Eldoria.EditorTools
                     new KeywordInteraction { role = KeywordRole.WhenAttacking, condition = KeywordCondition.Always, effect = KeywordEffect.AccuracyBonus, amount = 20 },
                 };
             });
+            GetOrCreate<Keyword>($"{DataDir}/Keywords/UnderImperialMandate.asset", k =>
+            {
+                k.displayName = "Under Imperial Mandate";
+                k.appliesTo = KeywordTarget.Soldier;
+                k.description = "Within 15 m of Crown Princess X'tara (friendly Biological soldiers, not X'tara herself): +1 penetration with weapons that have a penetration value.";
+                k.interactions = new List<KeywordInteraction>
+                {
+                    new KeywordInteraction { role = KeywordRole.WhenAttacking, condition = KeywordCondition.Always, effect = KeywordEffect.PenetrationBonus, amount = 1 },
+                };
+            });
             GetOrCreate<Keyword>($"{DataDir}/Keywords/Empowered.asset", k =>
             {
                 k.displayName = "Empowered";
@@ -3266,10 +3535,10 @@ namespace Eldoria.EditorTools
                 ["Officer"] = KeywordCategory.Trait, ["Solo"] = KeywordCategory.Trait, ["Magic"] = KeywordCategory.Trait,
                 ["Spell"] = KeywordCategory.Trait, ["Pistol"] = KeywordCategory.Trait, ["Deployed"] = KeywordCategory.Trait,
                 ["Mechanical"] = KeywordCategory.Trait, ["Tank"] = KeywordCategory.Trait, ["Manual Load"] = KeywordCategory.Trait, ["Melee"] = KeywordCategory.Trait, ["Sniper Precision"] = KeywordCategory.Trait,
-                ["Large"] = KeywordCategory.Trait, ["Unique"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Transport"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
+                ["Large"] = KeywordCategory.Trait, ["Unique"] = KeywordCategory.Trait, ["Heavy"] = KeywordCategory.Trait, ["Jump Pack"] = KeywordCategory.Trait, ["Hover"] = KeywordCategory.Trait, ["Transport"] = KeywordCategory.Trait, ["Natural"] = KeywordCategory.Trait, ["Swarm"] = KeywordCategory.Trait, ["Cavalry"] = KeywordCategory.Trait, ["In close range"] = KeywordCategory.Status,
                 ["Divine Sanctuary"] = KeywordCategory.Status,
                 ["Moved"] = KeywordCategory.Status, ["In half-cover"] = KeywordCategory.Status,
-                ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status, ["Empowered"] = KeywordCategory.Status, ["Sanctified"] = KeywordCategory.Status,
+                ["In full cover"] = KeywordCategory.Status, ["Led from the front"] = KeywordCategory.Status, ["Empowered"] = KeywordCategory.Status, ["Sanctified"] = KeywordCategory.Status, ["Under Imperial Mandate"] = KeywordCategory.Status,
                 ["Chromashift"] = KeywordCategory.Status,
             };
             foreach (var guid in AssetDatabase.FindAssets("t:Keyword", new[] { $"{DataDir}/Keywords" }))

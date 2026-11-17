@@ -323,7 +323,7 @@ namespace Eldoria.Rules
                         }
                         int finalDamage = Attack.FinalDamage(weapon.BaseDamage, keywords);
                         int armor = Attack.ArmorAgainst(s, keywords);
-                        int damage = ArmorPenetration.Resolve(finalDamage, weapon.PenetrationValue, armor).Damage;
+                        int damage = ArmorPenetration.Resolve(finalDamage, Attack.PenetrationFor(weapon.PenetrationValue, keywords), armor).Damage;
                         result.AreaHits.Add((s, damage));
                         if (damage <= 0) { result.Log.Add($"  {s.name}: armor stops it."); continue; }
                         result.Log.Add($"  {s.name} takes {damage}.");

@@ -114,6 +114,8 @@ namespace Eldoria.Rules
 
         /// <summary>Soldier keyword: soldiers with it can't sprint (only a normal move).</summary>
         public const string MechanicalKeyword = "Mechanical";
+        /// <summary>Soldier keyword: mounted (e.g. on motorcycles); like Mechanical soldiers, they can't sprint.</summary>
+        public const string CavalryKeyword = "Cavalry";
 
         /// <summary>Sprinting covers this many times a soldier's movement range.</summary>
         public const float SprintMultiplier = 2f;
@@ -136,7 +138,7 @@ namespace Eldoria.Rules
             if (d <= leader.Move + Epsilon) kind = MoveKind.Normal;
             else if (d <= leader.Sprint + Epsilon) kind = MoveKind.Sprint;
             else return MoveCheck.Fail(d, leader.CanSprint ? $"Out of range (max {leader.Sprint:0.#} m sprint)"
-                : $"Out of range (max {leader.Move:0.#} m; {MechanicalKeyword} soldiers can't sprint)", stand, path);
+                : $"Out of range (max {leader.Move:0.#} m; {(leader.HasKeyword(CavalryKeyword) ? CavalryKeyword : MechanicalKeyword)} soldiers can't sprint)", stand, path);
 
             if (!IsSpaceFree(leader, stand, positions)) return MoveCheck.Fail(d, "Space is occupied", stand, path);
 
