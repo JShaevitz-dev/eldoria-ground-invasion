@@ -18,12 +18,15 @@ MonoBehaviour:
     field: 20 health and Armor Level 4 shrug off rifles, machine guns, grenades and
     flamethrowers alike. Its 100mm Cannon (10 damage, penetration 4, 50 m) can crack
     other heavy armor, but it''s Manual Load: one shot a turn. It can also throw
-    a Frag Grenade every turn. It moves a long way (30 m) but, being Mechanical,
-    can''t sprint. When destroyed it has a 10% chance to explode (Unstable), so keep
-    your own soldiers clear of it. Heavy Support, so you can field more than one.'
+    a Frag Grenade every turn, up to 50 m. It moves a long way (30 m) but, being
+    Mechanical, can''t sprint. When destroyed it has a 10% chance to explode (Unstable),
+    so keep your own soldiers clear of it. Large: friendly Biological soldiers within
+    5 m can shelter behind it (half-cover). Heavy Support, so you can field more
+    than one.'
   leader: {fileID: 11400000, guid: d420e1774b90e3c43a6c52eb71fa18b4, type: 2}
   members: []
   equipmentSwapsForWholeUnit: 0
   supplyCost: 170
   supplyCostAdjustment: 0
+  onlyWithCommanders: []
   deploymentSpacing: 2

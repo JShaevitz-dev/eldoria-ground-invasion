@@ -38,7 +38,7 @@ namespace Eldoria.Tests
             var t = Mbt.leader;
             Assert.That(t.displayName, Is.EqualTo("Sagittarius MBT"));
             Assert.That((t.health, t.armorLevel, t.accuracy, t.movementRange), Is.EqualTo((20, 4, 75, 30f)));
-            Assert.That(t.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Tank", "Unstable" }));
+            Assert.That(t.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Tank", "Unstable", "Large" }));
             Assert.That(t.HasKeyword("Biological"), Is.False, "a machine");
             Assert.That(t.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Frag Grenade" }));
             Assert.That(t.abilities.Single().usesPerBattle, Is.EqualTo(0), "no once-per-battle limit");

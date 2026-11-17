@@ -47,7 +47,7 @@ namespace Eldoria.Tests
             Assert.That(unit.Size, Is.EqualTo(1));
             var s = unit.leader;
             Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((10, 2, 75, 20f)));
-            Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical" }));
+            Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Large" }));
             Assert.That(s.weapons, Is.Empty, "no weapon of its own");
             Assert.That(s.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Sanctifying Presence" }));
             Assert.That(s.prefab, Is.Not.Null);

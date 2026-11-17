@@ -156,7 +156,7 @@ namespace Eldoria.EditorTools
             Snowbank(props, -10f, -10f, 30f, 6f);
             Snowbank(props, 8f, -34f, 0f, 7f);
             Snowbank(props, -22f, -33f, -20f, 6f);
-            Snowbank(props, 42f, -18f, 90f, 6f);
+            Snowbank(props, 44f, -21f, 90f, 6f);   // clear of the ridge's flank (it used to sit across it, buried at one end)
             Snowbank(props, 22f, -6f, 60f, 5f);
             Snowbank(props, -40f, -32f, 15f, 5f);
             // Fuel drums by the Weather Station, and supply crates by the Supply Shed.
@@ -164,7 +164,7 @@ namespace Eldoria.EditorTools
             Drums(props, new Vector2(6f, -26f));
             Crate(props, -34.5f, -2.5f, 15f);
             Crate(props, -35.5f, -10f, 40f);
-            Crate(props, -33f, -11f, 0f);
+            Crate(props, -37.5f, -11f, 0f);   // on the shed's flat pad, not the knoll's slope
             // Ice boulders and the station's fuel tanks (Full-cover).
             IceBoulder(props, -4f, -17f, 20f);
             IceBoulder(props, -42f, -24f, -10f);
@@ -189,12 +189,27 @@ namespace Eldoria.EditorTools
         {
             float halfHeight = shape == PrimitiveType.Cube ? scale.y / 2f : scale.y;   // cylinders are 2 units tall
             // Set into the snow: as deep as the ground falls away under the prop's footprint, so no side floats on a slope.
-            float r = Mathf.Max(scale.x, scale.z) / 2f, centre = L.GroundHeight(p.x, p.y), lowest = centre;
-            foreach (var d in new[] { new Vector2(r, 0f), new Vector2(-r, 0f), new Vector2(0f, r), new Vector2(0f, -r) })
-                lowest = Mathf.Min(lowest, L.GroundHeight(p.x + d.x, p.y + d.y));
+            float centre = L.GroundHeight(p.x, p.y), lowest = centre;
+            foreach (var q in Footprint(p, scale, yaw)) lowest = Mathf.Min(lowest, L.GroundHeight(q.x, q.y));
             float sink = 0.05f + (centre - lowest);
             return UrbanMapBuilder.Prop(parent, name, shape, mat, OnGround(p.x, p.y, halfHeight - sink), scale, yaw,
                 cover: true, mantle: mantle, climb: climb, keyword);
+        }
+
+        /// <summary>
+        /// Points across a prop's footprint (its turned rectangle, or its circle for a cylinder): where the ground under it
+        /// is sampled.
+        /// </summary>
+        internal static IEnumerable<Vector2> Footprint(Vector2 p, Vector3 scale, float yaw)
+        {
+            var rot = Quaternion.Euler(0f, yaw, 0f);
+            for (int i = -4; i <= 4; i++)
+            for (int j = -4; j <= 4; j++)
+            {
+                var local = new Vector3(scale.x / 2f * i / 4f, 0f, scale.z / 2f * j / 4f);
+                var w = rot * local;
+                yield return new Vector2(p.x + w.x, p.y + w.z);
+            }
         }
 
         /// <summary>A snowbank (1 m high, <paramref name="length"/> long): soldiers step over it. Half-cover.</summary>

@@ -28,6 +28,19 @@ namespace Eldoria.Gameplay
             go.AddComponent<SmokeTest>();
         }
 
+        /// <summary>
+        /// Counts frames for two seconds and logs the frame rate (windowed runs only), e.g. "[Eldoria] Frame rate on the main
+        /// menu: 60 fps": with the frame rate capped (Core.FrameRateCap) it stays near the screen's refresh rate.
+        /// </summary>
+        private IEnumerator LogFrameRate(string where)
+        {
+            if (Application.isBatchMode) yield break;
+            int frames = 0;
+            float start = Time.realtimeSinceStartup;
+            while (Time.realtimeSinceStartup - start < 2f) { frames++; yield return null; }
+            Debug.Log($"[Eldoria] Frame rate on the {where}: {frames / (Time.realtimeSinceStartup - start):0} fps");
+        }
+
         /// <summary>Saves a screenshot (with the UI) if -smokeScreenshots was given and there is a window to capture.</summary>
         private IEnumerator Screenshot(string file)
         {
@@ -62,6 +75,7 @@ namespace Eldoria.Gameplay
             yield return null;
             Check(SceneManager.GetActiveScene().name == MainMenu.MenuScene, "the game opens on the main menu");
             yield return Screenshot("menu.png");
+            yield return LogFrameRate("main menu");
             Check(FindFirstObjectByType<MainMenu>() != null, "the main menu is there");
 
             var menu = FindFirstObjectByType<MainMenu>();
@@ -78,7 +92,7 @@ namespace Eldoria.Gameplay
             menu.Builder?.ChooseFaction(isf);
             yield return Screenshot("army.png");
             Eldoria.Units.UnitTemplate Unit(string name) => menu.Builder?.Available.FirstOrDefault(u => u.displayName == name);
-            Check(menu.Builder != null && menu.Builder.Available.Count == 11, $"the ISF's units are listed ({menu.Builder?.Available.Count})");
+            Check(menu.Builder != null && menu.Builder.Available.Count == 13, $"the ISF's units are listed ({menu.Builder?.Available.Count})");
             menu.Builder?.Clear();
             foreach (var name in new[] { "Field Commander", "ISF Rifle Squad", "Olympian Mech", "Mortar Team", "Sagittarius MBT", "ISF Ranger" })
                 Check(menu.Builder?.Add(Unit(name)) == null, $"{name} is added");
@@ -127,6 +141,7 @@ namespace Eldoria.Gameplay
                 Check(controller.SelectUnit(unit), "a unit can be selected");
                 controller.PreviewAt(unit.Leader.Position + Vector3.forward * 8f);
                 yield return Screenshot("game.png");
+                yield return LogFrameRate("battle");
                 for (int turn = 0; turn < 3 && !Victory.IsOver; turn++) controller.EndTurn(instant: true);
                 Check(Turns.Current >= 2, $"the AI played its turns (now turn {Turns.Current})");
             }

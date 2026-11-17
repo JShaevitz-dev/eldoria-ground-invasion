@@ -16,13 +16,16 @@ MonoBehaviour:
   role: 2
   description: 'The Rask''s six-legged siege engine: a heavily armored war robot
     with 25 health and Armor Level 5, proof against almost everything but the heaviest
-    guns. The Plasma Mortar on its back (5 damage, penetration 3, 50 m, once a turn)
-    shells targets at long range, and its Stabilizers let it fire even after moving.
-    Mechanical: it strides 30 m but can''t sprint. Heavy Support, so you can field
-    more than one.'
+    guns. The Plasma Mortar on its back shells a spot up to 50 m away once a turn:
+    everyone within 2.5 m takes 5 damage at penetration 3 (enough to hurt most armor),
+    unless terrain shields them. Its Stabilizers let it fire even after moving. Mechanical:
+    it strides 30 m but can''t sprint. Large: friendly Biological soldiers within
+    5 m can shelter behind it (half-cover). Heavy Support, so you can field more
+    than one.'
   leader: {fileID: 11400000, guid: f3d05ff75d89d024ba09a3096bb0942b, type: 2}
   members: []
   equipmentSwapsForWholeUnit: 0
-  supplyCost: 150
+  supplyCost: 175
   supplyCostAdjustment: 0
+  onlyWithCommanders: []
   deploymentSpacing: 5

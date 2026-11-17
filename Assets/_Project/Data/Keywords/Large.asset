@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Keyword
   displayName: Large
   category: 1
-  description: A very large creature. No effect on its own yet; other rules can check
-    for it.
+  description: "A very large creature or machine. Friendly Biological soldiers within
+    5 m of it are In half-cover: attacks against them take \u221225% accuracy when
+    it's between them and the attacker."
   appliesTo: 1
   interactions: []
   triggers: []
+  grantsAbilities: []
   grantsNearby: {fileID: 0}
   grantRadius: 5
   grantsWhenBetween: 0

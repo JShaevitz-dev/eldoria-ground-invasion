@@ -20,7 +20,28 @@ namespace Eldoria.Tests
         }
 
         [TearDown]
-        public void TearDown() => Victory.Reset();
+        public void TearDown()
+        {
+            Victory.Reset();
+            MovementController.ReturnToMenuAfter = 10f;
+        }
+
+        [UnityTest]
+        public IEnumerator OnceAVictorIsDeclaredTheGameReturnsToTheMainMenu()
+        {
+            Assert.That(MovementController.ReturnToMenuAfter, Is.EqualTo(10f), "10 seconds by default");
+            MovementController.ReturnToMenuAfter = 0.5f;
+            var controller = Object.FindFirstObjectByType<MovementController>();
+            Assert.That(controller.SecondsUntilMenu, Is.Null, "not while the battle is going on");
+            controller.RequestConcede();
+            controller.Concede();
+            yield return null;
+            Assert.That(controller.SecondsUntilMenu, Is.Not.Null.And.LessThanOrEqualTo(0.5f), "the banner counts down");
+            float start = Time.realtimeSinceStartup;
+            while (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != MainMenu.MenuScene && Time.realtimeSinceStartup - start < 5f)
+                yield return null;
+            Assert.That(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, Is.EqualTo(MainMenu.MenuScene));
+        }
 
         [Test]
         public void ConcedingAsksFirstAndKeepPlayingGoesBack()

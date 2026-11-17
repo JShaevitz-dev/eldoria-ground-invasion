@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b77744f63fc029947b00810f7702ea43, type: 3}
   m_Name: MortarFragGrenade
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Equipment
-  displayName: Frag Grenade
-  description: 'The Mortar Team''s Frag Grenade: gives the active ability Frag Grenade,
-    lobbed up to 50 m (a 2.5 m blast, thrown as the unit''s action, with no limit
-    per battle).'
+  displayName: Anti-infantry Mortar
+  description: 'The Mortar Team''s Frag Grenade, which it calls the Anti-infantry
+    Mortar: gives the active ability Anti-infantry Mortar, fired up to 50 m (a 2.5
+    m blast, fired as the unit''s action, with no limit per battle).'
   keywords: []
   abilities:
   - {fileID: 11400000, guid: 75655f0d4be940c4ca9663fa940c1cb8, type: 2}

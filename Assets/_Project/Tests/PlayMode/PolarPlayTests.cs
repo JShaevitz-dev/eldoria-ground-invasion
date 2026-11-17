@@ -94,6 +94,30 @@ namespace Eldoria.Tests
             Check("Fuel Tank", "Full-cover", false, false);
         }
 
+        [Test]
+        public void NoPropIsClippedByTheSlope()
+        {
+            // Under every prop's footprint the ground stays well below its top (over half the prop shows, so no hill
+            // pokes through it) and reaches its bottom (no corner floats above the snow).
+            var props = Object.FindObjectsByType<TerrainObject>(FindObjectsSortMode.None).Where(o => o.DisplayName != "Radio Mast").ToList();
+            Assert.That(props.Count, Is.GreaterThan(30));
+            foreach (var prop in props)
+            foreach (var c in prop.GetComponentsInChildren<Collider>())
+            {
+                var b = c.bounds;
+                float height = b.size.y;
+                for (float x = b.min.x; x <= b.max.x; x += 0.2f)
+                for (float z = b.min.z; z <= b.max.z; z += 0.2f)
+                {
+                    // Only points inside the prop's own footprint (its bounds are wider when it's turned).
+                    if (!c.Raycast(new Ray(new Vector3(x, b.max.y + 1f, z), Vector3.down), out var hit, height + 2f)) continue;
+                    float ground = L.GroundHeight(x, z);
+                    Assert.That(b.max.y - ground, Is.GreaterThan(0.55f * height), $"{prop.DisplayName} at {prop.transform.position}: buried at ({x:0.0}, {z:0.0})");
+                    Assert.That(ground - b.min.y, Is.GreaterThan(-0.02f), $"{prop.DisplayName} at {prop.transform.position}: floating at ({x:0.0}, {z:0.0})");
+                }
+            }
+        }
+
         [UnityTest]
         public IEnumerator TheKnollsBlockLineOfSight()
         {

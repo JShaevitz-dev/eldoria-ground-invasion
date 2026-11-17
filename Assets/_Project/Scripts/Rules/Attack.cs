@@ -100,6 +100,22 @@ namespace Eldoria.Rules
             return WhyNotTargetable(attacker, weapon, target, KeywordRules.Evaluate(attacker, weapon, target)) == null;
         }
 
+        /// <summary>
+        /// The most damage one hit of this weapon could do to the target: its damage after keywords, then penetration against
+        /// the target's armor (before any crit, which only adds the same again). 0 if the target's armor (or a keyword) would
+        /// stop it completely, so shooting at them would be wasted.
+        /// </summary>
+        public static int MaxDamage(Soldier attacker, Weapon weapon, Soldier target)
+        {
+            if (weapon == null || target == null) return 0;
+            var keywords = KeywordRules.Evaluate(attacker, weapon, target);
+            if (keywords.NoEffect) return 0;
+            return ArmorPenetration.Resolve(FinalDamage(weapon.BaseDamage, keywords), weapon.PenetrationValue, ArmorAgainst(target, keywords)).Damage;
+        }
+
+        /// <summary>Could a hit from this weapon damage the target at all (see <see cref="MaxDamage"/>)?</summary>
+        public static bool CanDamage(Soldier attacker, Weapon weapon, Soldier target) => MaxDamage(attacker, weapon, target) > 0;
+
         /// <summary>Is the target within the weapon's range (horizontal distance; weapons without a range have no limit)?</summary>
         public static bool InRange(Soldier attacker, Weapon weapon, Soldier target) =>
             weapon == null || !weapon.HasRangeLimit || Measure.Between(attacker, target) <= weapon.Range + RangeTolerance;

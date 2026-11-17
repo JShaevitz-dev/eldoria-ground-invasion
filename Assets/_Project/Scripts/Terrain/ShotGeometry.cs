@@ -90,6 +90,7 @@ namespace Eldoria.Terrain
         /// <summary>True if <paramref name="source"/> (a terrain object) lies between the two points.</summary>
         public static bool IsBetween(Vector3 from, Vector3 to, Component source)
         {
+            if (source is Soldier large) return LargeCover.IsBetween(from, to, large);   // a Large soldier giving cover
             var obj = source as TerrainObject ?? (source != null ? source.GetComponentInParent<TerrainObject>() : null);
             return obj != null && Crosses(from, to, obj);
         }

@@ -13,17 +13,18 @@ MonoBehaviour:
   m_Name: TankFragGrenade
   m_EditorClassIdentifier: Eldoria::Eldoria.Units.Ability
   displayName: Frag Grenade
-  description: 'Active, once per turn, as often as you like in a battle. Throw at a spot
-    within 10 m of the unit leader: everyone within 2.5 m takes 5 damage (penetration
-    0), unless terrain shields them from the blast.'
+  description: 'Active, once per turn, as often as you like in a battle. Throw at
+    a spot within 50 m of the unit leader: everyone within 2.5 m takes 5 damage (penetration
+    0), unless terrain shields them.'
   kind: 1
   keywords: []
   affects: 2
   includeSelf: 1
   grantsNearby: {fileID: 0}
   radius: 15
+  auraMustHave: {fileID: 0}
   targets: 2
-  range: 10
+  range: 50
   targetMustHave: {fileID: 0}
   heal: 0
   grantsKeyword: {fileID: 0}
@@ -35,3 +36,4 @@ MonoBehaviour:
   castSound: {fileID: 0}
   attackWeapon: {fileID: 0}
   nullifiesKeyword: {fileID: 0}
+  transport: 0

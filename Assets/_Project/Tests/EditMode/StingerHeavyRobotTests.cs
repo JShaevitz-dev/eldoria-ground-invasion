@@ -9,7 +9,8 @@ namespace Eldoria.Tests
 {
     /// <summary>
     /// The Rask's Stinger Heavy Robot (Heavy Support): one Stinger Heavy Robot (Health 25, Armor 5, Accuracy 75%, Move 30 m;
-    /// Mechanical, Heavy, Robotic; Stabilizers) with a Plasma Mortar (the Mortar Launcher's stats).
+    /// Mechanical, Heavy, Robotic, Large; Stabilizers) whose Plasma Mortar (the Mortar Launcher's stats) shells an area: an
+    /// active ability, like the Frag Grenade, at a spot within 50 m (a 2.5 m blast).
     /// </summary>
     public class StingerHeavyRobotTests
     {
@@ -35,13 +36,14 @@ namespace Eldoria.Tests
         {
             var s = Stinger.leader;
             Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((25, 5, 75, 30f)));
-            Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Heavy", "Robotic" }));
-            Assert.That(s.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Stabilizers" }));
-            Assert.That(s.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Plasma Mortar" }));
-            Assert.That(s.PrimaryWeapon.displayName, Is.EqualTo("Plasma Mortar"));
+            Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Heavy", "Robotic", "Large" }));
+            Assert.That(s.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Stabilizers", "Plasma Mortar" }));
+            Assert.That(s.weapons, Is.Empty, "the Plasma Mortar shells an area (an ability), it isn't aimed at a soldier");
             Assert.That(s.prefab, Is.Not.Null);
             Assert.That(s.prefab.GetComponent<CapsuleCollider>().radius, Is.EqualTo(1.6f));
-            Assert.That(UnitInfo.AbilityLines(Stinger), Is.EqualTo(new[] { "Stabilizers (passive)" }));
+            Assert.That(UnitInfo.AbilityLines(Stinger).Count, Is.EqualTo(2));
+            Assert.That(UnitInfo.AbilityLines(Stinger)[0], Is.EqualTo("Stabilizers (passive)"));
+            Assert.That(UnitInfo.AbilityLines(Stinger)[1], Does.StartWith("Plasma Mortar"));
         }
 
         [Test]
@@ -54,9 +56,22 @@ namespace Eldoria.Tests
         }
 
         [Test]
+        public void ThePlasmaMortarIsAnAreaAttackLikeTheFragGrenade()
+        {
+            var blast = PlasmaMortar;
+            Assert.That(blast.IsActive && blast.IsAreaAttack, Is.True);
+            Assert.That((blast.range, blast.areaRadius, blast.usesPerTurn, blast.usesPerBattle), Is.EqualTo((50f, 2.5f, 1, 0)));
+            var grenade = UnityEditor.AssetDatabase.LoadAssetAtPath<Ability>("Assets/_Project/Data/Abilities/FragGrenade.asset");
+            Assert.That(blast.areaRadius, Is.EqualTo(grenade.areaRadius), "the same blast as a Frag Grenade");
+            Assert.That(blast.areaWeapon.displayName, Is.EqualTo("Plasma Mortar"));
+        }
+
+        private static Ability PlasmaMortar => Stinger.leader.abilities.Single(a => a.displayName == "Plasma Mortar");
+
+        [Test]
         public void ThePlasmaMortarHasTheMortarLaunchersStats()
         {
-            var plasma = Stinger.leader.PrimaryWeapon;
+            var plasma = PlasmaMortar.areaWeapon;
             var mortar = Catalog.Available.Single(u => u.displayName == "Mortar Team").leader.PrimaryWeapon;
             Assert.That(mortar.displayName, Is.EqualTo("Mortar Launcher"));
             Assert.That(plasma, Is.Not.SameAs(mortar), "a weapon of its own");
@@ -70,15 +85,16 @@ namespace Eldoria.Tests
         [Test]
         public void StabilizersLetThePlasmaMortarFireAfterMovingButItCantSprint()
         {
-            var unit = ArmyDeployment.Spawn(Stinger, Side.AI, Vector3.zero, Quaternion.identity, "Stinger Heavy Robot", null, Rask);
+            var unit = ArmyDeployment.Spawn(Stinger, Side.AI, new Vector3(-25f, 0f, 0f), Quaternion.identity, "Stinger Heavy Robot", null, Rask);
             try
             {
                 var robot = unit.Leader;
                 Assert.That(robot.CanSprint, Is.False, "Mechanical");
                 Assert.That(robot.Move, Is.EqualTo(30f));
                 robot.GainKeyword(KeywordLibrary.Get(KeywordLibrary.Moved));
-                Assert.That(robot.PrimaryWeapon.Name, Is.EqualTo("Plasma Mortar"));
-                Assert.That(WeaponUse.CanUse(robot, robot.PrimaryWeapon), Is.True, "Stabilizers nullify Deployed");
+                Assert.That(ActiveAbilities.WhyCannotCast(robot, PlasmaMortar), Is.Null, "Stabilizers nullify Deployed");
+                Assert.That(ActiveAbilities.WhyCannotUse(robot, PlasmaMortar, targetPoint: new Vector3(20f, 0f, 0f)), Is.Null, "45 m away");
+                Assert.That(ActiveAbilities.WhyCannotUse(robot, PlasmaMortar, targetPoint: new Vector3(29f, 0f, 0f)), Does.StartWith("Out of range"), "54 m away");
             }
             finally
             {

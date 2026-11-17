@@ -17,12 +17,14 @@ MonoBehaviour:
   description: 'A Sagittarius main battle tank refitted as a mobile headquarters,
     its turret bristling with antennae and a satellite uplink. It fights like any
     Sagittarius: 20 health and Armor Level 4, a 100mm Cannon (10 damage, penetration
-    4, 50 m, once a turn) and a Frag Grenade every turn. It moves 30 m but, being
-    Mechanical, can''t sprint, and when destroyed it has a 10% chance to explode
-    (Unstable). A Commander: every army needs exactly one.'
+    4, 50 m, once a turn) and a Frag Grenade every turn, thrown up to 50 m. It moves
+    30 m but, being Mechanical, can''t sprint, and when destroyed it has a 10% chance
+    to explode (Unstable). Large: friendly Biological soldiers within 5 m can shelter
+    behind it (half-cover). A Commander: every army needs exactly one.'
   leader: {fileID: 11400000, guid: fb96ab39cfcaaae49ba0d11fb706e19b, type: 2}
   members: []
   equipmentSwapsForWholeUnit: 0
   supplyCost: 170
   supplyCostAdjustment: 0
+  onlyWithCommanders: []
   deploymentSpacing: 2

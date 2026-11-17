@@ -22,6 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 79be367eee8536e40ad85e8e7cfe97e4, type: 2}
   - {fileID: 11400000, guid: 2ab6be3cef3ec9b4eafa9ab24e5f4c93, type: 2}
   - {fileID: 11400000, guid: 1750c0ef950029b488f63ed6e7f565e8, type: 2}
+  - {fileID: 11400000, guid: 1de16ca3815795b4e81ea85717adb4cd, type: 2}
   abilities: []
   weapons:
   - {fileID: 11400000, guid: 744f4da9975e67c4ca3dd8ce2576e32e, type: 2}

@@ -48,8 +48,8 @@ namespace Eldoria.Tests
             var soldiers = AssetDatabase.FindAssets("t:SoldierTemplate", new[] { "Assets/_Project/Data/Soldiers" })
                 .Select(g => AssetDatabase.LoadAssetAtPath<SoldierTemplate>(AssetDatabase.GUIDToAssetPath(g)));
             Assert.That(soldiers.Any(s => s.equipmentOptions.Contains(Shield) || s.equipmentOptions.Contains(Grenade) || s.equipmentOptions.Contains(MedkitItem) || s.equipmentOptions.Contains(RepairKitItem)), Is.False);
-            Assert.That(soldiers.Where(s => s.equipment.Contains(MedkitItem)).Select(s => s.displayName), Is.EquivalentTo(new[] { "Rask Redhand" }), "the Redhand carries a Medkit");
-            Assert.That(soldiers.Where(s => s.equipment.Contains(RepairKitItem)).Select(s => s.displayName), Is.EquivalentTo(new[] { "Kobold Mechanist", "Rask Blackhand" }), "the two engineers carry Repair Kits");
+            Assert.That(soldiers.Where(s => s.equipment.Contains(MedkitItem)).Select(s => s.displayName), Is.EquivalentTo(new[] { "Rask Redhand", "ISF Combat Medic" }), "the Redhand and the Combat Medic carry Medkits");
+            Assert.That(soldiers.Where(s => s.equipment.Contains(RepairKitItem)).Select(s => s.displayName), Is.EquivalentTo(new[] { "Kobold Mechanist", "Rask Blackhand", "ISF Combat Engineer" }), "the three engineers carry Repair Kits");
         }
 
         [Test]

@@ -10,7 +10,7 @@ namespace Eldoria.Tests
 {
     /// <summary>
     /// The ISF Mortar Team (Heavy Support): 1 ISF Mortar Specialist (the ISF Rifleman's stats; Mortar Launcher and Assault
-    /// Rifle) + 1 ISF Rifleman (the ISF Rifle Squad's, but its Frag Grenade can be thrown 50 m; it can be swapped for a Medkit or Repair Kit).
+    /// Rifle) + 1 ISF Rifleman (the ISF Rifle Squad's, but its Frag Grenade, the Anti-infantry Mortar, can be fired 50 m; it can be swapped for a Medkit or Repair Kit).
     /// </summary>
     public class MortarTeamTests
     {
@@ -65,7 +65,7 @@ namespace Eldoria.Tests
             Assert.That(UnitInfo.SoldierLines(Team), Is.EqualTo(new[]
             {
                 "ISF Mortar Specialist \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Mortar Launcher, Assault Rifle",
-                "ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Frag Grenade",
+                "ISF Rifleman \u2014 Health 5 \u00b7 Armor 2 \u00b7 Accuracy 75% \u00b7 Move 10 m (sprint 20 m) \u00b7 Assault Rifle, Anti-infantry Mortar",
             }));
         }
 
@@ -73,7 +73,7 @@ namespace Eldoria.Tests
         public void TheTeamsFragGrenadeCanBeThrown50m()
         {
             var rifleman = Team.members.Single().soldier;
-            var grenade = rifleman.AllAbilities().Single(a => a.displayName == "Frag Grenade");
+            var grenade = rifleman.AllAbilities().Single(a => a.displayName == "Anti-infantry Mortar");
             Assert.That(grenade.range, Is.EqualTo(50f));
             var squadGrenade = Catalog.Available.Single(u => u.displayName == "ISF Rifle Squad").members.Single().soldier
                 .AllAbilities().Single(a => a.displayName == "Frag Grenade");

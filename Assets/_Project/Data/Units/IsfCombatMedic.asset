@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: IsfCombatMedic
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: ISF Combat Medic
+  role: 3
+  description: 'An ISF soldier trained to keep the infantry on its feet: 5 health,
+    Armor Level 2, 75% accuracy and an Assault Rifle (4 damage, penetration 1, 20
+    m). Carries a Medkit: once a turn, a friendly Biological soldier within 5 m (the
+    medic too) restores 5 health. Keep the medic close to your rifle squads. A Specialist
+    of one soldier; you can take more than one.'
+  leader: {fileID: 11400000, guid: c27ee0d825c40774c9f1514cbf1f15f8, type: 2}
+  members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 30
+  supplyCostAdjustment: 0
+  onlyWithCommanders: []
+  deploymentSpacing: 2

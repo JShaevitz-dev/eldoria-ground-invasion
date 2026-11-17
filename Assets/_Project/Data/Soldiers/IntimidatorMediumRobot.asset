@@ -21,6 +21,7 @@ MonoBehaviour:
   keywords:
   - {fileID: 11400000, guid: 79be367eee8536e40ad85e8e7cfe97e4, type: 2}
   - {fileID: 11400000, guid: 3bf0722ee96c0a64e9e1cd1206b83e2a, type: 2}
+  - {fileID: 11400000, guid: 1de16ca3815795b4e81ea85717adb4cd, type: 2}
   abilities:
   - {fileID: 11400000, guid: 4654db68643e0e547a50c9fb0152d950, type: 2}
   weapons:
@@ -28,5 +29,7 @@ MonoBehaviour:
   primaryWeapon: {fileID: 11400000, guid: 8de4a857bf53ad14583297076b5d7e37, type: 2}
   radius: 1
   height: 2.6
+  equipment: []
   weaponOptions: []
+  equipmentSwaps: []
   equipmentOptions: []

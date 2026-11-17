@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be3048eed6de9b48a1a9ab3da6b5b67, type: 3}
+  m_Name: IsfCombatEngineer
+  m_EditorClassIdentifier: Eldoria::Eldoria.Units.UnitTemplate
+  displayName: ISF Combat Engineer
+  role: 3
+  description: 'An ISF soldier trained to keep the army''s machines fighting: 5 health,
+    Armor Level 2, 75% accuracy and an Assault Rifle (4 damage, penetration 1, 20
+    m). Carries a Repair Kit: once a turn, a friendly Mechanical soldier within 5
+    m restores 10 health. Keep the engineer just behind your tanks, mechs and transports.
+    A Specialist of one soldier; you can take more than one.'
+  leader: {fileID: 11400000, guid: 7fdf62dd9ffa54f469f21a2f0b61c902, type: 2}
+  members: []
+  equipmentSwapsForWholeUnit: 0
+  supplyCost: 30
+  supplyCostAdjustment: 0
+  onlyWithCommanders: []
+  deploymentSpacing: 2

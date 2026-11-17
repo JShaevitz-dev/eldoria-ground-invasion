@@ -274,13 +274,19 @@ namespace Eldoria.EditorTools
                 a.name = "MortarFragGrenade";
                 a.keywords = new List<Keyword>(grenade.keywords);
                 a.range = 50f;
-                a.description = "Active, no limit per battle. Lob at a spot within 50 m of the unit leader: everyone within 2.5 m takes 5 damage (penetration 0), unless terrain shields them from the blast. Throwing it is the unit's action.";
+            }, a =>
+            {
+                // The Mortar Team calls its long-range Frag Grenade the Anti-infantry Mortar (same stats).
+                a.displayName = AntiInfantryMortar;
+                a.description = "Active, no limit per battle. Fire at a spot within 50 m of the unit leader: everyone within 2.5 m takes 5 damage (penetration 0), unless terrain shields them from the blast. Firing it is the unit's action.";
             });
             var longGrenadeItem = GetOrCreate<Equipment>($"{DataDir}/Equipment/MortarFragGrenade.asset", e =>
             {
-                e.displayName = "Frag Grenade";
-                e.description = "The Mortar Team's Frag Grenade: gives the active ability Frag Grenade, lobbed up to 50 m (a 2.5 m blast, thrown as the unit's action, with no limit per battle).";
                 e.abilities = new List<Ability> { longGrenade };
+            }, e =>
+            {
+                e.displayName = AntiInfantryMortar;
+                e.description = "The Mortar Team's Frag Grenade, which it calls the Anti-infantry Mortar: gives the active ability Anti-infantry Mortar, fired up to 50 m (a 2.5 m blast, fired as the unit's action, with no limit per battle).";
             });
             var medkit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/Medkit.asset");
             var repairKit = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/RepairKit.asset");
@@ -316,7 +322,7 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Mortar Team";
                 u.role = UnitRole.HeavySupport;
-                u.description = "Two ISF soldiers with a portable mortar. The Mortar Specialist fires the Mortar Launcher (5 damage, penetration 3, 50 m, once a turn), which can't fire after moving, so set up first and shell targets from long range: penetration 3 cuts through infantry armor and still does half damage to Armor Level 4 tanks. Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can lob a Frag Grenade up to 50 m (a 2.5 m blast, 5 damage, penetration 0) as the team's action. With 5 health and Armor Level 2 each, keep them behind your lines. Heavy Support can be taken more than once.";
+                u.description = "Two ISF soldiers with a portable mortar. The Mortar Specialist fires the Mortar Launcher (5 damage, penetration 3, 50 m, once a turn), which can't fire after moving, so set up first and shell targets from long range: penetration 3 cuts through infantry armor and still does half damage to Armor Level 4 tanks. Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can fire the Anti-infantry Mortar up to 50 m (a 2.5 m blast, 5 damage, penetration 0) as the team's action. With 5 health and Armor Level 2 each, keep them behind your lines. Heavy Support can be taken more than once.";
                 u.leader = specialist;
                 u.members = new List<UnitTemplate.Member> { new UnitTemplate.Member { soldier = rifleman, count = 1 } };
                 u.deploymentSpacing = 2f;
@@ -325,6 +331,7 @@ namespace Eldoria.EditorTools
                 // Older assets: the team's rifleman was the Rifle Squad's (with the 10 m grenade).
                 foreach (var m in u.members) if (m.soldier == squadRifleman) m.soldier = rifleman;
                 u.description = u.description.Replace("Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can throw a Frag Grenade as the team's action.", "Both soldiers carry Assault Rifles (4 damage, penetration 1, 20 m), and the ISF Rifleman can lob a Frag Grenade up to 50 m (a 2.5 m blast, 5 damage, penetration 0) as the team's action.");
+                u.description = u.description.Replace("the ISF Rifleman can lob a Frag Grenade up to 50 m", "the ISF Rifleman can fire the Anti-infantry Mortar up to 50 m");
             });
             if (!faction.units.Contains(unit))
             {
@@ -1692,16 +1699,23 @@ namespace Eldoria.EditorTools
             EnsureFolder(DataDir, "Units");
             var mortar = EnsurePlasmaMortar(keywords);
             var stabilizers = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/Stabilizers.asset");
+            var blast = EnsurePlasmaMortarBlast(mortar);
             var robot = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/StingerHeavyRobot.asset", s =>
             {
                 s.displayName = "Stinger Heavy Robot";
                 s.health = 25; s.armorLevel = 5; s.accuracy = 75; s.movementRange = 30f;
-                s.keywords = new List<Keyword> { keywords["Mechanical"], keywords["Heavy"], keywords["Robotic"] };
-                s.abilities = new List<Ability> { stabilizers };
-                s.weapons = new List<WeaponTemplate> { mortar };
-                s.primaryWeapon = mortar;
+                s.keywords = new List<Keyword> { keywords["Mechanical"], keywords["Heavy"], keywords["Robotic"], keywords["Large"] };
+                s.abilities = new List<Ability> { stabilizers, blast };
+                s.weapons = new List<WeaponTemplate>();
+                s.primaryWeapon = null;
                 s.radius = 1.6f;
                 s.height = 3f;
+            }, s =>
+            {
+                // The Plasma Mortar shells an area (the ability), rather than being fired at one soldier.
+                s.weapons.Remove(mortar);
+                if (s.primaryWeapon == mortar) s.primaryWeapon = null;
+                if (!s.abilities.Contains(blast)) s.abilities.Add(blast);
             });
             // Rebuilt if missing, or if it's the first (beetle) version of the model.
             if (robot.prefab == null || robot.prefab.transform.Find("Model/Hull") == null)
@@ -1713,17 +1727,43 @@ namespace Eldoria.EditorTools
             {
                 u.displayName = "Stinger Heavy Robot";
                 u.role = UnitRole.HeavySupport;
-                u.description = "The Rask's six-legged siege engine: a heavily armored war robot with 25 health and Armor Level 5, proof against almost everything but the heaviest guns. The Plasma Mortar on its back (5 damage, penetration 3, 50 m, once a turn) shells targets at long range, and its Stabilizers let it fire even after moving. Mechanical: it strides 30 m but can't sprint. Heavy Support, so you can field more than one.";
+                u.description = StingerDescription;
                 u.leader = robot;
                 u.members = new List<UnitTemplate.Member>();
                 u.deploymentSpacing = 5f;
-            });
+            }, u => { if (u.description.Contains("(5 damage, penetration 3, 50 m, once a turn) shells targets")) u.description = StingerDescription; });
             if (!faction.units.Contains(unit))
             {
                 faction.units.Add(unit);
                 EditorUtility.SetDirty(faction);
             }
             return unit;
+        }
+
+        private const string StingerDescription = "The Rask's six-legged siege engine: a heavily armored war robot with 25 health and Armor Level 5, proof against almost everything but the heaviest guns. The Plasma Mortar on its back shells a spot up to 50 m away once a turn: everyone within 2.5 m takes 5 damage at penetration 3 (enough to hurt most armor), unless terrain shields them. Its Stabilizers let it fire even after moving. Mechanical: it strides 30 m but can't sprint. Large: friendly Biological soldiers within 5 m can shelter behind it (half-cover). Heavy Support, so you can field more than one.";
+
+        /// <summary>
+        /// The Stinger's Plasma Mortar as an area attack (like the Frag Grenade and the Mortar Team's Anti-infantry Mortar):
+        /// active, once a turn, at a spot within 50 m: everyone within 2.5 m is hit with the Plasma Mortar's stats (Damage 5,
+        /// Penetration 3), unless terrain shields them.
+        /// </summary>
+        public static Ability EnsurePlasmaMortarBlast(WeaponTemplate mortar)
+        {
+            EnsureFolder(DataDir, "Abilities");
+            return GetOrCreate<Ability>($"{DataDir}/Abilities/PlasmaMortar.asset", a =>
+            {
+                a.displayName = "Plasma Mortar";
+                a.kind = AbilityKind.Active;
+                a.keywords = new List<Keyword>();
+                a.affects = AuraAffects.Everyone;
+                a.targets = AbilityTarget.Point;
+                a.range = 50f;
+                a.areaRadius = 2.5f;
+                a.areaWeapon = mortar;
+                a.usesPerTurn = 1;
+                a.usesPerBattle = 0;
+                a.description = "Active, once per turn, as often as you like in a battle. Shell a spot within 50 m of the robot: everyone within 2.5 m takes 5 damage (penetration 3), unless terrain shields them from the blast. Firing it is the unit's action.";
+            });
         }
 
         /// <summary>
@@ -2587,6 +2627,93 @@ namespace Eldoria.EditorTools
             go.GetComponent<Renderer>().sharedMaterial = mat;
         }
 
+        /// <summary>What the Mortar Team calls its long-range Frag Grenade.</summary>
+        public const string AntiInfantryMortar = "Anti-infantry Mortar";
+
+        /// <summary>The soldier types with the Large keyword: the big machines (and the Dragon Hierarch, who always had it).</summary>
+        public static readonly string[] LargeMachines =
+            { "SagittariusMbt", "MarshalCommandTank", "TyrantHoverTank", "StingerHeavyRobot", "IntimidatorMediumRobot", "RaskReliquary" };
+
+        /// <summary>
+        /// Large: soldiers with it (big creatures and machines) shelter friendly Biological soldiers near them: they give
+        /// half-cover like a Half-cover object (see Terrain.NearbyKeywords). Added to <see cref="LargeMachines"/>.
+        /// </summary>
+        public static void EnsureLargeMachines(Dictionary<string, Keyword> keywords)
+        {
+            var large = keywords["Large"];
+            large.description = "A very large creature or machine. Friendly Biological soldiers within 5 m of it are In half-cover: attacks against them take −25% accuracy when it's between them and the attacker.";
+            EditorUtility.SetDirty(large);
+            foreach (var file in LargeMachines)
+            {
+                var s = AssetDatabase.LoadAssetAtPath<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset");
+                if (s == null || s.keywords.Contains(large)) continue;
+                s.keywords.Add(large);
+                EditorUtility.SetDirty(s);
+            }
+        }
+
+        /// <summary>The Sagittarius' and Marshal's Frag Grenade (TankFragGrenade) is thrown up to 50 m, not 10 m.</summary>
+        public static void EnsureLongTankGrenade()
+        {
+            var grenade = AssetDatabase.LoadAssetAtPath<Ability>($"{DataDir}/Abilities/TankFragGrenade.asset");
+            if (grenade == null) return;
+            grenade.range = 50f;
+            grenade.description = "Active, once per turn, as often as you like in a battle. Throw at a spot within 50 m of the unit leader: everyone within 2.5 m takes 5 damage (penetration 0), unless terrain shields them.";
+            EditorUtility.SetDirty(grenade);
+            void Describe(string file, string from, string to)
+            {
+                var u = AssetDatabase.LoadAssetAtPath<UnitTemplate>($"{DataDir}/Units/{file}.asset");
+                if (u == null || u.description.Contains(to) || !u.description.Contains(from)) return;
+                u.description = u.description.Replace(from, to);
+                EditorUtility.SetDirty(u);
+            }
+            Describe("SagittariusMbt", "It can also throw a Frag Grenade every turn.", "It can also throw a Frag Grenade every turn, up to 50 m.");
+            Describe("MarshalCommandTank", "and a Frag Grenade every turn.", "and a Frag Grenade every turn, thrown up to 50 m.");
+            foreach (var file in new[] { "SagittariusMbt", "MarshalCommandTank" })
+                Describe(file, " Heavy Support, so you can field more than one.", " Large: friendly Biological soldiers within 5 m can shelter behind it (half-cover). Heavy Support, so you can field more than one.");
+            Describe("MarshalCommandTank", " A Commander: every army needs exactly one.", " Large: friendly Biological soldiers within 5 m can shelter behind it (half-cover). A Commander: every army needs exactly one.");
+        }
+
+        /// <summary>
+        /// A one-soldier ISF support Specialist (the ISF Rifleman's stats: Health 5, Armor 2, Accuracy 75%, Move 10 m;
+        /// Biological, Solo; Assault Rifle) carrying <paramref name="kit"/> as standard equipment: the ISF Combat Engineer
+        /// (Repair Kit) and the ISF Combat Medic (Medkit). Existing assets keep their Inspector edits.
+        /// </summary>
+        public static UnitTemplate EnsureIsfSupportSpecialist(Faction isf, Dictionary<string, Keyword> keywords, string file, string name,
+            string kit, string description)
+        {
+            EnsureFolder(DataDir, "Soldiers");
+            EnsureFolder(DataDir, "Units");
+            EnsureEquipment();
+            var rifle = AssetDatabase.LoadAssetAtPath<WeaponTemplate>($"{DataDir}/Weapons/AssaultRifle.asset");
+            var item = AssetDatabase.LoadAssetAtPath<Equipment>($"{DataDir}/Equipment/{kit}.asset");
+            var soldier = GetOrCreate<SoldierTemplate>($"{DataDir}/Soldiers/{file}.asset", s =>
+            {
+                s.displayName = name;
+                s.health = 5; s.armorLevel = 2; s.accuracy = 75; s.movementRange = 10f;
+                s.keywords = new List<Keyword> { keywords["Biological"], keywords["Solo"] };
+                s.abilities = new List<Ability>();
+                s.weapons = new List<WeaponTemplate> { rifle };
+                s.primaryWeapon = rifle;
+                s.equipment = new List<Equipment> { item };
+                s.prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Root}/Prefabs/Units/Trooper.prefab");
+            });
+            var unit = GetOrCreate<UnitTemplate>($"{DataDir}/Units/{file}.asset", u =>
+            {
+                u.displayName = name;
+                u.role = UnitRole.Specialist;
+                u.description = description;
+                u.leader = soldier;
+                u.members = new List<UnitTemplate.Member>();
+            });
+            if (!isf.units.Contains(unit))
+            {
+                isf.units.Add(unit);
+                EditorUtility.SetDirty(isf);
+            }
+            return unit;
+        }
+
         [MenuItem("Ground Invasion/Rebuild Unit Catalog")]
         public static void RebuildUnitCatalog()
         {
@@ -2619,7 +2746,13 @@ namespace Eldoria.EditorTools
             EnsureMortarTeam(factions[0], keywords);   // after the ISF Rifle Squad: it uses its ISF Rifleman
             EnsureSagittariusMbt(factions[0], keywords);
             EnsureOlympianMech(factions[0], keywords);
+            EnsureIsfSupportSpecialist(factions[0], keywords, "IsfCombatEngineer", "ISF Combat Engineer", "RepairKit",
+                "An ISF soldier trained to keep the army's machines fighting: 5 health, Armor Level 2, 75% accuracy and an Assault Rifle (4 damage, penetration 1, 20 m). Carries a Repair Kit: once a turn, a friendly Mechanical soldier within 5 m restores 10 health. Keep the engineer just behind your tanks, mechs and transports. A Specialist of one soldier; you can take more than one.");
+            EnsureIsfSupportSpecialist(factions[0], keywords, "IsfCombatMedic", "ISF Combat Medic", "Medkit",
+                "An ISF soldier trained to keep the infantry on its feet: 5 health, Armor Level 2, 75% accuracy and an Assault Rifle (4 damage, penetration 1, 20 m). Carries a Medkit: once a turn, a friendly Biological soldier within 5 m (the medic too) restores 5 health. Keep the medic close to your rifle squads. A Specialist of one soldier; you can take more than one.");
             EnsureEquipment();
+            EnsureLargeMachines(keywords);
+            EnsureLongTankGrenade();
             AssetDatabase.SaveAssets();
             var catalog = EnsureUnitCatalog();
             AllianceModels.EnsureBuilt();   // models for races with no units yet (Skael, Sphinxians)

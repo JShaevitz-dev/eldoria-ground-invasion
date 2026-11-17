@@ -237,12 +237,25 @@ namespace Eldoria.Gameplay
         /// <summary>The battle has been decided (a side has no soldiers left): no more orders.</summary>
         public bool BattleOver => Victory.IsOver;
 
+        /// <summary>
+        /// Seconds after a victor is declared before the game goes back to the main menu by itself (the banner counts down;
+        /// Restart or Main menu go sooner). 0 or less: stay on the battlefield.
+        /// </summary>
+        public static float ReturnToMenuAfter = 10f;
+        /// <summary>When the battle ended (unscaled time; -1 while it's going on).</summary>
+        private float battleEndedAt = -1f;
+
+        /// <summary>Seconds left before going back to the main menu (null if the battle is going on or it won't).</summary>
+        public float? SecondsUntilMenu => battleEndedAt >= 0f && ReturnToMenuAfter > 0f
+            ? Mathf.Max(0f, ReturnToMenuAfter - (Time.unscaledTime - battleEndedAt)) : (float?)null;
+
         private void OnBattleEnded(BattleOutcome outcome)
         {
             // Raised in the middle of the killing volley or blast: just stop aiming and hide the move rings here;
             // Update and the public orders refuse anything further once the battle is over.
             shootMode = false;
             abilityMode = null;
+            battleEndedAt = Time.unscaledTime;
             HideMoveVisuals();
             if (deploying) EndDeploymentState();   // conceded during deployment: show everyone
         }
@@ -265,7 +278,7 @@ namespace Eldoria.Gameplay
             string title = won ? "VICTORY" : lost ? "DEFEAT" : "DRAW";
             var shownOutcome = won ? BattleOutcome.PlayerWins : lost ? BattleOutcome.AIWins : outcome;
 
-            var box = new Rect(Screen.width / 2f - 260f, Screen.height / 2f - 110f, 520f, 220f);
+            var box = new Rect(Screen.width / 2f - 260f, Screen.height / 2f - 110f, 520f, 228f);
             GUI.Box(box, GUIContent.none);
             GUI.Box(box, GUIContent.none); // darker backing
             var big = new GUIStyle(GUI.skin.label) { fontSize = 48, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
@@ -273,6 +286,11 @@ namespace Eldoria.Gameplay
             var small = new GUIStyle(GUI.skin.label) { fontSize = 18, alignment = TextAnchor.MiddleCenter, wordWrap = true };
             GUI.Label(new Rect(box.x, box.y + 20f, box.width, 70f), title, big);
             GUI.Label(new Rect(box.x + 20f, box.y + 95f, box.width - 40f, 50f), Victory.Describe(shownOutcome), small);
+            if (SecondsUntilMenu is float left)
+            {
+                var note = new GUIStyle(small) { fontSize = 13 };
+                GUI.Label(new Rect(box.x + 20f, box.y + 196f, box.width - 40f, 22f), $"Returning to the main menu in {Mathf.CeilToInt(left)} s", note);
+            }
             if (IsMultiplayer)
             {
                 if (GUI.Button(new Rect(box.x + box.width / 2f - 90f, box.y + 155f, 180f, 40f), "Main menu")) MainMenu.BackToMenu();
@@ -690,8 +708,10 @@ namespace Eldoria.Gameplay
 
             if (Victory.IsOver)
             {
-                // The battle is decided: the only order left is to play again.
+                // The battle is decided: the only order left is to play again. After a short wait, back to the main menu.
                 if (kb != null && kb.rKey.wasPressedThisFrame) Restart();
+                if (battleEndedAt < 0f) battleEndedAt = Time.unscaledTime;   // decided before this controller heard of it
+                if (SecondsUntilMenu is float left && left <= 0f) { battleEndedAt = -1f; MainMenu.BackToMenu(); }
                 UpdateTimedVisuals();
                 return;
             }
@@ -1118,9 +1138,16 @@ namespace Eldoria.Gameplay
             messageUntil = Time.time + 4f;
         }
 
+        /// <summary>
+        /// GUI depth of the HUD, banners and dialogs: lower than the soldier labels' (SoldierLabels.LabelDepth), so they're
+        /// drawn after (over) the floating names and health, and take clicks first.
+        /// </summary>
+        public const int HudDepth = -10;
+
         private void OnGUI()
         {
             if (!enabled) return;
+            GUI.depth = HudDepth;
 
             // The panel grows to fit its contents (measured each repaint), up to the bottom of the screen.
             float maxHeight = Screen.height - hudRect.y - 10f;
@@ -1571,7 +1598,9 @@ namespace Eldoria.Gameplay
             // Nobody can target any of them (out of range or out of sight): refuse, so the action isn't wasted.
             if (UnitShooting.SoldiersAbleToShoot(squad, enemy, chosenTarget) == 0)
             {
-                Flash(AllSniperPrecision(squad)
+                Flash(UnitShooting.ArmorStopsEveryShot(squad, enemy, chosenTarget)
+                    ? $"{enemy.DisplayName}'s armor would stop every shot {squad.DisplayName} can make: none of its weapons can hurt them. Pick another target."
+                    : AllSniperPrecision(squad)
                     ? $"{squad.DisplayName} can't target {(chosenTarget != null ? chosenTarget.name : "that")}: out of range, out of sight or in full cover. Pick another soldier."
                     : $"None of {squad.DisplayName}'s soldiers can target {enemy.DisplayName}: out of range or out of sight.");
                 CombatAudio.PlayError();

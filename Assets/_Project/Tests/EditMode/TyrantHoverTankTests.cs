@@ -53,7 +53,7 @@ namespace Eldoria.Tests
             var s = Tyrant.leader;
             Assert.That(s.displayName, Is.EqualTo("Tyrant Hover-tank"));
             Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((15, 4, 100, 30f)));
-            Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Unstable", "Hover" }));
+            Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Unstable", "Hover", "Large" }));
             Assert.That(s.abilities, Is.Empty);
             Assert.That(s.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Tyrant Railgun" }));
             Assert.That(s.radius, Is.EqualTo(Mbt.leader.radius), "as wide as the Sagittarius MBT");

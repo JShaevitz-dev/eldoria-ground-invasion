@@ -23,6 +23,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 16bea93c054efd74a9a283738e5c1573, type: 2}
   - {fileID: 11400000, guid: 2ab6be3cef3ec9b4eafa9ab24e5f4c93, type: 2}
   - {fileID: 11400000, guid: fd55723502b550f4cb05128c6ec70f27, type: 2}
+  - {fileID: 11400000, guid: 1de16ca3815795b4e81ea85717adb4cd, type: 2}
   abilities:
   - {fileID: 11400000, guid: bac44582af094d6492292b9ecc908ff6, type: 2}
   weapons:
@@ -32,4 +33,5 @@ MonoBehaviour:
   height: 2.3
   equipment: []
   weaponOptions: []
+  equipmentSwaps: []
   equipmentOptions: []

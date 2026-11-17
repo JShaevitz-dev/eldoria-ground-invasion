@@ -138,8 +138,9 @@ namespace Eldoria.Tests
             var g = TankGrenade();
             Assert.That(Tank().abilities, Is.EqualTo(new[] { g }));
             Assert.That(g.displayName, Is.EqualTo("Frag Grenade"));
-            Assert.That((g.kind, g.targets, g.range, g.areaRadius, g.areaWeapon, g.usesPerTurn),
-                Is.EqualTo((infantry.kind, infantry.targets, infantry.range, infantry.areaRadius, infantry.areaWeapon, infantry.usesPerTurn)), "the same grenade");
+            Assert.That((g.kind, g.targets, g.areaRadius, g.areaWeapon, g.usesPerTurn),
+                Is.EqualTo((infantry.kind, infantry.targets, infantry.areaRadius, infantry.areaWeapon, infantry.usesPerTurn)), "the same grenade");
+            Assert.That((g.range, infantry.range), Is.EqualTo((50f, 10f)), "but the tank throws it up to 50 m");
             Assert.That(g.usesPerBattle, Is.EqualTo(0), "no limit per battle");
             Assert.That(infantry.usesPerBattle, Is.EqualTo(0), "the infantry's has no limit either");
         }
@@ -156,7 +157,7 @@ namespace Eldoria.Tests
                 Turns.StartNextTurn();
             }
             Assert.That(tank.UsesLeftThisBattle(g), Is.EqualTo(int.MaxValue));
-            Assert.That(Eldoria.Gameplay.MovementController.AbilityButtonLabel(tank.Leader, g), Is.EqualTo("Frag Grenade — 10 m"));
+            Assert.That(Eldoria.Gameplay.MovementController.AbilityButtonLabel(tank.Leader, g), Is.EqualTo("Frag Grenade — 50 m"));
         }
     }
 }

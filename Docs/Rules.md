@@ -3,7 +3,7 @@
 Living record of the rules decided so far. **Status** shows what the code does today.
 
 > **This fork (Ground Invasion, of Eldoria) has its first three factions, and all three can field armies:** the ISF (Field
-> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, Workhorse Transport), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). The game
+> Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Workhorse Transport), the Draconis Imperialis (Dragon Hierarch, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist) and the Rask (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary). The game
 > systems below (army lists, factions, movement, terrain, shooting, keywords, abilities, turns, the AI, multiplayer) are
 > all in place. The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
@@ -63,7 +63,7 @@ role) or **Transport**. It's shown in the HUD when the unit is selected, and the
 | **Infantry** | ISF Rifle Squad, Dragonborn Squad, Kobold Militia, Rask Rifle Team |
 | **Commander** | Field Commander, Master Sergeant Jakoby, Marshal Command Tank, Dragon Hierarch, Dragonborn Exemplar, Rask Ultima |
 | **Heavy Support** | Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, Stinger Heavy Robot, Tyrant Hover-tank, Intimidator Medium Robot |
-| **Specialist** | ISF Ranger, ISF Boarding Team, Dragonborn Skymaster Squad, Kobold Mechanist, Rask Blackhand, Rask Redhand, Rask Reliquary |
+| **Specialist** | ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Dragonborn Skymaster Squad, Kobold Mechanist, Rask Blackhand, Rask Redhand, Rask Reliquary |
 | **Transport** | Workhorse Transport. Like every role but Commander, an army can take more than one. |
 
 **The role ecosystem** (design intent, used when designing and balancing units; not a rule in itself):
@@ -82,7 +82,7 @@ Every army belongs to a **faction**. The faction a player chooses at the start o
 | **Imperial Army of The Draconis Imperialis** | Dragons, Dragonborn and Kobolds | imperial crimson |
 | **Most Holy Army of The Rask Divine Collective** | Rask (Alliance associate) | ochre/bronze |
 
-So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger, the ISF Boarding Team and the Workhorse Transport, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank and the Kobold Mechanist, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand, the Rask Redhand and the Rask Reliquary, so all three can field armies (the AI picks one of them).
+So far the ISF has the Field Commander, Master Sergeant Jakoby, the Marshal Command Tank, the ISF Rifle Squad, the Heavy Weapons Team, the Mortar Team, the Sagittarius MBT, the Olympian Mech, the ISF Ranger, the ISF Boarding Team, the ISF Combat Engineer, the ISF Combat Medic and the Workhorse Transport, and the Draconis Imperialis has the Dragon Hierarch, the Dragonborn Exemplar, the Dragonborn Squad, the Kobold Militia, the Dragonborn Skymaster Squad, the Tyrant Hover-tank and the Kobold Mechanist, and the Rask have the Rask Ultima, the Rask Rifle Team, the Stinger Heavy Robot, the Intimidator Medium Robot, the Rask Blackhand, the Rask Redhand and the Rask Reliquary, so all three can field armies (the AI picks one of them).
 A faction is an asset (Data/Factions) with a name, a colour, the units
 it can take, and any weapon changes and names (below). The army builder lists them in the order above. See
 [Lore.md](Lore.md) for each race.
@@ -158,11 +158,11 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapons | Ability |
 |---|---|---|---|---|---|---|---|
 | ISF Mortar Specialist | 5 | 2 | 75% | 10 m | Biological | Mortar Launcher (primary), Assault Rifle | — |
-| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Frag Grenade, **50 m** (equipment; *or* Medkit, *or* Repair Kit) |
+| ISF Rifleman | 5 | 2 | 75% | 10 m | Biological | Assault Rifle | Anti-infantry Mortar, **50 m** (equipment; *or* Medkit, *or* Repair Kit) |
 
 - **Mortar Launcher:** Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; **Deployed** (can't fire after moving that turn), **Manual Load** (fires once a turn), **Explosive**. It fires at one soldier, like a rifle (no blast).
 - After the Specialist moves, the mortar can't fire, so they shoot with the **Assault Rifle** instead.
-- The ISF Rifleman has the ISF Rifle Squad's Rifleman's stats, but the team's **Frag Grenade** can be lobbed **up to 50 m** (the Rifle Squad's: 10 m); otherwise the same grenade (2.5 m blast, 5 damage, penetration 0). It can be swapped for a Medkit or a Repair Kit in the same way.
+- The ISF Rifleman has the ISF Rifle Squad's Rifleman's stats, but the team's Frag Grenade, which the team calls the **Anti-infantry Mortar**, can be fired **up to 50 m** (the Rifle Squad's Frag Grenade: 10 m); otherwise the same grenade (2.5 m blast, 5 damage, penetration 0). It can be swapped for a Medkit or a Repair Kit in the same way.
 - Heavy Support, so an army can take more than one.
 
 ### Sagittarius MBT
@@ -171,11 +171,12 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Ability |
 |---|---|---|---|---|---|---|---|
-| Sagittarius MBT | 20 | 4 | 75% | 30 m (can't sprint) | Mechanical, Tank, Unstable | 100mm Cannon | Frag Grenade (every turn) |
+| Sagittarius MBT | 20 | 4 | 75% | 30 m (can't sprint) | Mechanical, Tank, Unstable, Large | 100mm Cannon | Frag Grenade (every turn, 50 m) |
 
 - **100mm Cannon:** Damage 10, Shots 1, Penetration 4, Range 50 m, **Manual Load** (fires once a turn).
 - **Mechanical:** can't sprint and is never in close range. **Unstable:** when destroyed, a 10% chance to explode (5 damage to every soldier within 5 m).
-- **Frag Grenade:** the same as the Rifle Squad's: once a turn, no limit per battle.
+- **Frag Grenade:** the Rifle Squad's grenade (2.5 m blast, 5 damage, penetration 0), but thrown **up to 50 m** (the Rifle Squad's: 10 m); once a turn, no limit per battle.
+- **Large:** friendly Biological soldiers within 5 m of it can shelter behind it (half-cover; see Keywords).
 - **Wide body:** it stands on a circle of 1.8 m radius, so its route needs room for the hull the whole way.
 - Heavy Support, so an army can take more than one.
 
@@ -221,6 +222,28 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
   - an **Anti-Materiel Rifle**: Damage 10, Shots 1, Penetration X (full damage whatever the armor), +0% accuracy, Range 50 m, **Deployed** (can't fire after moving that turn). It trades the Sniper Rifle's +50% aim for damage that armor can't stop;
   - a **Shotgun**: Damage 10, Shots 1, Penetration 1, +0% accuracy, Range 10 m, no keywords (so it can fire after moving, but not in close range).
 - **Sniper Precision:** when the Ranger shoots, the player picks the exact enemy soldier to target (the AI prefers Solo soldiers and sergeants).
+- A Specialist and a Solo unit (an army can take more than one).
+
+### ISF Combat Engineer
+
+*International Space Force of Humanity · Specialist.* One soldier who keeps the army's machines fighting.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment |
+|---|---|---|---|---|---|---|---|
+| ISF Combat Engineer | 5 | 2 | 75% | 10 m (sprint 20 m) | Biological, Solo | Assault Rifle | Repair Kit |
+
+- The ISF Rifleman's stats, with a **Repair Kit** (standard equipment) instead of a Frag Grenade: as its action, once a turn, a friendly **Mechanical** soldier within 5 m restores **10 health** (refused, with no action spent, on one at full health).
+- A Specialist and a Solo unit (an army can take more than one).
+
+### ISF Combat Medic
+
+*International Space Force of Humanity · Specialist.* One soldier who keeps the infantry on its feet.
+
+| Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Equipment |
+|---|---|---|---|---|---|---|---|
+| ISF Combat Medic | 5 | 2 | 75% | 10 m (sprint 20 m) | Biological, Solo | Assault Rifle | Medkit |
+
+- The ISF Rifleman's stats, with a **Medkit** (standard equipment) instead of a Frag Grenade: as its action, once a turn, a friendly **Biological** soldier within 5 m (the medic too) restores **5 health** (refused, with no action spent, on one at full health).
 - A Specialist and a Solo unit (an army can take more than one).
 
 ### Dragon Hierarch
@@ -311,7 +334,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Ability |
 |---|---|---|---|---|---|---|---|
-| Rask Reliquary | 10 | 2 | 75% | 20 m (can't sprint) | Mechanical | — | Sanctifying Presence (passive) |
+| Rask Reliquary | 10 | 2 | 75% | 20 m (can't sprint) | Mechanical, Large | — | Sanctifying Presence (passive) |
 
 - **No weapon:** it can't shoot; its action is to move.
 - **Sanctifying Presence** (passive aura): **other friendly Biological soldiers within 20 m** gain the status **Sanctified**: **+2 damage** and **+20% accuracy** with their weapons. Mechanical soldiers (vehicles and robots) and the Reliquary itself don't get it, and each soldier is checked on its own.
@@ -339,7 +362,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Abilities |
 |---|---|---|---|---|---|---|---|
-| Intimidator Medium Robot | 10 | 3 | 75% | 30 m (can't sprint) | Mechanical, Robotic | Twin Intimidator Machine Guns | Stabilizers (passive) |
+| Intimidator Medium Robot | 10 | 3 | 75% | 30 m (can't sprint) | Mechanical, Robotic, Large | Twin Intimidator Machine Guns | Stabilizers (passive) |
 
 - **Twin Intimidator Machine Guns:** the Machine Gun's stats but **10 shots**: Damage 5, Shots 10, Penetration 1, +0% accuracy, Range 20 m; **Deployed**.
 - **Stabilizers** (passive) nullify Deployed, so it can fire after moving.
@@ -351,10 +374,11 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Abilities |
 |---|---|---|---|---|---|---|---|
-| Stinger Heavy Robot | 25 | 5 | 75% | 30 m (can't sprint) | Mechanical, Heavy, Robotic | Plasma Mortar | Stabilizers (passive) |
+| Stinger Heavy Robot | 25 | 5 | 75% | 30 m (can't sprint) | Mechanical, Heavy, Robotic, Large | — | Plasma Mortar (every turn, 50 m), Stabilizers (passive) |
 
-- **Plasma Mortar:** the Mortar Launcher's stats as a weapon of its own: Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; **Deployed**, **Manual Load** (fires once a turn), **Explosive**.
+- **Plasma Mortar** (active, once a turn, no limit per battle): an **area attack** like the Frag Grenade. It shells a spot **within 50 m**: everyone within **2.5 m** is hit with the Plasma Mortar's stats (Damage 5, Penetration 3: the Mortar Launcher's), unless terrain shields them. No line of sight is needed. It has no aimed weapon.
 - **Stabilizers** (passive) nullify Deployed, so it can fire the Plasma Mortar after moving.
+- **Large:** friendly Biological soldiers within 5 m of it can shelter behind it (half-cover).
 - **Mechanical:** can't sprint and is never in close range. **Heavy** is a new trait with no effect of its own yet.
 - Its footprint (radius 1.6 m) is smaller than the spread of its legs.
 
@@ -377,7 +401,7 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon |
 |---|---|---|---|---|---|---|
-| Tyrant Hover-tank | 15 | 4 | 100% | 30 m (can't sprint) | Mechanical, Unstable, Hover | Tyrant Railgun |
+| Tyrant Hover-tank | 15 | 4 | 100% | 30 m (can't sprint) | Mechanical, Unstable, Hover, Large | Tyrant Railgun |
 
 - **Tyrant Railgun:** Damage 5, Shots 1, **Penetration 7**, +0% accuracy, Range 50 m; **Manual Load** (fires once a turn). Penetration 7 is higher than any Armor Level in the game, so it always does 150% damage (7).
 - **Hover:** terrain can't reduce its movement: a move costs only its flat distance (no 10 m climbing cost, no wading penalty, and going up and over a hill costs no more than crossing flat ground). It still has to find a route around anything that blocks movement.
@@ -439,10 +463,10 @@ Before a battle, the player chooses the **map** (Boxed in, Open Season, the Sieg
 
 | Soldier | Health | Armor | Accuracy | Move | Keywords | Weapon | Abilities |
 |---|---|---|---|---|---|---|---|
-| Marshal Command Tank | 20 | 4 | 75% | 30 m (can't sprint) | Mechanical, Tank, Unstable, Officer | 100mm Cannon | Frag Grenade (every turn) |
+| Marshal Command Tank | 20 | 4 | 75% | 30 m (can't sprint) | Mechanical, Tank, Unstable, Officer, Large | 100mm Cannon | Frag Grenade (every turn, 50 m) |
 
 - **100mm Cannon:** Damage 10, Shots 1, Penetration 4, Range 50 m; Manual Load.
-- Like the Sagittarius: **Mechanical** (can't sprint, never in close range), **Unstable** (a 10% chance to explode when destroyed), radius 1.8 m.
+- Like the Sagittarius: **Mechanical** (can't sprint, never in close range), **Unstable** (a 10% chance to explode when destroyed), **Large** (shelters friendly Biological soldiers within 5 m), radius 1.8 m, and a **Frag Grenade thrown up to 50 m** every turn.
 - The ISF's third Commander: an ISF army takes one of the Field Commander, Master Sergeant Jakoby or the Marshal Command Tank.
 
 ### Workhorse Transport
@@ -495,7 +519,7 @@ Each unit is a Unit template (Data/Units) made of Soldier templates (Data/Soldie
 
 - **Weapons** (Data/Weapons): Assault Rifle, Pistol, SMG, Machine Gun, Flamethrower, Sniper Rifle, 100mm Cannon, Rocket Launcher, Broadsword, Iron Claw.
 - **Mortar Launcher** (carried by the ISF Mortar Team): the Frag Grenade weapon's stats with **Penetration 3**, **Range 50 m** and the keywords **Deployed** (can't fire after moving that turn), **Manual Load** (fires once a turn) and **Explosive** (like the grenade): Damage 5, Shots 1, +0% accuracy. It's a weapon fired at a soldier like any other: it doesn't have the Frag Grenade ability's 2.5 m blast.
-- **Plasma Mortar** (carried by the Rask's Stinger Heavy Robot): the Mortar Launcher's stats: Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; Deployed, Manual Load, Explosive.
+- **Plasma Mortar** (the Rask's Stinger Heavy Robot's blast; see its entry): the Mortar Launcher's stats: Damage 5, Shots 1, Penetration 3, +0% accuracy, Range 50 m; Deployed, Manual Load, Explosive.
 - **Twin Intimidator Machine Guns** (on the Rask's Intimidator Medium Robot): the Machine Gun's stats with 10 shots: Damage 5, Shots 10, Penetration 1, +0% accuracy, Range 20 m; Deployed.
 - **Raptor Pistol** (the Dragonborn Exemplar's): the Twin Raptor Pistols' stats with 1 shot: Damage 4, Shots 1, Penetration 1, +0% accuracy, Range 20 m; Pistol.
 - **Tyrant Railgun** (on the Tyrant Hover-tank): Damage 5, Shots 1, Penetration 7, +0% accuracy, Range 50 m; Manual Load.
@@ -520,7 +544,7 @@ Effects: **no effect** (the attack does nothing — no damage, no bonus effects)
 #### Keyword categories
 
 - **Swarm** (soldier, Trait): **expands the unit's cohesion radius to 10 m** (normally 5 m). If the unit's leader has it, the rest of the unit may end a move up to 10 m from the leader; the green cohesion ring and the gather order use 10 m. The Kobold Militia and the Rask Rifle Team have it.
-- **Large** (soldier, Trait): a very large creature, e.g. the Dragon Hierarch. No effect on its own yet; other rules can check for it.
+- **Large** (soldier, Trait): a very large creature or machine: the Dragon Hierarch, the Sagittarius MBT, the Marshal Command Tank, the Tyrant Hover-tank, the Stinger Heavy Robot, the Intimidator Medium Robot and the Rask Reliquary. **It gives half-cover to friendly Biological soldiers hiding behind it:** a friendly Biological soldier within **5 m** of its edge is **In half-cover**, exactly as near a Half-cover object: attacks against them take **−25% accuracy** when the Large soldier is between them and the attacker (the line of fire passes through its footprint, seen from above). Enemies, and machines, don't shelter behind it.
 - **Jump Pack** (soldier, Trait): **able to climb up objects without movement cost**: climbing onto an object costs the soldier 0 m instead of 10 m. The Dragonborn Skymaster Squad has it.
 - **Hover** (soldier, Trait): **terrain cannot reduce the movement of this soldier**: a move costs only its flat (horizontal) distance, with no climbing cost, no wading penalty and nothing extra for slopes. The Tyrant Hover-tank has it.
 - **Transport** (soldier, Trait): a transport vehicle: gives the abilities **Embark** and **Disembark** (see Transports). It carries one unit of Biological soldiers, however many. The Workhorse Transport has it.
@@ -728,7 +752,7 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
 - **Wiping out the enemy still wins on a map with an objective**: on the Siege of Ft Solstice the attackers also win if the defenders have no soldiers left, and the defenders win if the attackers have none left.
 - **Conceding:** a side that concedes (the HUD's **Concede** button, after confirming) loses at once, and the other side wins.
 - It's checked whenever soldiers are removed from the battlefield (at the end of a volley or blast, or when a soldier dies outside combat) and whenever a unit finishes its move or action.
-- When the battle is decided, a **Victory / Defeat / Draw** banner appears, no more orders can be given, and **Restart (R)** starts the battle again (single player only).
+- When the battle is decided, a **Victory / Defeat / Draw** banner appears, no more orders can be given, and **Restart (R)** starts the battle again (single player only). **After 10 seconds the game returns to the main menu by itself** (the banner counts down: *"Returning to the main menu in 10 s"*); **Main menu** goes straight away.
 
 ## Maps
 
@@ -791,6 +815,7 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
   - **Half-cover:** **snowbanks** (1 m high; step over them), **fuel drums** and **supply crates** (step over or climb on top).
   - **Full-cover:** **ice boulders** (2.6 m) and the station's two **fuel tanks** (2.5 m, 3 m across); both block movement.
   - The Relay Hut's two **radio masts** are thin poles: no cover.
+  - Every prop sits on gentle ground and is set into the snow under its whole footprint, so no hill pokes through it and no corner floats (checked by a test).
 
 ### Leisure Cruise — *built (Scenes/Ship, Ground Invasion > Build Leisure Cruise)*
 
@@ -892,6 +917,7 @@ Under normal circumstances, shooting follows this order:
 3. The player **declares** the unit will shoot.
 4. The player **selects an enemy unit**.
 5. **Line of sight:** the attacking unit must be able to see the defending unit (at least one attacking soldier can see at least one defending soldier). Any **objects in the lines of sight** are noted.
+   **No wasted volleys:** if none of the unit's soldiers could hurt any soldier of the enemy unit (their armor would stop every shot), the order is refused with a message (*"…'s armor would stop every shot … can make"*) and the unit's action isn't spent. The AI doesn't pick such targets either.
 
 **Shots:** every weapon has a **Shots** value: in a volley, a soldier shoots that many times. **Every shot runs through steps 6–13**, including picking a target afresh. The volley is resolved in **rounds**: first, everyone whose weapon has **Shots 1 or more** fires one shot (steps 6–13 for all of them); then everyone with **Shots 2 or more** fires a shot; then **3 or more**; and so on, until no one has shots left.
 - Each round's picks are made after the previous round has been resolved, so soldiers **killed in an earlier round aren't picked again** (they stay on the battlefield until the volley ends, as usual). If no valid target is left, the soldier doesn't take that shot.
@@ -900,7 +926,7 @@ Under normal circumstances, shooting follows this order:
 - "When targeted" triggers still fire **only once per volley**, however many shots pick the soldier.
 - Every weapon has **Shots 1**, except the **Flamethrower (3)** and the **Machine Gun (5)**.
 6. **Targets:** the attacking soldiers pick one at a time, and **spread their fire**: each picks a valid target (one they can target) that **no other soldier of their unit is aiming at yet**. If every valid target is already taken, they pick one that **only 1** soldier is aiming at; if there's none, one with **2**, and so on. Among equally-aimed-at targets they pick the **closest**. So several soldiers only share a target once every valid target has someone on it. If the target has keywords **triggered by being targeted**, shooting pauses, the trigger is resolved, and shooting resumes (so its effects apply to that attack).
-7. **Prevented?** If keywords prevent the attack (e.g. a **Toxic** weapon against a target without **Biological**), the soldier **goes back to step 6** with the next soldier in that order, and repeats steps 6–7 through **every enemy soldier** it can shoot until it finds a valid target. If there is none, it **doesn't shoot this turn**. The target picked at the end of step 7 is final.
+7. **Prevented?** If keywords prevent the attack (e.g. a **Toxic** weapon against a target without **Biological**), or **the target's armor would stop it completely** (penetration against armor leaves no damage, e.g. an Assault Rifle, penetration 1, against Armor 4: see Penetration vs armor), the soldier **goes back to step 6** with the next soldier in that order, and repeats steps 6–7 through **every enemy soldier** it can shoot until it finds a valid target. If there is none, it **doesn't shoot this turn**. The target picked at the end of step 7 is final.
 8. **Damage** is calculated: Base Damage − keyword penalties (not below 0) + keyword bonuses.
 9. **Armor penetration** modifies that damage (×1.5 / ×1 / ×0.5 / ×0, rounded down).
 10. **Accuracy** is calculated, then the **hit roll**.

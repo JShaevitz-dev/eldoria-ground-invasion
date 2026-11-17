@@ -13,6 +13,8 @@ namespace Eldoria.Gameplay
     public class SoldierLabels : MonoBehaviour
     {
         private const float HeightAboveHead = 1.4f;
+        /// <summary>GUI depth of the floating labels: higher than the HUD's, so the HUD is always drawn over them.</summary>
+        public const int LabelDepth = 10;
         private const float RefreshInterval = 0.5f;
 
         private static SoldierLabels instance;
@@ -68,6 +70,7 @@ namespace Eldoria.Gameplay
 
         private void OnGUI()
         {
+            GUI.depth = LabelDepth;   // under the HUD (MovementController.HudDepth): drawn first, so the HUD covers them
             var cam = Camera.main;
             if (cam == null || soldiers.Length == 0 || Event.current.type != EventType.Repaint) return;
             style ??= new GUIStyle(GUI.skin.label) { richText = true, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };

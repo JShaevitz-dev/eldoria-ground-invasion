@@ -29,6 +29,9 @@ namespace Eldoria.Gameplay
         private List<string> problems = new List<string>();
         private Vector2 scroll;
         private Vector2 armyScroll;
+        private const float MinArmyListHeight = 150f;
+        /// <summary>The height of the army list: fitted to fill its column (see DrawScreen).</summary>
+        private float armyListHeight = 200f;
         private GUIStyle title, heading, body, small, good, bad, warn, stat, paragraph, button, bigButton, factionButton, textField;
 
         /// <summary>The Save or Load panel, if open.</summary>
@@ -420,10 +423,10 @@ namespace Eldoria.Gameplay
             GUILayout.Label($"Supply Cap {ArmyRules.SupplyCap} · exactly 1 Commander · any number of other units", small);
             GUILayout.Space(10f);
 
-            GUILayout.BeginHorizontal();
+            GUILayout.BeginHorizontal(GUILayout.ExpandHeight(true));   // both columns run to the bottom
 
             // --- Available units ---
-            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(w * 0.62f));
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(w * 0.55f));
             if (customizing >= 0 && customizing < army.Count) DrawCustomize(customizing);
             else
             {
@@ -435,16 +438,18 @@ namespace Eldoria.Gameplay
             GUILayout.EndVertical();
 
             // --- The army ---
-            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true));
             var supplyStyle = SupplyTotal > ArmyRules.SupplyCap ? bad : heading;
             GUILayout.Label($"Your army ({army.Count} unit{(army.Count == 1 ? "" : "s")})", heading);
             GUILayout.Label($"Supply {SupplyTotal} / {ArmyRules.SupplyCap}", supplyStyle);
             int remove = -1;   // applied after drawing, so every unit is drawn the same way this frame
-            armyScroll = GUILayout.BeginScrollView(armyScroll, GUILayout.MinHeight(200f));
+            // The list fills the column's height (down to the problems and buttons), so most armies show without scrolling:
+            // its height is fitted to the column after each repaint (see the end of the column).
+            armyScroll = GUILayout.BeginScrollView(armyScroll, GUILayout.Height(armyListHeight));
             if (army.Count == 0) GUILayout.Label("— empty: add a Commander first —", small);
             for (int i = 0; i < army.Count; i++)
             {
-                GUILayout.BeginHorizontal(GUI.skin.box, GUILayout.Height(44f));
+                GUILayout.BeginHorizontal(GUI.skin.box, GUILayout.MinHeight(44f));
                 string summary = loadouts[i].Describe(w => WeaponStats.For(w, Faction).Name);
                 GUILayout.Label($"{i + 1}. {army[i].displayName}  ({army[i].supplyCost})\n    {army[i].role.DisplayName()}" +
                                 (summary.Length > 0 ? $"\n    <size=11>{summary}</size>" : ""), body);
@@ -462,7 +467,6 @@ namespace Eldoria.Gameplay
             else if (current.Count > 0) foreach (var p in current) GUILayout.Label(p, small);
             else GUILayout.Label("Your army is ready.", good);
 
-            GUILayout.FlexibleSpace();
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Clear", button, GUILayout.Height(36f))) Clear();
             if (GUILayout.Button("Random", button, GUILayout.Height(36f))) Randomize(Core.GameRandom.Shared);
@@ -477,7 +481,14 @@ namespace Eldoria.Gameplay
             if (GUILayout.Button("Back", bigButton, GUILayout.Height(50f))) result = Result.Back;
             if (GUILayout.Button("Confirm army", bigButton, GUILayout.Height(50f)) && Confirm()) result = Result.Confirmed;
             GUILayout.EndHorizontal();
+            float contentBottom = Event.current.type == EventType.Repaint ? GUILayoutUtility.GetLastRect().yMax : 0f;
             GUILayout.EndVertical();
+            if (Event.current.type == EventType.Repaint)
+            {
+                // Grow (or shrink) the list by the space left at the bottom of the column, for the next frame.
+                float slack = GUILayoutUtility.GetLastRect().yMax - 8f - contentBottom;
+                if (Mathf.Abs(slack) > 1f) armyListHeight = Mathf.Max(MinArmyListHeight, armyListHeight + slack);
+            }
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();

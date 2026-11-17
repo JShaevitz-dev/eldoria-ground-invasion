@@ -35,7 +35,7 @@ namespace Eldoria.Tests
             var s = Intimidator.leader;
             Assert.That(s.displayName, Is.EqualTo("Intimidator Medium Robot"));
             Assert.That((s.health, s.armorLevel, s.accuracy, s.movementRange), Is.EqualTo((10, 3, 75, 30f)));
-            Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Robotic" }));
+            Assert.That(s.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Robotic", "Large" }));
             Assert.That(s.abilities.Select(a => a.displayName), Is.EqualTo(new[] { "Stabilizers" }));
             Assert.That(s.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "Twin Intimidator Machine Guns" }));
             Assert.That(s.prefab, Is.Not.Null);

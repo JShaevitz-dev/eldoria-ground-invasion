@@ -39,8 +39,8 @@ namespace Eldoria.Tests
             Assert.That(m.displayName, Is.EqualTo("Marshal Command Tank"));
             Assert.That((m.health, m.armorLevel, m.accuracy, m.movementRange, m.radius, m.height), Is.EqualTo((t.health, t.armorLevel, t.accuracy, t.movementRange, t.radius, t.height)));
             Assert.That((m.health, m.armorLevel, m.accuracy, m.movementRange), Is.EqualTo((20, 4, 75, 30f)));
-            Assert.That(m.keywords.Select(k => k.displayName), Is.EqualTo(t.keywords.Select(k => k.displayName).Concat(new[] { "Officer" })));
-            Assert.That(m.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Tank", "Unstable", "Officer" }));
+            Assert.That(m.keywords.Select(k => k.displayName), Is.EquivalentTo(t.keywords.Select(k => k.displayName).Concat(new[] { "Officer" })));
+            Assert.That(m.keywords.Select(k => k.displayName), Is.EqualTo(new[] { "Mechanical", "Tank", "Unstable", "Officer", "Large" }));
             Assert.That(t.keywords.Select(k => k.displayName), Does.Not.Contain("Officer"), "the Sagittarius is unchanged");
             Assert.That(m.abilities, Is.EqualTo(t.abilities), "the tank's every-turn Frag Grenade");
             Assert.That(m.weapons.Select(w => w.displayName), Is.EqualTo(new[] { "100mm Cannon" }));

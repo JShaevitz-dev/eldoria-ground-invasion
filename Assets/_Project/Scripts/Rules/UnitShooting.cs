@@ -77,7 +77,8 @@ namespace Eldoria.Rules
         /// <summary>How many of the attacking unit's soldiers have at least one soldier of the defending unit they can
         /// target (in range, in sight, not prevented by keywords). 0 means the unit can't usefully shoot at it.</summary>
         /// <param name="chosenTarget">The enemy soldier the player picked: Sniper Precision soldiers can only shoot them.</param>
-        public static int SoldiersAbleToShoot(Unit attackers, Unit defenders, Soldier chosenTarget = null)
+        /// <param name="ignoreArmor">Count soldiers whose shots armor would stop completely as able (to tell why a unit can't shoot).</param>
+        public static int SoldiersAbleToShoot(Unit attackers, Unit defenders, Soldier chosenTarget = null, bool ignoreArmor = false)
         {
             int count = 0;
             foreach (var s in attackers.LivingSoldiers)
@@ -85,16 +86,27 @@ namespace Eldoria.Rules
                 var weapon = s.WeaponFor(null);
                 if (weapon == null) continue;
                 bool able = s.HasKeyword(SniperPrecisionKeyword)
-                    ? chosenTarget != null && defenders.Soldiers.Contains(chosenTarget) && IsValidTarget(s, weapon, chosenTarget)
-                    : defenders.Soldiers.Any(t => IsValidTarget(s, weapon, t));
+                    ? chosenTarget != null && defenders.Soldiers.Contains(chosenTarget) && IsValidTarget(s, weapon, chosenTarget, ignoreArmor)
+                    : defenders.Soldiers.Any(t => IsValidTarget(s, weapon, t, ignoreArmor));
                 if (able) count++;
             }
             return count;
         }
 
-        /// <summary>Can this soldier shoot this target with this weapon (in range and sight, not in full cover, not prevented by keywords)?</summary>
-        public static bool IsValidTarget(Soldier shooter, Weapon weapon, Soldier target) =>
-            target != null && weapon != null && Attack.CanTarget(shooter, weapon, target) && !KeywordRules.Evaluate(shooter, weapon, target).NoEffect;
+        /// <summary>
+        /// Can this soldier usefully shoot this target with this weapon: in range and sight, not in full cover, not prevented
+        /// by keywords, and not so well armored that the shot would do no damage (<see cref="Attack.CanDamage"/>)?
+        /// </summary>
+        public static bool IsValidTarget(Soldier shooter, Weapon weapon, Soldier target, bool ignoreArmor = false) =>
+            target != null && weapon != null && Attack.CanTarget(shooter, weapon, target) && !KeywordRules.Evaluate(shooter, weapon, target).NoEffect
+            && (ignoreArmor || Attack.CanDamage(shooter, weapon, target));
+
+        /// <summary>
+        /// The unit could target the enemy, but the enemy's armor would stop every shot it can make: a volley would be wasted,
+        /// so it's refused.
+        /// </summary>
+        public static bool ArmorStopsEveryShot(Unit attackers, Unit defenders, Soldier chosenTarget = null) =>
+            SoldiersAbleToShoot(attackers, defenders, chosenTarget) == 0 && SoldiersAbleToShoot(attackers, defenders, chosenTarget, ignoreArmor: true) > 0;
 
         /// <summary>
         /// Does the unit have anything to shoot at, anywhere (any of its soldiers, any enemy soldier)? If not, it can't
@@ -229,6 +241,13 @@ namespace Eldoria.Rules
                 foreach (var t in order)
                 {
                     if (!Attack.CanTarget(shooter, shot.Weapon, t)) continue;            // out of sight / in full cover
+                    // Armor that would stop the shot completely: don't waste it, look for a target it can hurt.
+                    if (!KeywordRules.Evaluate(shooter, shot.Weapon, t).NoEffect && !Attack.CanDamage(shooter, shot.Weapon, t))
+                    {
+                        shot.Rejected.Add(t);
+                        result.Log.Add($"{shooter.name}'s {shot.Weapon.Name} can't get through {t.name}'s armor; looks for another target.");
+                        continue;
+                    }
 
                     // 6. Picked: resolve any "when targeted" triggers now (once per soldier per volley).
                     if (alreadyTargeted.Add(t))
