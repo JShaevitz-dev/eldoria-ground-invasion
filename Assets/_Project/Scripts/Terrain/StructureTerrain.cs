@@ -14,6 +14,8 @@ namespace Eldoria.Terrain
         Water,
         /// <summary>A bridge deck: walkable, dry.</summary>
         Bridge,
+        /// <summary>Dense jungle undergrowth: like a building, it blocks sight and movement (soldiers go round it).</summary>
+        Thicket,
     }
 
     /// <summary>

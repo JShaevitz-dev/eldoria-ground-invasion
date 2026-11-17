@@ -50,6 +50,7 @@ namespace Eldoria.EditorTools
             PolarMapBuilder.ScenePath,
             ShipMapBuilder.ScenePath,
             DesertMapBuilder.ScenePath,
+            JungleMapBuilder.ScenePath,
             "Assets/_Project/Scenes/CubeRoom.unity",
         };
 

@@ -80,7 +80,8 @@ namespace Eldoria.Terrain
                 if (c.gameObject.layer == TerrainLayers.Structure)
                 {
                     var st = c.GetComponentInParent<StructureTerrain>();
-                    if (st == null || st.Kind != StructureKind.Building) continue;
+                    if (st == null || (st.Kind != StructureKind.Building && st.Kind != StructureKind.Thicket)) continue;
+                    if (st.Kind == StructureKind.Thicket) { reason = "Too close to the undergrowth"; return false; }
                 }
                 reason = obj != null ? $"Blocked by the {obj.DisplayName}" : "Too close to a wall";
                 return false;

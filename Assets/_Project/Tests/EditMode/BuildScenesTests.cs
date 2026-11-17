@@ -19,6 +19,7 @@ namespace Eldoria.Tests
                 "Assets/_Project/Scenes/Polar.unity",
                 "Assets/_Project/Scenes/Ship.unity",
                 "Assets/_Project/Scenes/Desert.unity",
+                "Assets/_Project/Scenes/Jungle.unity",
                 "Assets/_Project/Scenes/CubeRoom.unity",
             }));
         }

@@ -66,6 +66,15 @@ namespace Eldoria.Gameplay
                           "wadi on each side, a sunken channel from near each deployment strip to the centre, out of sight.",
         };
 
-        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice, PolarNonsense, LeisureCruise, DesertSurprise };
+        public static readonly Battlefield Untamed = new Battlefield
+        {
+            Name = "Untamed",
+            Scene = "Jungle",
+            Description = "100 × 100 m of dense alien jungle, laid out with 180° symmetry. Thickets block sight and " +
+                          "movement, so the fighting happens along winding trails and in a few clearings, at close range: three " +
+                          "trails from each side to a clearing with an ancient shrine, linked through two glades.",
+        };
+
+        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice, PolarNonsense, LeisureCruise, DesertSurprise, Untamed };
     }
 }

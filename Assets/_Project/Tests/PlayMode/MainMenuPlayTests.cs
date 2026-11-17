@@ -127,7 +127,7 @@ namespace Eldoria.Tests
             var menu = Object.FindFirstObjectByType<MainMenu>();
             menu.OpenMapChoice();
             Assert.That((menu.ChoosingMap, menu.Builder), Is.EqualTo((true, (ArmyBuilderScreen)null)), "the map comes first");
-            Assert.That(Battlefields.All.Select(m => m.Name), Is.EqualTo(new[] { "Boxed in", "Open Season", "Siege of Ft Solstice", "Polar Nonsense", "Leisure Cruise", "Desert Surprise" }));
+            Assert.That(Battlefields.All.Select(m => m.Name), Is.EqualTo(new[] { "Boxed in", "Open Season", "Siege of Ft Solstice", "Polar Nonsense", "Leisure Cruise", "Desert Surprise", "Untamed" }));
 
             menu.ChooseMap(Battlefields.EnglishCountryside);
             Assert.That(menu.ChoosingMap, Is.False);

@@ -100,7 +100,7 @@ it can take, and any weapon changes and names (below). The army builder lists th
 
 ### Army lists — *implemented*
 
-Before a battle, the player chooses the **map** (Boxed in, Open Season, the Siege of Ft Solstice, Polar Nonsense, Leisure Cruise or Desert Surprise), then each side chooses a **faction** and builds an **army list** from that faction's units:
+Before a battle, the player chooses the **map** (Boxed in, Open Season, the Siege of Ft Solstice, Polar Nonsense, Leisure Cruise, Desert Surprise or Untamed), then each side chooses a **faction** and builds an **army list** from that faction's units:
 
 - Every unit must be one the army's **faction** has access to.
 - **Supply Cap:** the Supply Costs of an army's units can add up to **no more than 750**. There's **no limit on how many units** an army has. The army builder shows the list's total against the cap ("Supply 520 / 750") and won't add a unit that would go over it.
@@ -893,6 +893,17 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
 - **Cover** (sparse, set into the sand):
   - **Full-cover:** **rock outcrops** (2.8 m), the sand-blasted **wreck of a freighter** near the centre (3.6 m) and **burned-out tanks** (1.9 m); all block movement.
   - **Half-cover:** **scrub** (step over) and stone **cairns** (step over or climb on top).
+
+### Untamed — *built (Scenes/Jungle, Ground Invasion > Build Untamed)*
+
+- **100 m × 100 m** of dense **alien jungle**, laid out with **180° symmetry**. Built for **close-range fighting**: sightlines are short, so flamers, claws, shotguns, spears and swarms shine, and tanks and snipers have to work for their kills. The shape is in `Terrain.JungleLayout`.
+- **Deployment zones:** the player sets up in the southern **10 m** of the map, the AI in the northern 10 m. Both strips are clear of undergrowth.
+- **Thickets** (structure terrain, 3.6 m of undergrowth under a canopy): they **block line of sight and movement** like walls, so soldiers go round them (*"Too close to the undergrowth"*). They cover about half the ground between the deployment strips.
+- **Trails and clearings** (the open ground): three **trails 7 m wide** (room for a tank) run from each deployment strip to a **central clearing** (18 m across, with an ancient shrine), and **cross trails** link them through **two glades** (10 m across) on each side.
+- **Cover:**
+  - **Full-cover:** the **ancient shrine** in the central clearing (2.4 m) and **boulders** (2 m) at the trail edges; both block movement.
+  - **Half-cover:** **fallen trees** in the glades and **ferns** along the trails (step over).
+- New terrain kind **Thicket**: like a building wall for sight, movement and standing room.
 
 ## Shooting — *partly implemented*
 

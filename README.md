@@ -3,7 +3,7 @@
 > **Three factions, all playable:** the International Space Force of Humanity
 > (Field Commander, Master Sergeant Jakoby, Marshal Command Tank, ISF Rifle Squad, Heavy Weapons Team, Mortar Team, Sagittarius MBT, Olympian Mech, ISF Ranger, ISF Boarding Team, ISF Combat Engineer, ISF Combat Medic, Fist of Mars, Workhorse Transport), the Imperial Army of The Draconis Imperialis (Dragon
 > Hierarch, Crown Princess X'tara, Dragonborn Exemplar, Dragonborn Squad, Kobold Militia, Dragonborn Skymaster Squad, Tyrant Hover-tank, Kobold Mechanist, Kobold Heartstrike Spear Team) and the Most Holy Army of The Rask Divine Collective (Rask Ultima, Rask Rifle Team, Stinger Heavy Robot, Intimidator Medium Robot, Rask Blackhand, Rask Redhand, Rask Reliquary, Beasthunter Cavalry). Every game system is here (army lists and factions, movement,
-> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the six maps and the menus). The weapons,
+> terrain and cover, shooting, keywords, abilities, the AI, multiplayer, the seven maps and the menus). The weapons,
 > abilities, keywords and placeholder soldier models are kept as a starting kit for new units.
 
 Ground Invasion is a space opera turn-based strategy game focused on company-level warfare across a variety of
@@ -29,7 +29,7 @@ Or build the game yourself (see **Windows build** below) and run `Builds/GroundI
 
 After **Play**, you'll:
 
-1. **Choose a battlefield:** the Boxed in, the Open Season, the Siege of Ft Solstice, Polar Nonsense, Leisure Cruise or Desert Surprise.
+1. **Choose a battlefield:** the Boxed in, the Open Season, the Siege of Ft Solstice, Polar Nonsense, Leisure Cruise, Desert Surprise or Untamed.
 2. **Choose your faction**, which decides which units and commanders you can take.
 3. **Build your army:** units whose Supply Costs add up to no more than 750, with exactly 1 Commander (any other unit can be taken more than once). Units whose soldiers
    have weapon or equipment options can be customized. Then press **Confirm army**. **Save army** keeps the list (units
@@ -37,7 +37,7 @@ After **Play**, you'll:
    back. Army files live in `%USERPROFILE%\AppData\LocalLow\Ground Invasion\Ground Invasion\Armies` (**Open folder**
    in the Load panel opens it) and can be shared: copy one into that folder to load it.
 
-The six maps:
+The seven maps:
 
 - **Boxed in:** an 80 × 60 m city block with a central plaza, laid out with 180° symmetry so both sides start out even.
 - **Open Season:** 100 × 100 m of open, rolling farmland. Hills block line of sight. A river crosses the map:
@@ -58,6 +58,9 @@ The six maps:
   sightlines, a few low dunes for hull-down positions, and sparse cover (rock outcrops and wrecks, scrub and cairns).
   The surprise: a dry wadi on each side, a sunken channel from near each deployment strip to the centre, out of sight
   of the flat.
+- **Untamed:** 100 × 100 m of dense alien jungle with 180° symmetry. Thickets of undergrowth block sight and
+  movement, so the fighting happens at close range along 7 m trails (three from each side to a central clearing with
+  an ancient shrine, linked through two glades). Boulders and the shrine give full cover; fallen trees and ferns, half.
 
 The AI picks a random faction and builds its own random army under the same rules. You go first. Wipe out the enemy to
 win (or, on Ft Solstice, take the objective). Once the battle is decided, the game goes back to the main menu after 10
@@ -219,12 +222,12 @@ Assets/_Project/
   Data/           ScriptableObject assets: Weapons, Keywords, Abilities, Factions, Units, Soldiers
   Editor/         builders for data, maps, scenes and the Windows build
   Textures/Flags/ the faction flags
-  Scenes/         MainMenu, UrbanDemo, Countryside, FortSolstice, Polar, Ship, Desert, CubeRoom (test room)
+  Scenes/         MainMenu, UrbanDemo, Countryside, FortSolstice, Polar, Ship, Desert, Jungle, CubeRoom (test room)
   Tests/          EditMode and PlayMode tests
 Docs/Rules.md     the rules
 ```
 
-**Editor menu (Ground Invasion):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Polar Nonsense, Build Leisure Cruise, Build Desert Surprise, Build Alliance Models (the Skael and Sphinxian soldier models, not used by any unit yet), Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
+**Editor menu (Ground Invasion):** Build Boxed in, Build Open Season, Build Ft Solstice, Build Polar Nonsense, Build Leisure Cruise, Build Desert Surprise, Build Untamed, Build Alliance Models (the Skael and Sphinxian soldier models, not used by any unit yet), Build Main Menu, Build Cube Room, Rebuild Unit Catalog, Build Game (Windows).
 `SquadBuilder` keeps the keyword library and the unit catalog (Resources/UnitCatalog) in step with the assets in Data.
 
 **Tests** build their units from test-made ScriptableObjects (`Tests/PlayMode/TestArmies.cs`: stand-ins for an infantry
