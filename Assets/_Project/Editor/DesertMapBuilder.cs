@@ -34,7 +34,7 @@ namespace Eldoria.EditorTools
             UrbanMapBuilder.PrepareShared();
             sand = UrbanMapBuilder.Mat("Salt_Flat", new Color(0.86f, 0.78f, 0.62f),
                 AssetDatabase.LoadAssetAtPath<Texture2D>($"{Root}/Materials/FloorGrid.png"));
-            rock = UrbanMapBuilder.Mat("Desert_Rock", new Color(0.6f, 0.42f, 0.3f));
+            rock = UrbanMapBuilder.Mat("Desert_Rock", new Color(0.58f, 0.46f, 0.34f));   // shared with Ft Solstice's rocks: the same colour
             wreck = UrbanMapBuilder.Mat("Wreck_Hull", new Color(0.42f, 0.44f, 0.46f));
             rust = UrbanMapBuilder.Mat("Wreck_Rust", new Color(0.45f, 0.25f, 0.14f));
             scrub = UrbanMapBuilder.Mat("Desert_Scrub", new Color(0.46f, 0.47f, 0.28f));
