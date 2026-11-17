@@ -100,7 +100,7 @@ it can take, and any weapon changes and names (below). The army builder lists th
 
 ### Army lists — *implemented*
 
-Before a battle, the player chooses the **map** (Boxed in, Open Season, the Siege of Ft Solstice, Polar Nonsense or Leisure Cruise), then each side chooses a **faction** and builds an **army list** from that faction's units:
+Before a battle, the player chooses the **map** (Boxed in, Open Season, the Siege of Ft Solstice, Polar Nonsense, Leisure Cruise or Desert Surprise), then each side chooses a **faction** and builds an **army list** from that faction's units:
 
 - Every unit must be one the army's **faction** has access to.
 - **Supply Cap:** the Supply Costs of an army's units can add up to **no more than 750**. There's **no limit on how many units** an army has. The army builder shows the list's total against the cap ("Supply 520 / 750") and won't add a unit that would go over it.
@@ -883,6 +883,16 @@ A soldier with the **Transport** keyword (soldier, Trait) is a transport vehicle
 - **Clutter:**
   - **Half-cover:** **supply crates**, **coolant drums**, **bunks**, **med beds**, **tables**, **counters** and **workbenches** (step over or climb on top); **debris** and **consoles** (step over).
   - **Full-cover:** **cargo containers** (2.6 m), **lockers** (2.2 m) and **reactor housings** (2.6 m); all block movement.
+
+### Desert Surprise — *built (Scenes/Desert, Ground Invasion > Build Desert Surprise)*
+
+- **140 m × 140 m** of open **salt flat**, laid out with **180° symmetry** (everything at (x, z) is also at (−x, −z), turned round). Built for **armor and long-range fire**: from much of the flat you can see 100 m or more. The shape is in `Terrain.DesertLayout`.
+- **Deployment zones:** the player sets up in the southern **10 m** of the map, the AI in the northern 10 m. Both strips are flat.
+- **Dunes** (structure terrain: their crests block line of sight): three low dunes on each side (1.5 to 2.2 m), long and gentle: places for a tank to sit hull-down.
+- **The surprise: the wadis.** A dry riverbed on each side, about **2.6 m deep** and 14 m across, snakes from just in front of each deployment strip (the player's on the west, the AI's on the east) up to the centre. Its banks hide anything in it from the flat; only someone near its lip can see in. Infantry can use it to close in unseen.
+- **Cover** (sparse, set into the sand):
+  - **Full-cover:** **rock outcrops** (2.8 m), the sand-blasted **wreck of a freighter** near the centre (3.6 m) and **burned-out tanks** (1.9 m); all block movement.
+  - **Half-cover:** **scrub** (step over) and stone **cairns** (step over or climb on top).
 
 ## Shooting — *partly implemented*
 

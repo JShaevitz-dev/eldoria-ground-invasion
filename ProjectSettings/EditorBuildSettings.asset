@@ -24,6 +24,9 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/Ship.unity
     guid: d04b20671869c244fac5a24f75b622fc
   - enabled: 1
+    path: Assets/_Project/Scenes/Desert.unity
+    guid: 2074923000353164cb6b31b8394e1443
+  - enabled: 1
     path: Assets/_Project/Scenes/CubeRoom.unity
     guid: 323783b5828bf4b4da39d51158a33a7a
   m_configObjects:

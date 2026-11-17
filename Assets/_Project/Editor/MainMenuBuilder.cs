@@ -49,6 +49,7 @@ namespace Eldoria.EditorTools
             FortSolsticeMapBuilder.ScenePath,
             PolarMapBuilder.ScenePath,
             ShipMapBuilder.ScenePath,
+            DesertMapBuilder.ScenePath,
             "Assets/_Project/Scenes/CubeRoom.unity",
         };
 

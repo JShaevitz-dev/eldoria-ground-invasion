@@ -81,7 +81,7 @@ namespace Eldoria.Gameplay
             var menu = FindFirstObjectByType<MainMenu>();
             menu.OpenMapChoice();
             yield return Screenshot("maps.png");
-            Check(Battlefields.All.Count == 5, "the map choice offers Boxed in, Open Season, the Siege of Ft Solstice, Polar Nonsense and Leisure Cruise");
+            Check(Battlefields.All.Count == 6, "the map choice offers Boxed in, Open Season, the Siege of Ft Solstice, Polar Nonsense, Leisure Cruise and Desert Surprise");
             menu.ChooseMap(Battlefields.EnglishCountryside);
             yield return Screenshot("factions.png");
             // The three factions are there; the ISF has a Commander, so it can field an army.

@@ -57,6 +57,15 @@ namespace Eldoria.Gameplay
                           "hold in the middle. Crates, drums, debris and containers everywhere.",
         };
 
-        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice, PolarNonsense, LeisureCruise };
+        public static readonly Battlefield DesertSurprise = new Battlefield
+        {
+            Name = "Desert Surprise",
+            Scene = "Desert",
+            Description = "140 × 140 m of open salt flat, laid out with 180° symmetry: long sightlines for tanks and " +
+                          "long-range guns, a few low dunes, and sparse rocks, wrecks, scrub and cairns. The surprise: a dry " +
+                          "wadi on each side, a sunken channel from near each deployment strip to the centre, out of sight.",
+        };
+
+        public static readonly IReadOnlyList<Battlefield> All = new[] { UrbanDemo, EnglishCountryside, FortSolstice, PolarNonsense, LeisureCruise, DesertSurprise };
     }
 }
